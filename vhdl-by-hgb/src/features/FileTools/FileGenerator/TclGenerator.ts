@@ -62,7 +62,7 @@ export class TclGenerator {
     }
 
     //Pass ProjectName as absolute path
-    public async GenerateQuartusProject() : Promise<void> {
+    public GenerateQuartusProject() : void {
 
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
         this.mTclScriptsFolder = path.join(this.mQuartus.GetProjectPath(), TclScripts.Folder);
@@ -77,7 +77,7 @@ export class TclGenerator {
             return;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mTclScriptsFolder, TclScripts.GenerateProject), { flags: 'wx' });
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mTclScriptsFolder, TclScripts.GenerateProject), { flags: 'w', emitClose:true });
         
         //check writestream
         if(!wstream.writable)
@@ -111,6 +111,8 @@ export class TclGenerator {
 
         //close writestream
         wstream.end();
+
+        return;
     }
 
     public GenerateUpdateFiles() : void
@@ -146,6 +148,8 @@ export class TclGenerator {
 
         //close writestream
         wstream.end();
+
+        return;
     }
 
 

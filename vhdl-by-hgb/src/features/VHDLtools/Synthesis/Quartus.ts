@@ -69,7 +69,7 @@ export class Quartus {
             }
         }
 
-        // project name
+        // enter project name
         await vscode.window.showInputBox({
             prompt: "Enter Project-Name",
             placeHolder: "MyProject",
@@ -113,11 +113,9 @@ export class Quartus {
         }
 
         //create tcl-script
-        await this.mTclGenerator.GenerateQuartusProject();
+        this.mTclGenerator.GenerateQuartusProject();
 
-        //wait for the tcl script to be generated
-        await new Promise(resolve => setTimeout(resolve, 5000)); // wait for 5 seconds
-
+        //Run Tcl-Script for generating Project
         IsSuccess = await this.RunTclScript(TclScripts.GenerateProject);
 
         if (!IsSuccess) {
@@ -129,6 +127,7 @@ export class Quartus {
 
         return true;
     }
+
 
     public async UpdateFiles() : Promise<boolean>
     {
@@ -215,7 +214,7 @@ export class Quartus {
     private async RunTclScript(TclScript : string) : Promise<boolean>
     {
         //wait until file actually exists
-        await waitForFileCreation(path.join(this.mProjectPath, TclScripts.Folder, TclScript));
+        await waitForFileCreation(path.join(this.mProjectPath, TclScripts.Folder), 10000);
 
         //check, if specified Tcl-Script exists
         if(!fs.existsSync(path.join(this.mProjectPath, TclScripts.Folder, TclScript)))
@@ -276,26 +275,36 @@ export class Quartus {
         if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd"))
         {
 
-            let parser : Vhdl_parser = new Vhdl_parser();
-            let VhdlFileInfo : Hdl_element =  parser.get_all(TopLevelEntity[0].fsPath,"");
+            // let parser : Vhdl_parser = new Vhdl_parser();
+            // parser.init();
 
-            console.log(VhdlFileInfo.name);
-
-            this.mFileHolder.SetTopLevelEntity(VhdlFileInfo.name, VHDL_TOP_LEVEL_ENTITY.Synthesis);
-
-            // let substr : string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
+            // let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
+            // let text : string = await doc.getText();
             
-            // if(substr)
+            // console.log(text);
+
+            // let EntityName : string;
+            // let VhdlFileInfo : Hdl_element;
+
+            // if(text)
             // {
-            //     this.mFileHolder.SetTopLevelEntity(substr, VHDL_TOP_LEVEL_ENTITY.Synthesis);
-            //     vscode.window.showInformationMessage('Top-Level-Entity was set successfully!');
-            //     return true;
+            //     VhdlFileInfo =  await parser.get_all(text,'--');
+            //     this.mFileHolder.SetTopLevelEntity(VhdlFileInfo.name, VHDL_TOP_LEVEL_ENTITY.Synthesis);
             // }
-            // else
-            // {
-            //     vscode.window.showInformationMessage('No valid Top-Level-Entity!');
-            //     return false;
-            // }
+
+            let substr : string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
+            
+            if(substr)
+            {
+                this.mFileHolder.SetTopLevelEntity(substr, VHDL_TOP_LEVEL_ENTITY.Synthesis);
+                vscode.window.showInformationMessage('Top-Level-Entity was set successfully!');
+                return true;
+            }
+            else
+            {
+                vscode.window.showInformationMessage('No valid Top-Level-Entity!');
+                return false;
+            }
         }
 
         vscode.window.showInformationMessage('No valid File selected as Top-Level-Entity!');
