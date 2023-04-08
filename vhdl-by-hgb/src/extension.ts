@@ -7,6 +7,7 @@
 import * as path from 'path';
 import vscode = require('vscode');
 import { workspace, ExtensionContext, window } from 'vscode';
+import { Quartus } from './features/Quartus';
 
 import { VHDLbyHGB } from './VHDLbyHGB';
 
