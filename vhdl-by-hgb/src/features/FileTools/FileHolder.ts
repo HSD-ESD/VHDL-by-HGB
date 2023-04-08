@@ -9,7 +9,7 @@ export class FileHolder {
     private mProjectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
 
     private mTopLevelEntity : string = "";
-
+    
     private mIsCompileOrder : boolean = false;
 
     public SetProjectFiles(projectFiles : VHDL_ProjectFiles) : void

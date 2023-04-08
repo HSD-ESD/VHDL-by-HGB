@@ -10,7 +10,7 @@ import * as fs from 'fs';
 
 // module-internal constants
 const TOML_File_Name = "vhdl_ls.toml";
-const TOML_Files_Spec = "files = "
+const TOML_Files_Spec = "files = ";
 const TOML_Open_Char = "[\n";
 const TOML_Closing_Char = "]";
 const TOML_Comma = ",\n";
