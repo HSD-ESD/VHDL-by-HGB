@@ -62,7 +62,7 @@ export class RustHDL {
             'Checking for language server executable in ' + languageServerDir
         );
         let languageServerVersion = embeddedVersion(languageServerDir);
-        if (languageServerVersion == '0.0.0') {
+        if (languageServerVersion === '0.0.0') {
             output.appendLine('No language server installed');
             window.showInformationMessage('Downloading language server...');
             await getLatestLanguageServer(60000, this.context);
@@ -316,7 +316,7 @@ async function getLatestLanguageServer(
         owner: rustHdl.owner,
         repo: rustHdl.repo,
     });
-    if (latestRelease.status != 200) {
+    if (latestRelease.status !== 200) {
         throw new Error('Status 200 return when getting latest release');
     }
     let current: string;
@@ -341,9 +341,9 @@ async function getLatestLanguageServer(
     } else {
         const languageServerAssetName = languageServerName + '.zip';
         let browser_download_url = latestRelease.data.assets.filter(
-            (asset) => asset.name == languageServerAssetName
+            (asset) => asset.name === languageServerAssetName
         )[0].browser_download_url;
-        if (browser_download_url.length == 0) {
+        if (browser_download_url.length === 0) {
             throw new Error(
                 `No asset with name ${languageServerAssetName} in release.`
             );
@@ -364,7 +364,7 @@ async function getLatestLanguageServer(
                 )} seconds.`
             );
         });
-        if (download.status != 200) {
+        if (download.status !== 200) {
             throw new Error('Download returned status != 200');
         }
         const languageServerAsset = ctx.asAbsolutePath(

@@ -3,6 +3,7 @@ import * as Constants from "./../../../Constants";
 import { OS } from "colibri2/out/process/common";
 import { get_os } from "colibri2/out/process/utils";
 import { FileHolder } from "../../FileTools/FileHolder";
+import { TclGenerator } from "./../../FileTools/FileGenerator/TclGenerator";
 
 
 //General Imports
@@ -28,6 +29,7 @@ export class Quartus {
     // --------------------------------------------
     private mFileHolder : FileHolder;
     private mQuartusPath : string = "";
+    private mTclGenerator : TclGenerator;
     
 
     // --------------------------------------------
@@ -38,6 +40,7 @@ export class Quartus {
         this.SetCommands();
         this.mFileHolder = fileHolder;
         this.mQuartusPath = SearchQuartusPath();
+        this.mTclGenerator = new TclGenerator();
     }
 
     public GenerateProject() : void 
