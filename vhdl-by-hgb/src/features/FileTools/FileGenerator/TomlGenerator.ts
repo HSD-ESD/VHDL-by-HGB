@@ -1,6 +1,6 @@
 // Specific Imports
-import { FileHolder } from "./FileHolder";
-import * as Constants from "./../../Constants";
+import { FileHolder } from "../FileHolder";
+import * as Constants from "../../../Constants";
 
 // General Imports
 import * as fs from 'fs';
@@ -35,7 +35,9 @@ export class TomlGenerator {
 
     public async Generate_VHDL_LS(fileholder : FileHolder, IsRelativePaths: boolean = true) : Promise<void>
     {
-        let wstream = fs.createWriteStream(Constants.VHDL_LS_FILE, { flags: 'w' });
+        const FileName : string = path.join(this.mWorkSpacePath, Constants.VHDL_LS_FILE);
+
+        let wstream = fs.createWriteStream(FileName, { flags: 'w' });
 		
         //Iterate over all libraries
         for(const [lib,files] of fileholder.GetProjectFiles().entries())

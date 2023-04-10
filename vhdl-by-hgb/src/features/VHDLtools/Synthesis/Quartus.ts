@@ -6,6 +6,7 @@ import * as path from 'path';
 //Node Imports
 import * as fs from "fs";
 import { ExtensionContext } from "vscode";
+import { FileHolder } from "../../FileTools/FileHolder";
 
 //--------------------------------------------------------------
 //module-internal constants
@@ -19,16 +20,28 @@ const QUARTUS_PATH_LINUX : string = "/opt/intelFPGA_lite";
 //--------------------------------------------------------------
 export class Quartus {
 
+    // --------------------------------------------
+    // Private members
+    // --------------------------------------------
+    private mFileHolder : FileHolder;
     private mQuartusPath : string;
+    
 
-    public constructor(ctx : ExtensionContext ) 
+    // --------------------------------------------
+    // Public methods
+    // --------------------------------------------
+    public constructor(ctx : ExtensionContext, fileHolder : FileHolder) 
     {
         this.mQuartusPath = GetQuartusPath();
+        this.mFileHolder = fileHolder;
     }
 
     public GenerateProject() : void 
     {
-        
+        //create tcl-script
+
+        //execute tcl-script with quartus-shell
+
     }
 
     public UpdateProject() : void {}
@@ -41,7 +54,14 @@ export class Quartus {
 
     public Compile() : void {}
 
+    // --------------------------------------------
+    // Private methods
+    // --------------------------------------------
+    
+}
 
+function ExecuteQuartusCommand(command : string)
+{
 
 }
 

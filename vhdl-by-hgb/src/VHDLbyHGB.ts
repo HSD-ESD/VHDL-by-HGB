@@ -63,8 +63,7 @@ export class VHDLbyHGB {
 
 	public Deactivate() : Thenable<void> | undefined
 	{
-		//return this.mRustHDL.Deactivate();
-		return undefined;
+		return this.mRustHDL.Deactivate();
 	}
 
 	//--------------------------------------------
@@ -75,12 +74,15 @@ export class VHDLbyHGB {
 		const TomlGen = new TOML_Generator();
 
 		// Generate Toml-File required by RustHDL
-		TomlGen.GenerateFile().then(
+		// TomlGen.GenerateFile().then(
+		// 	//Start language-server
+		// 	response => { this.mRustHDL.Activate(); }
+		// );
+
+		this.mProjectManager.UpdateProjectFiles().then(
 			//Start language-server
 			response => { this.mRustHDL.Activate(); }
 		);
-
-		this.mProjectManager.UpdateProjectFiles();
 
 	}
 
