@@ -80,6 +80,8 @@ export class VHDLbyHGB {
 			response => { this.mRustHDL.Activate(); }
 		);
 
+		this.mProjectManager.UpdateProjectFiles();
+
 	}
 
 	private VHDLFormatter_Initialize() 

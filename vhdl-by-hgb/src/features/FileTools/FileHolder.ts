@@ -22,4 +22,9 @@ export class FileHolder {
         return this.mProjectFiles;
     }
 
+    public GetTopLevelEntity() : string
+    {
+        return this.mTopLevelEntity;
+    }
+
 }

@@ -3,6 +3,7 @@ import { VHDL_ProjectFiles, VHDL_Library, VHDL_Files} from "../Constants";
 import { VhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { SimpleVhdlFinder } from "./FileTools/VhdlFinder/SimpleVhdlFinder";
 import { FileHolder } from "./FileTools/FileHolder";
+import { TomlGenerator } from "./FileTools/TomlGenerator";
 
 // General Imports
 import * as vscode from 'vscode';
@@ -14,6 +15,7 @@ export class ProjectManager {
     // --------------------------------------------
     private mWorkSpacePath : string = "";
     private mVhdlFinder : VhdlFinder;
+    private mTomlGenerator : TomlGenerator;
     private mFileHolder : FileHolder;
     
     // --------------------------------------------
@@ -28,9 +30,15 @@ export class ProjectManager {
 
         this.mFileHolder = new FileHolder();
         this.mVhdlFinder = new SimpleVhdlFinder();
+        this.mTomlGenerator = new TomlGenerator();
+    }
 
-        this.mVhdlFinder.GetVhdlFilesFromProject(this.mWorkSpacePath).then((projectFiles) => { this.mFileHolder.SetProjectFiles(projectFiles);});
-
+    public UpdateProjectFiles() : void {
+        this.mVhdlFinder.GetVhdlFilesFromProject(this.mWorkSpacePath).then((projectFiles) => 
+        { 
+            this.mFileHolder.SetProjectFiles(projectFiles);
+            this.mTomlGenerator
+        });
     }
 
 
