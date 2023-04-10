@@ -4,7 +4,6 @@ import * as events from "events";
 import * as path from 'path';
 
 //Specific Imports
-import {TOML_Generator} from './features/FileTools/TOML_Generator';
 import {RustHDL} from './features/RustHDL';
 import {ProjectManager} from './features/ProjectManager';
 
@@ -71,14 +70,7 @@ export class VHDLbyHGB {
 	//--------------------------------------------
 	private RustHDL_Initialize() 
 	{ 
-		const TomlGen = new TOML_Generator();
-
-		// Generate Toml-File required by RustHDL
-		// TomlGen.GenerateFile().then(
-		// 	//Start language-server
-		// 	response => { this.mRustHDL.Activate(); }
-		// );
-
+		
 		this.mProjectManager.UpdateProjectFiles().then(
 			//Start language-server
 			response => { this.mRustHDL.Activate(); }

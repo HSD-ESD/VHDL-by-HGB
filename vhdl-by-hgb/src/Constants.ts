@@ -17,3 +17,6 @@ export const SynthesisDataFile = "SynthesisData.toml";
 
 //Constants for ProjectData-Folder
 export const ProjectDataFolder = "ProjectData";
+
+//Constants for Quartus
+export const QuartusShell = "quartus_sh";

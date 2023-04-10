@@ -99,7 +99,23 @@
             "editor/title": []
         },
         "commands": [
-            
+            {
+                "command": "VHDLbyHGB.Quartus.SetBinaryPath",
+                "title": "Quartus: Set Binary-Path"
+            },
+            {
+                "command": "VHDLbyHGB.Quartus.GenerateProject",
+                "title": "Quartus: Generate Quartus-Project"
+            },
+            {
+                "command": "VHDLbyHGB.Quartus.Compile",
+                "title": "Quartus: Compile an existing Quartus-Project"
+            },
+            {
+                "command": "VHDLbyHGB.Quartus.GUI",
+                "title": "Quartus: Open GUI of an existing Quartus-Project"
+            }
+
         ],
         "languages": [
             {
