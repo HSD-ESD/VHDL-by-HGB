@@ -1,14 +1,16 @@
 /* ------------------------------------------------------------------------------------------
- * MIT License
+ * GNU General Public License
  * Copyright (c) 2023
  * VHDLbyHGB - VHDL Extension for Visual Studio Code
  * ------------------------------------------------------------------------------------------ */
+
+// General Imports
 'use strict';
 import * as path from 'path';
-import vscode = require('vscode');
+import * as vscode from 'vscode';
 import { workspace, ExtensionContext, window } from 'vscode';
-import { Quartus } from './features/Quartus';
 
+//Specific Imports
 import { VHDLbyHGB } from './VHDLbyHGB';
 
 let VhdlByHgb : VHDLbyHGB;

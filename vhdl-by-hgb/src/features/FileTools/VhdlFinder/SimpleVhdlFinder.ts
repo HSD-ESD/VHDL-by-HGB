@@ -1,5 +1,6 @@
 //Specific Imports
-import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../Constants";
+import { VhdlFinder } from "./VhdlFinder";
+import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../../Constants";
 import { walk } from 'walk-file-tree';
 
 //General Imports
@@ -12,9 +13,9 @@ import * as fs from 'fs';
 const DEFAULT_LIBRARY_NAME = "lib";
 
 
-export class VhdlFileFinder
+export class SimpleVhdlFinder implements VhdlFinder
 {
-    public static async GetVhdlFilesFromProject(WorkSpacePath: string) : VHDL_ProjectFiles {
+    public async GetVhdlFilesFromProject(WorkSpacePath: string) : Promise<VHDL_ProjectFiles> {
 
         if(!fs.existsSync(WorkSpacePath)) 
         {
@@ -22,36 +23,14 @@ export class VhdlFileFinder
         }
 
         let ProjectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
+
+		let files : VHDL_Files = await GetLibFiles(WorkSpacePath);
+    	ProjectFiles.set(DEFAULT_LIBRARY_NAME, files);
+
+		//GetLibFiles(WorkSpacePath).then((files) => { ProjectFiles.set(DEFAULT_LIBRARY_NAME, files);});
+
+		return ProjectFiles;
 		
-		//Walk through working-directory recursively
-		for await (const entry of walk({
-		directory: WorkSpacePath,
-		matches (entry) {
-			return IsVhdlFile(entry);
-		},
-		ignores (entry) {
-			return IsBlackListed(entry);
-		  }
-		})) {
-			
-			let files : VHDL_Files | undefined = ProjectFiles.get(DEFAULT_LIBRARY_NAME);
-
-			//add file, if library exists
-			if(files !== undefined)
-			{
-				files.push(entry);
-			}
-			//create new library, if library does not exist yet
-			else 
-			{
-				//create new library
-				let files : VHDL_Files = new Array<string>();
-				files.push(entry);
-				ProjectFiles.set(DEFAULT_LIBRARY_NAME, files);
-			}
-
-			
-		}
     }
 }
 

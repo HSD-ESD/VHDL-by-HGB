@@ -4,8 +4,9 @@ import * as events from "events";
 import * as path from 'path';
 
 //Specific Imports
-import {TOML_Generator} from './features/TOML_Generator';
+import {TOML_Generator} from './features/FileTools/TOML_Generator';
 import {RustHDL} from './features/RustHDL';
+import {ProjectManager} from './features/ProjectManager';
 
 //Colibri-Imports
 	//import * as Colibri from 'colibri2';
@@ -27,6 +28,8 @@ export class VHDLbyHGB {
 	//--------------------------------------------
     private mContext : vscode.ExtensionContext;
 	private mRustHDL : RustHDL;
+	private mProjectManager : ProjectManager;
+
 	//private mMultiProjectManager : Multi_project_manager;
     private mEventEmitter : events.EventEmitter = new events.EventEmitter();
 
@@ -38,6 +41,7 @@ export class VHDLbyHGB {
 	{
 		this.mContext = context;
 		this.mRustHDL = new RustHDL(this.mContext);
+		this.mProjectManager = new ProjectManager();
 
 		//Colibri-Init
 		// const homedir = teroshdl2.utils.common.get_home_directory();
