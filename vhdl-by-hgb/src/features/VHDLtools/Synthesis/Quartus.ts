@@ -18,7 +18,6 @@ import * as path from 'path';
 const QUARTUS_PATH_WINDOWS : string = "C:\\intelFPGA_lite";
 const QUARTUS_PATH_LINUX : string = "/opt/intelFPGA_lite";
 
-
 //--------------------------------------------------------------
 // Quartus class
 //--------------------------------------------------------------
@@ -28,8 +27,11 @@ export class Quartus {
     // Private members
     // --------------------------------------------
     private mFileHolder : FileHolder;
-    private mQuartusPath : string = "";
     private mTclGenerator : TclGenerator;
+
+    private mQuartusPath : string = "";
+    private mProjectName : string = "";
+    private mProjectPath : string = "";
     
 
     // --------------------------------------------
@@ -40,7 +42,7 @@ export class Quartus {
         this.SetCommands();
         this.mFileHolder = fileHolder;
         this.mQuartusPath = SearchQuartusPath();
-        this.mTclGenerator = new TclGenerator();
+        this.mTclGenerator = new TclGenerator(this);
     }
 
     public GenerateProject() : void 
@@ -71,6 +73,12 @@ export class Quartus {
     public GUI() : void {}
 
     public Compile() : void {}
+
+    //Getter-Methods
+    public GetProjectName() : string {return this.mProjectName;}
+    public GetProjectPath() : string {return this.mProjectPath;}
+    public GetFileHolder() : FileHolder {return this.mFileHolder;}
+
 
     // --------------------------------------------
     // Private methods

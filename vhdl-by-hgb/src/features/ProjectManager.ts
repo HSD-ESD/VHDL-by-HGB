@@ -18,7 +18,7 @@ export class ProjectManager {
     private mVhdlFinder : VhdlFinder;
     private mTomlGenerator : TomlGenerator;
     private mFileHolder : FileHolder;
-
+    
     private mQuartus : Quartus;
     
     // --------------------------------------------
