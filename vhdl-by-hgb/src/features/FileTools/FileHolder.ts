@@ -31,12 +31,21 @@ export class FileHolder {
         return this.mProjectFiles;
     }
 
-    public GetTopLevelEntity(entity : VHDL_TOP_LEVEL_ENTITY) : string
+    public GetTopLevelEntity(entityType : VHDL_TOP_LEVEL_ENTITY) : string
     {
-        switch(entity)
+        switch(entityType)
         {
             case VHDL_TOP_LEVEL_ENTITY.Simulation: return this.mTopLevelEntitySimulation;
             case VHDL_TOP_LEVEL_ENTITY.Synthesis: return this.mTopLevelEntitySynthesis;
+        }
+    }
+
+    public SetTopLevelEntity(entityName : string, entityType : VHDL_TOP_LEVEL_ENTITY) : void
+    {
+        switch(entityType)
+        {
+            case VHDL_TOP_LEVEL_ENTITY.Simulation: this.mTopLevelEntitySimulation = entityName;
+            case VHDL_TOP_LEVEL_ENTITY.Synthesis: this.mTopLevelEntitySynthesis = entityName;
         }
     }
 

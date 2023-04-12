@@ -1,8 +1,9 @@
 //Specific Imports
 import * as Constants from "./../../../Constants";
+import * as TclScripts from "./TclScripts";
 import { OS } from "colibri2/out/process/common";
 import { get_os } from "colibri2/out/process/utils";
-import { FileHolder } from "../../FileTools/FileHolder";
+import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../FileTools/FileHolder";
 import { TclGenerator } from "./../../FileTools/FileGenerator/TclGenerator";
 
 
@@ -10,6 +11,7 @@ import { TclGenerator } from "./../../FileTools/FileGenerator/TclGenerator";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import * as path from 'path';
+import * as child_process from 'child_process';
 
 
 //--------------------------------------------------------------
@@ -17,6 +19,8 @@ import * as path from 'path';
 //--------------------------------------------------------------
 const QUARTUS_PATH_WINDOWS : string = "C:\\intelFPGA_lite";
 const QUARTUS_PATH_LINUX : string = "/opt/intelFPGA_lite";
+
+const QUARTUS_SHELL = "quartus_sh";
 
 //--------------------------------------------------------------
 // Quartus class
@@ -39,13 +43,14 @@ export class Quartus {
     // --------------------------------------------
     public constructor(fileHolder : FileHolder) 
     {
-        this.SetCommands();
         this.mFileHolder = fileHolder;
         this.mQuartusPath = SearchQuartusPath();
         this.mTclGenerator = new TclGenerator(this);
+
+        this.SetCommands();
     }
 
-    public GenerateProject() : void 
+    public async GenerateProject() : Promise<boolean> 
     {
         //if valid quartus path does not exist -> select path
         if(this.mQuartusPath.length === 0)
@@ -54,15 +59,138 @@ export class Quartus {
             if(!this.SelectQuartusPath())
             {
                 vscode.window.showInformationMessage('Quartus-Project could not be generated!');
+                return false;
             }
-            
+        }
+
+        //check project name
+        await vscode.window.showInputBox({
+            prompt: "Enter Project-Name",
+            placeHolder: "MyProject",
+        }).then((projectName) => {
+            if(projectName) 
+            {
+                this.mProjectName = projectName;
+            }
+            else
+            {
+                vscode.window.showInformationMessage('No valid Project-Name!');
+                return false;
+            }
+        });
+
+        //Enter project location
+        const uri = await vscode.window.showOpenDialog({
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            openLabel: 'Select Quartus-Project-Folder'
+          });
+
+          if (uri && uri[0] && uri[0].fsPath)
+          {
+            this.mProjectPath = uri[0].fsPath;
+            vscode.window.showInformationMessage('Project-Location was set successfully!');
+          }
+          else
+          {
+            vscode.window.showInformationMessage('No valid Project-Location!');
+            return false;
+          }
+        
+        //check for Top-Level-Entity
+        if(this.mFileHolder.GetTopLevelEntity(VHDL_TOP_LEVEL_ENTITY.Synthesis).length === 0)
+        {
+                //Enter project location
+            const TopLevelEntity = await vscode.window.showOpenDialog({
+                canSelectFiles: true,
+                canSelectFolders: false,
+                canSelectMany: false,
+                openLabel: 'Select Top-Level-Entity'
+            });
+
+            if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath)
+            {
+                let substr : string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
+                
+                if(substr)
+                {
+                    this.mFileHolder.SetTopLevelEntity(substr, VHDL_TOP_LEVEL_ENTITY.Synthesis);
+                    vscode.window.showInformationMessage('Top-Level-Entity was set successfully!');
+                }
+                else
+                {
+                vscode.window.showInformationMessage('No valid Top-Level-Entity!');
+                return false;
+                }
+            }
         }
 
         //create tcl-script
+        this.mTclGenerator.GenerateQuartusProject();
+
+        //path for quartus-shell
+        const QuartusShellPath : string = path.join(this.mQuartusPath, QUARTUS_SHELL);
 
         //execute tcl-script with quartus-shell
+        const quartusProcess = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScripts.GenerateProject)], {
+            cwd: this.mProjectPath
+        });
 
+
+        quartusProcess.stdout.on('data', (data: Buffer) => {
+            console.log(data.toString());
+          });
+          
+        quartusProcess.stderr.on('data', (data: Buffer) => {
+        console.error(data.toString());
+        });
+        
+        quartusProcess.on('close', (code: number) => {
+        console.log(`Quartus process exited with code ${code}`);
+        });
+
+        vscode.window.showInformationMessage('Quartus-Project was created successfully!');
+
+        return true;
     }
+
+    public UpdateFiles() : boolean
+    {
+        if(this.mProjectName.length === 0 || this.mProjectPath.length === 0)
+        {
+            vscode.window.setStatusBarMessage('No existing Quartus-Project -> Files cannot be updated!', Constants.StatusBarMessageTime);
+            return false;
+        }
+
+        this.mTclGenerator.GenerateUpdateFiles();
+
+        //path for quartus-shell
+        const QuartusShellPath : string = path.join(this.mQuartusPath, QUARTUS_SHELL);
+
+        //execute tcl-script with quartus-shell
+        const quartusProcess = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScripts.UpdateFiles)], {
+            cwd: this.mProjectPath
+        });
+
+
+        quartusProcess.stdout.on('data', (data: Buffer) => {
+            console.log(data.toString());
+          });
+          
+        quartusProcess.stderr.on('data', (data: Buffer) => {
+        console.error(data.toString());
+        });
+        
+        quartusProcess.on('close', (code: number) => {
+        console.log(`Quartus process exited with code ${code}`);
+        });
+
+        vscode.window.showInformationMessage('Files in Quartus-Project were updated successfully!');
+
+        return true;
+    }
+
 
     public UpdateProject() : void {}
 
@@ -85,49 +213,88 @@ export class Quartus {
     // --------------------------------------------
     private SetCommands() : void
     {
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.SetBinaryPath", this.SelectQuartusPath);
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.GenerateProject", this.GenerateProject);
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.Compile", this.Compile);
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.GUI", this.GUI);
+        vscode.commands.registerCommand("VHDLbyHGB.Quartus.SetBinaryPath", () => { this.SelectQuartusPath(); });
+        vscode.commands.registerCommand("VHDLbyHGB.Quartus.GenerateProject", () => { this.GenerateProject(); });
+        vscode.commands.registerCommand("VHDLbyHGB.Quartus.UpdateFiles", () => { this.UpdateFiles(); });
+        vscode.commands.registerCommand("VHDLbyHGB.Quartus.Compile", () => { this.Compile(); });
+        vscode.commands.registerCommand("VHDLbyHGB.Quartus.GUI", () => { this.GUI(); });
     }
 
     private async SelectQuartusPath() : Promise<boolean> 
     {
         try {
 
-        const uri = await vscode.window.showOpenDialog({
-            canSelectFiles: false,
-            canSelectFolders: true,
-            canSelectMany: false,
-            openLabel: 'Select Folder of Quartus-Binaries'
-          });
+            const uri = await vscode.window.showOpenDialog({
+                canSelectFiles: false,
+                canSelectFolders: true,
+                canSelectMany: false,
+                openLabel: 'Select Folder of Quartus-Binaries'
+            });
 
-        if (uri && uri[0] && uri[0].fsPath && fs.existsSync(path.join(uri[0].fsPath, get_os() === OS.LINUX ? Constants.QuartusShell : (Constants.QuartusShell + ".exe" ))))
-        {
-            console.log(uri[0].fsPath);
-            if(uri[0].fsPath.length === 0) {console.log("length == 0");}
-            // Store quartus-path internally
-            this.mQuartusPath = uri[0].fsPath;
-            vscode.window.showInformationMessage('Folder containing Quartus-Binaries was selected successfully!');
-            return true;
+            if (uri && uri[0] && uri[0].fsPath && fs.existsSync(path.join(uri[0].fsPath, get_os() === OS.LINUX ? QUARTUS_SHELL : (QUARTUS_SHELL + ".exe" ))))
+            {
+                console.log(uri[0].fsPath);
+                if(uri[0].fsPath.length === 0) {console.log("length == 0");}
+                // Store quartus-path internally
+                this.mQuartusPath = uri[0].fsPath;
+                vscode.window.showInformationMessage('Folder containing Quartus-Binaries was selected successfully!');
+                return true;
+            }
+            else
+            {
+                vscode.window.showInformationMessage('No valid folder containing Quartus-Binaries was selected!');
+                return false;
+            }
+
+        } catch (err) {
+            console.error(err);
+            return false;
         }
-        else
+    }
+
+    private async RunTclScript(TclScript : string) : Promise<boolean>
+    {
+        // check, if specified Tcl-Script exists
+        if(!fs.existsSync(path.join(this.mProjectPath, TclScripts.Folder, TclScript)))
         {
-            vscode.window.showInformationMessage('No valid folder containing Quartus-Binaries was selected!');
+            vscode.window.showInformationMessage('Tcl-Script to be executed does not exist!');
             return false;
         }
 
-    } catch (err) {
-        console.error(err);
-        return false;
+        //path for quartus-shell
+        const QuartusShellPath : string = path.join(this.mQuartusPath, QUARTUS_SHELL);
+
+        //execute tcl-script with quartus-shell
+        const quartusProcess = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScript)], {
+            cwd: this.mProjectPath
+        });
+
+        quartusProcess.stdout.on('data', (data: Buffer) => {
+            console.log(data.toString());
+          });
+          
+        quartusProcess.stderr.on('data', (data: Buffer) => {
+        console.error(data.toString());
+        });
+        
+        quartusProcess.on('close', (code: number) => {
+        console.log(`Quartus process exited with code ${code}`);
+        });
+
+        // Check if process exited with code 0 (success)
+        const exitCode = await new Promise<number>((resolve, reject) => {
+            quartusProcess.on('exit', (code: number) => {
+                resolve(code);
+            });
+        });
+
+        const IsSuccess : boolean = exitCode === 0;
+
+        return IsSuccess;
     }
-    }
+
 }
 
-function ExecuteQuartusCommand(command : string)
-{
-    
-}
 
 //automatically get Quartus path with newest version -> if not found, path will be empty
 function SearchQuartusPath() : string 

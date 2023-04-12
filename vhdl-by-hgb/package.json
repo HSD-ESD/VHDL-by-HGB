@@ -108,6 +108,10 @@
                 "title": "Quartus: Generate Quartus-Project"
             },
             {
+                "command": "VHDLbyHGB.Quartus.UpdateFiles",
+                "title": "Quartus: Update Quartus-ProjectFiles"
+            },
+            {
                 "command": "VHDLbyHGB.Quartus.Compile",
                 "title": "Quartus: Compile an existing Quartus-Project"
             },

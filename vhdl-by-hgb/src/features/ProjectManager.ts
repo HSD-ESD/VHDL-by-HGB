@@ -29,6 +29,11 @@ export class ProjectManager {
         if(vscode.workspace.workspaceFolders !== undefined)
         {
             this.mWorkSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            //set working directory to WorkSpacePath
+            if(process.cwd() !== this.mWorkSpacePath && this.mWorkSpacePath.length !== 0)
+            {
+                process.chdir(this.mWorkSpacePath);
+            }
         }
 
         this.mFileHolder = new FileHolder();
