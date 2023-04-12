@@ -63,7 +63,7 @@ export class TclGenerator {
 
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
-        wstream.write(cLoadPackage + cPackageProject + "\n\n");
+        wstream.write(cLoadPackage + cPackageFlow + "\n\n");
 
         //Create Project
         wstream.write(cProjectNew + cSpecifierOverwrite + cSpecifierName + cDesignNameReference + "\n\n");
@@ -73,7 +73,9 @@ export class TclGenerator {
         wstream.write(cSetGlobalAssignment + cSpecifierName + cDEVICE + "5CSEMA5F31C6\n\n");
 
         //Specify Top-Level-Entity
-        wstream.write(cSetGlobalAssignment + cSpecifierName + path.basename(cTOP_LEVEL_ENTITY) + "\n\n");
+        wstream.write(cSetGlobalAssignment + cSpecifierName + cDesignNameReference + "\n\n");
+
+        path.basename(cTOP_LEVEL_ENTITY);
     }
 
 }
