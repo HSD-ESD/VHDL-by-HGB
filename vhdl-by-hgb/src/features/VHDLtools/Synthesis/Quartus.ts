@@ -6,13 +6,12 @@ import { get_os } from "colibri2/out/process/utils";
 import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../FileTools/FileHolder";
 import { TclGenerator } from "./../../FileTools/FileGenerator/TclGenerator";
 
-
 //General Imports
 import * as fs from "fs";
 import * as vscode from "vscode";
 import * as path from 'path';
 import * as child_process from 'child_process';
-
+import * as chokidar from 'chokidar';
 
 //--------------------------------------------------------------
 //module-internal constants
@@ -112,6 +111,9 @@ export class Quartus {
         //create tcl-script
         await this.mTclGenerator.GenerateQuartusProject();
 
+        //wait for the tcl script to be generated
+        await new Promise(resolve => setTimeout(resolve, 5000)); // wait for 5 seconds
+
         IsSuccess = await this.RunTclScript(TclScripts.GenerateProject);
 
         if (!IsSuccess) {
@@ -208,7 +210,10 @@ export class Quartus {
 
     private async RunTclScript(TclScript : string) : Promise<boolean>
     {
-        // check, if specified Tcl-Script exists
+        //wait until file actually exists
+        await waitForFileCreation(path.join(this.mProjectPath, TclScripts.Folder, TclScript));
+
+        //check, if specified Tcl-Script exists
         if(!fs.existsSync(path.join(this.mProjectPath, TclScripts.Folder, TclScript)))
         {
             vscode.window.showInformationMessage('Tcl-Script to be executed does not exist!');
@@ -360,3 +365,27 @@ function GetNewestQuartusVersion(DefaultPath : string) : string
     
     return NewestVersion.toString();
 }
+
+async function waitForFileCreation(filePath : string, timeout : number = 5000) : Promise<void> {
+    return new Promise((resolve, reject) => {
+      const watcher = chokidar.watch(filePath);
+  
+      // Event listener for file creation
+      watcher.on('add', () => {
+        watcher.close();
+        resolve();
+      });
+  
+      // Handle errors
+      watcher.on('error', (error) => {
+        watcher.close();
+        reject(error);
+      });
+  
+      // Timeout
+      setTimeout(() => {
+        watcher.close();
+        reject(new Error(`Timeout waiting for file creation: ${filePath}`));
+      }, timeout);
+    });
+  }
