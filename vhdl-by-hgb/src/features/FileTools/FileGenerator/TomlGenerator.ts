@@ -73,7 +73,9 @@ export class TomlGenerator {
             wstream.write(TOML_New_Line);
             wstream.write(TOML_New_Line);
         }
-        
+
+        //close writestream
+        wstream.end();
     }
 
 }

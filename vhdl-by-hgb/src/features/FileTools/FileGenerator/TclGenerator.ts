@@ -62,7 +62,7 @@ export class TclGenerator {
     }
 
     //Pass ProjectName as absolute path
-    public GenerateQuartusProject() : void {
+    public async GenerateQuartusProject() : Promise<void> {
 
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
         this.mTclScriptsFolder = path.join(this.mQuartus.GetProjectPath(), TclScripts.Folder);
@@ -71,8 +71,21 @@ export class TclGenerator {
         }
         
         //writestream for Tcl-Script
+        if(fs.existsSync(path.join(this.mTclScriptsFolder, TclScripts.GenerateProject)))
+        {
+            vscode.window.showInformationMessage(TclScripts.GenerateProject + " already exists and cannot be overwritten!");
+            return;
+        }
+
         let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mTclScriptsFolder, TclScripts.GenerateProject), { flags: 'wx' });
         
+        //check writestream
+        if(!wstream.writable)
+        {
+            console.log(Constants.ErrWriteStream);
+            return;
+        }
+
         //Set DesignName
         wstream.write(cSetDesignName + this.mQuartus.GetProjectName() + "\n\n");
 
@@ -93,9 +106,11 @@ export class TclGenerator {
         //Specify Output-Directory
         wstream.write(cSetGlobalAssignment + cSpecifierName + cPROJECT_OUTPUT_DIRECTORY + "output_files" + "\n\n");
 
-        path.basename(cTOP_LEVEL_ENTITY);
-
+        //close project
         wstream.write(cProjectClose);
+
+        //close writestream
+        wstream.end();
     }
 
     public GenerateUpdateFiles() : void
@@ -106,7 +121,7 @@ export class TclGenerator {
             return;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mTclScriptsFolder, TclScripts.UpdateFiles), { flags: 'wx' });
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mTclScriptsFolder, TclScripts.UpdateFiles), { flags: 'w' });
         
         //Set DesignName
         wstream.write(cSetDesignName + this.mQuartus.GetProjectName() + "\n\n");
@@ -128,6 +143,9 @@ export class TclGenerator {
         wstream.write("\n");
 
         wstream.write(cProjectClose);
+
+        //close writestream
+        wstream.end();
     }
 
 

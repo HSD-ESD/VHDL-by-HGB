@@ -18,5 +18,8 @@ export const SynthesisDataFile = "SynthesisData.toml";
 //Constants for ProjectData-Folder
 export const ProjectDataFolder = "ProjectData";
 
+//Constants for Files
+export const ErrWriteStream = "Error in WriteStream!";
+
 //Timer-Constants
 export const StatusBarMessageTime = 5000;

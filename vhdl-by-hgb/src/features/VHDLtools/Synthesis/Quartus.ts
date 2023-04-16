@@ -52,18 +52,21 @@ export class Quartus {
 
     public async GenerateProject() : Promise<boolean> 
     {
+        let IsSuccess : boolean = true;
+
         //if valid quartus path does not exist -> select path
         if(this.mQuartusPath.length === 0)
         {
-            // if selected path is invalid -> print message
-            if(!this.SelectQuartusPath())
+            IsSuccess = await this.SelectQuartusPath();
+
+            if(!IsSuccess)
             {
                 vscode.window.showInformationMessage('Quartus-Project could not be generated!');
                 return false;
             }
         }
 
-        //check project name
+        // project name
         await vscode.window.showInputBox({
             prompt: "Enter Project-Name",
             placeHolder: "MyProject",
@@ -101,93 +104,44 @@ export class Quartus {
         //check for Top-Level-Entity
         if(this.mFileHolder.GetTopLevelEntity(VHDL_TOP_LEVEL_ENTITY.Synthesis).length === 0)
         {
-                //Enter project location
-            const TopLevelEntity = await vscode.window.showOpenDialog({
-                canSelectFiles: true,
-                canSelectFolders: false,
-                canSelectMany: false,
-                openLabel: 'Select Top-Level-Entity'
-            });
-
-            if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath)
-            {
-                let substr : string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
-                
-                if(substr)
-                {
-                    this.mFileHolder.SetTopLevelEntity(substr, VHDL_TOP_LEVEL_ENTITY.Synthesis);
-                    vscode.window.showInformationMessage('Top-Level-Entity was set successfully!');
-                }
-                else
-                {
-                vscode.window.showInformationMessage('No valid Top-Level-Entity!');
-                return false;
-                }
-            }
+            //select top-level-entity
+            IsSuccess = await this.SelectTopLevelEntity();
+            if(!IsSuccess) {return false;}
         }
 
         //create tcl-script
-        this.mTclGenerator.GenerateQuartusProject();
+        await this.mTclGenerator.GenerateQuartusProject();
 
-        //path for quartus-shell
-        const QuartusShellPath : string = path.join(this.mQuartusPath, QUARTUS_SHELL);
+        IsSuccess = await this.RunTclScript(TclScripts.GenerateProject);
 
-        //execute tcl-script with quartus-shell
-        const quartusProcess = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScripts.GenerateProject)], {
-            cwd: this.mProjectPath
-        });
-
-
-        quartusProcess.stdout.on('data', (data: Buffer) => {
-            console.log(data.toString());
-          });
-          
-        quartusProcess.stderr.on('data', (data: Buffer) => {
-        console.error(data.toString());
-        });
-        
-        quartusProcess.on('close', (code: number) => {
-        console.log(`Quartus process exited with code ${code}`);
-        });
+        if (!IsSuccess) {
+          vscode.window.showErrorMessage("Creating Quartus-Project failed!");
+          return false;
+        }
 
         vscode.window.showInformationMessage('Quartus-Project was created successfully!');
 
         return true;
     }
 
-    public UpdateFiles() : boolean
+    public async UpdateFiles() : Promise<boolean>
     {
         if(this.mProjectName.length === 0 || this.mProjectPath.length === 0)
         {
-            vscode.window.setStatusBarMessage('No existing Quartus-Project -> Files cannot be updated!', Constants.StatusBarMessageTime);
+            vscode.window.showInformationMessage('No existing Quartus-Project -> Files cannot be updated!');
             return false;
         }
 
         this.mTclGenerator.GenerateUpdateFiles();
 
-        //path for quartus-shell
-        const QuartusShellPath : string = path.join(this.mQuartusPath, QUARTUS_SHELL);
+        const IsSuccess : boolean = await this.RunTclScript(TclScripts.UpdateFiles);
 
-        //execute tcl-script with quartus-shell
-        const quartusProcess = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScripts.UpdateFiles)], {
-            cwd: this.mProjectPath
-        });
-
-
-        quartusProcess.stdout.on('data', (data: Buffer) => {
-            console.log(data.toString());
-          });
-          
-        quartusProcess.stderr.on('data', (data: Buffer) => {
-        console.error(data.toString());
-        });
-        
-        quartusProcess.on('close', (code: number) => {
-        console.log(`Quartus process exited with code ${code}`);
-        });
+        if (!IsSuccess) {
+          vscode.window.showErrorMessage("Updating files in Quartus-Project failed!");
+          return false;
+        }
 
         vscode.window.showInformationMessage('Files in Quartus-Project were updated successfully!');
-
         return true;
     }
 
@@ -265,32 +219,70 @@ export class Quartus {
         const QuartusShellPath : string = path.join(this.mQuartusPath, QUARTUS_SHELL);
 
         //execute tcl-script with quartus-shell
-        const quartusProcess = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScript)], {
+        const quartusShell = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScript)], {
             cwd: this.mProjectPath
         });
 
-        quartusProcess.stdout.on('data', (data: Buffer) => {
+        if (quartusShell === null) {
+            vscode.window.showInformationMessage('Failed to start Quartus-Shell!');
+            return false;
+        }
+
+        quartusShell.stdout.on('data', (data: Buffer) => {
             console.log(data.toString());
           });
           
-        quartusProcess.stderr.on('data', (data: Buffer) => {
+        quartusShell.stderr.on('data', (data: Buffer) => {
         console.error(data.toString());
         });
         
-        quartusProcess.on('close', (code: number) => {
+        quartusShell.on('close', (code: number) => {
         console.log(`Quartus process exited with code ${code}`);
         });
 
-        // Check if process exited with code 0 (success)
+        //Check if process exited with code 0 (success)
         const exitCode = await new Promise<number>((resolve, reject) => {
-            quartusProcess.on('exit', (code: number) => {
+            quartusShell.on('exit', (code: number) => {
                 resolve(code);
             });
         });
 
+        quartusShell.kill();
+
         const IsSuccess : boolean = exitCode === 0;
 
-        return IsSuccess;
+        return true;
+    }
+
+    private async SelectTopLevelEntity() : Promise<boolean>
+    {
+        //Enter project location
+        const TopLevelEntity = await vscode.window.showOpenDialog({
+            canSelectFiles: true,
+            canSelectFolders: false,
+            canSelectMany: false,
+            openLabel: 'Select Top-Level-Entity'
+        });
+
+        if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd"))
+        {
+            let substr : string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
+            
+            if(substr)
+            {
+                this.mFileHolder.SetTopLevelEntity(substr, VHDL_TOP_LEVEL_ENTITY.Synthesis);
+                vscode.window.showInformationMessage('Top-Level-Entity was set successfully!');
+                return true;
+            }
+            else
+            {
+                vscode.window.showInformationMessage('No valid Top-Level-Entity!');
+                return false;
+            }
+        }
+
+        vscode.window.showInformationMessage('No valid File selected as Top-Level-Entity!');
+        return false;
     }
 
 }
