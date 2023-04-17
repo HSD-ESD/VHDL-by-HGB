@@ -6,6 +6,10 @@ import { get_os } from "colibri2/out/process/utils";
 import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../FileTools/FileHolder";
 import { TclGenerator } from "./../../FileTools/FileGenerator/TclGenerator";
 
+import { Hdl_element } from "colibri2/out/parser/common";
+import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
+//import { Vhdl_parser } from "colibri2/src/parser/ts_vhdl/parser";
+
 //General Imports
 import * as fs from "fs";
 import * as vscode from "vscode";
@@ -271,19 +275,27 @@ export class Quartus {
 
         if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd"))
         {
-            let substr : string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
+
+            let parser : Vhdl_parser = new Vhdl_parser();
+            let VhdlFileInfo : Hdl_element =  parser.get_all(TopLevelEntity[0].fsPath,"");
+
+            console.log(VhdlFileInfo.name);
+
+            this.mFileHolder.SetTopLevelEntity(VhdlFileInfo.name, VHDL_TOP_LEVEL_ENTITY.Synthesis);
+
+            // let substr : string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
             
-            if(substr)
-            {
-                this.mFileHolder.SetTopLevelEntity(substr, VHDL_TOP_LEVEL_ENTITY.Synthesis);
-                vscode.window.showInformationMessage('Top-Level-Entity was set successfully!');
-                return true;
-            }
-            else
-            {
-                vscode.window.showInformationMessage('No valid Top-Level-Entity!');
-                return false;
-            }
+            // if(substr)
+            // {
+            //     this.mFileHolder.SetTopLevelEntity(substr, VHDL_TOP_LEVEL_ENTITY.Synthesis);
+            //     vscode.window.showInformationMessage('Top-Level-Entity was set successfully!');
+            //     return true;
+            // }
+            // else
+            // {
+            //     vscode.window.showInformationMessage('No valid Top-Level-Entity!');
+            //     return false;
+            // }
         }
 
         vscode.window.showInformationMessage('No valid File selected as Top-Level-Entity!');

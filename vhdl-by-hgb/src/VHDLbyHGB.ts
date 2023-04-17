@@ -7,19 +7,6 @@ import * as path from 'path';
 import {RustHDL} from './features/RustHDL';
 import {ProjectManager} from './features/ProjectManager';
 
-//Colibri-Imports
-	//import * as Colibri from 'colibri2';
-	//import { Multi_project_manager } from 'colibri2/project_manager/multi_project_manager';
-	import * as teroshdl2 from 'teroshdl2';
-	import { Multi_project_manager } from 'teroshdl2/out/project_manager/multi_project_manager';
-
-
-//Colibri-Constants
-	// const CONFIG_FILENAME = '.colibri2_config.json';
-	// const PRJ_FILENAME = '.colibri2_prj.json';
-	const CONFIG_FILENAME = '.teroshdl2_config.json';
-	const PRJ_FILENAME = '.teroshdl2_prj.json';
-
 export class VHDLbyHGB {
 
 	//--------------------------------------------
