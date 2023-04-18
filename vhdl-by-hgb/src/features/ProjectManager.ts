@@ -2,13 +2,18 @@
 import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { FileHolder } from "./FileTools/FileHolder";
 import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
+import { FileProvider } from "./TreeView/Project/ProjectView";
+import { SynthesisFileProvider } from "./TreeView/Synthesis/SynthesisView";
+import { Quartus } from "./VHDLtools/Synthesis/Quartus/Quartus";
+
+// General Imports
+import * as vscode from 'vscode';
 import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
 import { SimulationManager } from "./VHDLtools/Simulation/SimulationManager";
 import { HDLUtils } from "./FileTools/HDLUtils";
 import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 
 // general imports
-import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { RustHDL } from "./RustHDL";
@@ -20,7 +25,7 @@ enum eTomlGenerationKind {
 }
 
 export class ProjectManager {
-
+    
     // --------------------------------------------
     // Private members
     // --------------------------------------------
@@ -34,15 +39,13 @@ export class ProjectManager {
     private mProjectIsInitialised : boolean = false;
 
 	private mRustHDL : RustHDL; // Language-Server (LSP)
+    private mVhdlFinder! : IVhdlFinder;
 
-    private mVhdlFinder! : IVhdlFinder; // Tool for finding source-files of hdl-project
-    private mFileHolder : FileHolder;   // Storage for source-files
+    private mFileHolder : FileHolder;
 
-    // hdl-tools
-    private mSynthesisManager : SynthesisManager;   // Synthesis-Projects
-    private mSimulationManager : SimulationManager; // Simulation-Projects
-
-    // editor-tools
+    private mFileProvider : FileProvider;
+    private mSynthesisManager : SynthesisManager;
+    private mSimulationManager : SimulationManager;
     private mDynamicSnip : DynamicSnippets;
 
     // --------------------------------------------
@@ -66,6 +69,9 @@ export class ProjectManager {
 
         //project-specific members
 		this.mRustHDL = new RustHDL(this.mContext);
+        this.mFileHolder = new FileHolder();
+        this.mFileProvider = new FileProvider(this.mFileHolder);
+        this.mFileHolder = new FileHolder();       
 
         this.mFileHolder = new FileHolder();
 
@@ -75,7 +81,22 @@ export class ProjectManager {
         this.mDynamicSnip = new DynamicSnippets(this.mContext);
 
         this.HandleFileEvents();
+        //tree view members
+        this.mFileProvider = new FileProvider(this.mFileHolder);
+
         this.RegisterCommands();
+        
+        //creating the tree views
+        vscode.window.createTreeView(
+            'vhdlbyhgb-view-project',{
+            treeDataProvider: this.mFileProvider
+        });
+
+        // vscode.window.createTreeView(
+        //     'vhdlbyhgb-view-synthesis',{
+        //         treeDataProvider : this.mSynthesisFileProvider
+        //     }
+        // );
     }
 
     public async Initialize() : Promise<void>
@@ -208,6 +229,8 @@ export class ProjectManager {
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.Project.Update", () => this.Update());
         this.mContext.subscriptions.push(disposable);
+
+        vscode.commands.registerCommand('treeData.refreshEntry', () => this.mFileProvider.refresh());
     }
 
 }

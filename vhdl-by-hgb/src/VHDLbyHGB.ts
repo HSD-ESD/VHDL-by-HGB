@@ -34,6 +34,7 @@ export class VHDLbyHGB {
 		this.mFormatter = new VHDLFormatterHGB(context);
 		this.mEntityConverter = new EntityConverter(this.mContext);
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
+		
     }
 
 	public async Initialize() : Promise<void>

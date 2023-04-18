@@ -9,7 +9,6 @@ import { FileHolder } from "../../../FileTools/FileHolder";
 
 export class QuartusFactory implements ISynthesisFactory
 {
-
     // --------------------------------------------
     // Private members
     // --------------------------------------------

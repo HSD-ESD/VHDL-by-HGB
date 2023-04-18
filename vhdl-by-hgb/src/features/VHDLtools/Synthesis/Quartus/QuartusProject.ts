@@ -241,6 +241,8 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public GetFiles() : string[] { return this.mQSF.VhdlFiles; }
 
+    public GetTopLevelEntity(): string {return this.mQSF.TopLevelEntity.mName };
+    
     public GetTclScriptsFolder() : string { return this.mTclScriptsFolder; }
 
     public GetPath() : string { return this.mQSF.Path; }
@@ -289,6 +291,4 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         // Dispose the watcher when extension is not active
         this.mContext.subscriptions.push(disposable);
     }
-
-
 }

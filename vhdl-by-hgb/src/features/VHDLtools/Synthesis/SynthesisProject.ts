@@ -1,6 +1,8 @@
 
 import { VhdlEntity } from '../VhdlPackage';
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
+import { Quartus } from "./Quartus/Quartus";
+import { FileHolder } from "../../FileTools/FileHolder";
 import * as vscode from 'vscode';
 import { eSynthesisTool } from './SynthesisPackage';
 
@@ -33,19 +35,22 @@ export interface ISynthesisProject
 
     SetDevice(device : string) : Promise<boolean>;
 
+    //Getter-Methods
     GetName() : string;
+
+    GetTclScriptsFolder() : string;
 
     GetPath() : string;
 
-    GetTopLevel() : VhdlEntity;
-
-    GetFamily() : string;
+    GetTopLevelEntity() : string;
 
     GetDevice() : string;
 
     GetFiles() : string[];
 
     GetTool() : eSynthesisTool;
+
+    GetFamily() : string;
 }
 
 export abstract class SynthesisProject

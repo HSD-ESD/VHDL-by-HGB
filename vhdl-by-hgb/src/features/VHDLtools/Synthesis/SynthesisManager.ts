@@ -8,8 +8,9 @@ import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 //general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { SynthesisFileProvider } from "../../TreeView/Synthesis/SynthesisView";
 
-export class SynthesisManager 
+export class SynthesisManager
 {
     // --------------------------------------------
     // Private members
@@ -25,6 +26,9 @@ export class SynthesisManager
     private mOutputChannel : vscode.OutputChannel;
     private mContext : vscode.ExtensionContext;
     private mStatusBarItem : vscode.StatusBarItem;
+
+    private mSynthesisFileProvider : SynthesisFileProvider;
+
 
     // --------------------------------------------
     // Public methods
@@ -47,7 +51,20 @@ export class SynthesisManager
 
         this.RegisterCommands();
         this.HandleFileEvents();
+
+        this.mSynthesisFileProvider = new SynthesisFileProvider(this.mSynthesisProjects);
+        vscode.window.createTreeView(
+            'vhdlbyhgb-view-synthesis',{
+                treeDataProvider : this.mSynthesisFileProvider
+        }
+      
+    );
     }
+
+    //TODO
+    // public GetSynthesisProjects() :  Array<ISynthesisProject>{
+    //     return this.mSynthesisProjects;
+    // }
 
     public async Initialize() : Promise<void>
     {
@@ -98,7 +115,7 @@ export class SynthesisManager
         }
 
         let synthesisFactory : ISynthesisFactory | undefined = SynthesisToolMap.get(synthesisTool);
-        
+
         if(!synthesisFactory)
         {
             return false;
@@ -142,9 +159,9 @@ export class SynthesisManager
             vscode.window.showErrorMessage("No Synthesis-Project selected!");
             return false;
         }
-       
+
         this.updateActiveSynthesisProject(selectedProject);
-        
+
         if(this.mActiveProject)
         {
             vscode.window.showInformationMessage(`Active Synthesis-Project: ${path.relative(this.mWorkSpacePath, this.mActiveProject.GetPath())}`);
@@ -214,7 +231,7 @@ export class SynthesisManager
         return IsSuccess;
     }
 
-    
+
     public async SetTopLevel() : Promise<boolean>
     {
         // check, if a synthesis-project is selected
@@ -305,12 +322,23 @@ export class SynthesisManager
         return IsSuccess;
     }
 
+    // public GetSynthesisProjects() : Array<ISynthesisProject> {
+
+    //     return this.mSynthesisProjects;
+    // }
+
+    // public GetSpecificSynthesisProject(index : number) : ISynthesisProject{
+    //     return this.mSynthesisProjects[index];
+    // }
+
+
+
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
     private async HandleFileEvents() : Promise<void>
     {
-        vscode.workspace.onDidCreateFiles((event) => 
+        vscode.workspace.onDidCreateFiles((event) =>
         {
             const synthesisProjects = event.files.filter((file) => {
                 const filePath = file.fsPath.toLowerCase();
@@ -323,13 +351,13 @@ export class SynthesisManager
             synthesisProjects.forEach((projectPath) => {
 
                 const synthesisTool : eSynthesisTool | undefined = SynthesisFileMap.get(path.extname(projectPath) as eSynthesisFile);
-                
+
                 if(!synthesisTool) { return; }
 
                 const synthesisProjects : ISynthesisProject[] | undefined = this.mSynthesisProjects.get(synthesisTool);
 
                 if(!synthesisProjects) { return; }
-                
+
                 if(!synthesisProjects.find((synthesisProject) => {synthesisProject.GetPath() === projectPath;}))
                 {
                     this.AddExistingProject(projectPath);
@@ -337,7 +365,7 @@ export class SynthesisManager
             });
         });
 
-        vscode.workspace.onDidDeleteFiles((event) => 
+        vscode.workspace.onDidDeleteFiles((event) =>
         {
             const synthesisProjects = event.files.filter((file) => {
                 const filePath = file.fsPath.toLowerCase();
@@ -350,7 +378,7 @@ export class SynthesisManager
             synthesisProjects.forEach((projectPath) => {
 
                 const synthesisTool : eSynthesisTool | undefined = SynthesisFileMap.get(path.extname(projectPath) as eSynthesisFile);
-                
+
                 if(!synthesisTool) { return; }
 
                 const synthesisProjects : ISynthesisProject[] | undefined = this.mSynthesisProjects.get(synthesisTool);
@@ -358,17 +386,17 @@ export class SynthesisManager
                 if(!synthesisProjects) { return; }
 
                 const findIndex : number = synthesisProjects.findIndex((synthesisProject) => {synthesisProject.GetPath() === projectPath;});
-                
+
                 if(findIndex !== -1) { synthesisProjects.splice(findIndex, 1); }
             });
         });
 
-        vscode.workspace.onDidRenameFiles((event) => 
+        vscode.workspace.onDidRenameFiles((event) =>
         {
             const synthesisProjects = event.files.filter((file) => {
                 const newFilePath = file.newUri.fsPath.toLowerCase();
                 const oldFilePath = file.oldUri.fsPath.toLowerCase();
-                
+
                 if(this.IsSynthesisProject(oldFilePath))
                 {
                     return file;
@@ -384,7 +412,7 @@ export class SynthesisManager
             synthesisProjects.forEach((projectPath) => {
 
                 const synthesisTool : eSynthesisTool | undefined = SynthesisFileMap.get(path.extname(projectPath.newPath) as eSynthesisFile);
-                
+
                 if(!synthesisTool) { return; }
 
                 const synthesisProjects : ISynthesisProject[] | undefined = this.mSynthesisProjects.get(synthesisTool);
@@ -392,7 +420,7 @@ export class SynthesisManager
                 if(!synthesisProjects) { return; }
 
                 const findIndex : number = synthesisProjects.findIndex((synthesisProject) => {synthesisProject.GetPath() === projectPath.oldPath;});
-                
+
                 if(findIndex !== -1) {
                     synthesisProjects.splice(findIndex, 1);
                     this.AddExistingProject(projectPath.newPath);
@@ -418,7 +446,7 @@ export class SynthesisManager
     {
         const synthesisProjects : string[] = await this.FindSynthesisProjects();
 
-        synthesisProjects.forEach((project) => 
+        synthesisProjects.forEach((project) =>
         {
             this.AddExistingProject(project);
         });
@@ -447,8 +475,8 @@ export class SynthesisManager
 
     private saveActiveSynthesisProject(): void {
 
-        if(!this.mActiveProject) 
-        { 
+        if(!this.mActiveProject)
+        {
             this.mContext.workspaceState.update(ACTIVE_SYNTHESIS_PROJECT, undefined);
             return;
         }
@@ -457,18 +485,18 @@ export class SynthesisManager
             tool : this.mActiveProject.GetTool(),
             file : this.mActiveProject.GetPath()
         };
-        
+
         this.mContext.workspaceState.update(ACTIVE_SYNTHESIS_PROJECT, activeSynthesisProject);
     }
 
     private loadActiveSynthesisProject(): void {
-        
+
         const activeSynthesisProject : TSynthesisProject | undefined = this.mContext.workspaceState.get(ACTIVE_SYNTHESIS_PROJECT);
 
         if(!activeSynthesisProject) { return; }
 
         const projects = this.mSynthesisProjects.get(activeSynthesisProject.tool);
-        
+
         if (!projects) { return; }
 
         const activeProject = projects.find( (project) => {
@@ -480,7 +508,7 @@ export class SynthesisManager
         this.mActiveProject = activeProject;
     }
 
-    private updateActiveSynthesisProject(project : ISynthesisProject | undefined) : void 
+    private updateActiveSynthesisProject(project : ISynthesisProject | undefined) : void
     {
         this.mActiveProject = project;
         this.saveActiveSynthesisProject();
@@ -488,7 +516,7 @@ export class SynthesisManager
     }
 
     private updateStatusBar(): void {
-        if(!this.mActiveProject) { 
+        if(!this.mActiveProject) {
             this.mStatusBarItem.text = NO_SYNTHESIS_PROJECT;
             return;
         }
@@ -499,6 +527,10 @@ export class SynthesisManager
     private RegisterCommands(): void {
 
         let disposable: vscode.Disposable;
+
+        
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis-View.Refresh", () => { this.mSynthesisFileProvider.refresh(); });
+        this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis.AddNewProject", () => { this.AddNewProject(); });
         this.mContext.subscriptions.push(disposable);
@@ -523,6 +555,11 @@ export class SynthesisManager
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis.SetFamily", () => { this.SetFamily(); });
         this.mContext.subscriptions.push(disposable);
+
     }
+
+
+
+
 
 }
