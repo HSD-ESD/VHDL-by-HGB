@@ -19,12 +19,12 @@
 	"Architecture": {
 		"prefix": "architecture",
 		"body": [
-			"architecture ${1:rtl} of ${2:$TM_FILENAME_BASE} is",
-			"",
+			"architecture ${1:Rtl} of ${2:$TM_FILENAME_BASE} is",
+			"\t",
 			"begin",
-			"",
 			"\t$0",
-			"",
+			"\t",
+			"\t",
 			"end architecture;"
 		],
 		"description": "architecture interface"
@@ -73,42 +73,30 @@
 		],
 		"description": "block interface"
 	},
+	"Bit": {
+		"prefix": "bit",
+		"body": ["bit$0"],
+		"description": "bit"
+	},
+	"Bit Vector": {
+		"prefix": "bitvec",
+		"body": ["bit_vector$0"],
+		"description": "bit_vector"
+	},
+	"Bit Vector Declaration": {
+		"prefix": "bitvecdec",
+		"body": ["std_logic_vector($1 ${2|downto,to|} $3)${4| := (others => '0');,;|}$0"],
+		"description": "bit_vector declaration"
+	},
 	"Case": {
 		"prefix": "case",
 		"body": [
 			"case ${1:<sel>} is",
 			"\twhen ${2:<choice_1>} =>",
 			"\t\t$0",
-			"",
 			"\twhen others =>",
 			"\t\t${3:null;}",
 			"end case;"
-		],
-		"description": "case statement"
-	},
-	"FSM example generate": {
-		"prefix": "fsm",
-		"body": [
-
-
-			"process (${1:clk})",
-			"begin",
-			"\tif ${2|rising_edge,falling_edge|}($1) then",
-			"\t\t$0",
-			"\t\tcase ${3:sel} is",
-			"\t\t\twhen ${4:sel} =>",
-			"\t\t\t\t$0",
-			"\t\t\t\t$3 <= $5;",
-			"",
-			"\t\t\twhen ${5:sel} =>",
-			"\t\t\t\t$0",
-			"\t\t\t\t$3 <= $4;",
-			"",
-			"\t\t\twhen others =>",
-			"\t\t\t\t$3 <= $4;",
-			"\t\tend case;",
-			"\tend if;",
-			"end process;"
 		],
 		"description": "case statement"
 	},
@@ -118,7 +106,6 @@
 			"${1:<name>} : case ${2:<sel>} generate",
 			"\twhen ${3:<choice_1>} =>",
 			"\t\t$0",
-			"",
 			"\twhen others =>",
 			"\t\t${4:null;}",
 			"end generate;"
@@ -130,8 +117,8 @@
 		"body": [
 			"component ${1:$TM_FILENAME_BASE} is",
 			"\tport (",
-			"\t\t${2:clk   : in std_logic;}",
-			"\t\t${3:reset : in std_logic;}",
+			"\t\t${2:iClk        : in std_ulogic;}",
+			"\t\t${3:inRstAsync  : in std_ulogic;}",
 			"\t\t$0",
 			"\t);",
 			"end component;"
@@ -146,28 +133,20 @@
 			"\t\t${3:generics}",
 			"\t)",
 			"\tport map (",
-			"\t\t${4:clk   => clk,}",
-			"\t\t${5:reset => reset,}",
+			"\t\t${4:iClk       => clk,}",
+			"\t\t${5:inRstAsync => reset,}",
 			"\t\t$0",
 			"\t);"
 		],
 		"description": "component instantiation"
 	},
 	"Constant": {
-		"prefix": "constant",
+		"prefix": "const",
 		"body": [
 			"constant ${1:<name>} : ${2:<type>} := ${3:<default_value>};",
 			"$0"
 		],
 		"description": "constant declaration"
-	},
-	"Signal": {
-		"prefix": "signal",
-		"body": [
-			"signal ${1:<name>} : ${2:<type>} := ${3:<default_value>};",
-			"$0"
-		],
-		"description": "signal declaration"
 	},
 	"Configuration": {
 		"prefix": "configuration",
@@ -197,6 +176,14 @@
 			"$0"
 		],
 		"description": "context clause for IEEE standard contexts (ieee_bit_context,ieee_std_context) (vhdl 2008)"
+	},
+	"Decrement": {
+		"prefix": "dec",
+		"body": [
+			"${1:cnt} <= ${1:cnt} - 1;",
+			"$0"
+		],
+		"description": "decrement a signal"
 	},
 	"Disconnect": {
 		"prefix": "disconnect",
@@ -243,11 +230,11 @@
 			"body": [
 				"entity ${1:$TM_FILENAME_BASE} is",
 				"\tport (",
-				"\t\t${2:clk   : in std_logic;}",
-				"\t\t${3:reset : in std_logic;}",
+				"\t\t${2:iClk        : in std_ulogic;}",
+				"\t\t${3:inRstAsync  : in std_ulogic;}",
 				"\t\t$0",
 				"\t);",
-				"end entity;"
+				"end entity $1;"
 			],
 		"description": "entity declaration"
 	},
@@ -256,29 +243,34 @@
 			"body": [
 				"entity ${1:$TM_FILENAME_BASE} is",
 				"\tport (",
-				"\t\t${2:clk   : in std_logic;}",
-				"\t\t${3:reset : in std_logic;}",
+				"\t\t${2:iClk        : in std_ulogic;}",
+				"\t\t${3:inRstAsync  : in std_ulogic;}",
 				"\t\t$0",
 				"\t);",
 				"end entity $1;",
 				"",
-				"architecture ${4:rtl} of $1 is",
-				"",
+				"architecture ${4:Rtl} of $1 is",
+				"\t",
 				"begin",
-				"",
-				"\t$0",
-				"",
+				"\t",
+				"\t",
+				"\t",
 				"end architecture;"
 			],
 		"description": "entity declaration"
 	},
 	"Enumerate": {
-		"prefix": ["typeenum", "typefsm"],
+		"prefix": ["typeenum", "enum"],
 		"body": [
 			"type ${1:<name>} is (${2:<state>});",
 			"\t$0"
 		],
 		"description": "enumerate declaration"
+	},
+	"Falling Edge": {
+		"prefix": "fall",
+		"body": "falling_edge(${1:iClk})$0",
+		"description": "falling edge"
 	},
 	"For": {
 		"prefix": "for",
@@ -297,6 +289,28 @@
 			"end generate;"
 		],
 		"description": "for generate loop instantiation (vhdl 2008)"
+	},
+	"FSM example generate": {
+		"prefix": "fsm",
+		"body": [
+			"process (${1:iClk})",
+			"begin",
+			"\tif ${2|rising_edge,falling_edge|}($1) then",
+			"\t\t$0",
+			"\t\tcase ${3:sel} is",
+			"\t\t\twhen ${4:sel} =>",
+			"\t\t\t\t$3 <= $5;",
+			"\t\t\t\t",
+			"\t\t\twhen ${5:sel} =>",
+			"\t\t\t\t$3 <= $4;",
+			"\t\t\t\t",
+			"\t\t\twhen others =>",
+			"\t\t\t\t$3 <= $4;",
+			"\t\tend case;",
+			"\tend if;",
+			"end process;"
+		],
+		"description": "case statement"
 	},
 	"Function Body": {
 		"prefix": "funcbody",
@@ -334,6 +348,23 @@
 		],
 		"description": "generic map interface"
 	},
+	"Headerkommentar": {
+		"prefix": "header",
+		"body": [
+			"--------------------------------------------------------",
+			"-- Title       : ${1:<Title>}",
+			"-- File        : $TM_FILENAME_BASE",
+			"-- Author      : ${2:<Author>}",
+			"-- Date        : ${3:<Date>}",
+			"-- Review      : ${4:<Review>}",
+			"--------------------------------------------------------",
+			"-- Description : ${5:<Description>}",
+			"--------------------------------------------------------",
+			"",
+			"$0"
+		],
+		"description": "header comment template"
+	},
 	"If": {
 		"prefix": "if",
 		"body": [
@@ -352,6 +383,19 @@
 		],
 		"description": "if generate instantiation"
 	},
+	"Increment": {
+		"prefix": "inc",
+		"body": [
+			"${1:cnt} <= ${1:cnt} + 1;",
+			"$0"
+		],
+		"description": "increment a signal"
+	},
+	"Integer": {
+		"prefix": "int",
+		"body": "integer$0",
+		"description": "integer"
+	},
 	"Integer Range": {
 		"prefix": "intrange",
 		"body": [
@@ -361,15 +405,14 @@
 		"description": "integer range"
 	},
 	"Library": {
-		"prefix": "library",
+		"prefix": "lib",
 		"body": [
-			"library ${1:ieee};",
-			"$0"
+			"library $0"
 		],
 		"description": "library declaration"
 	},
 	"Library IEEE": {
-		"prefix": "libraryieee",
+		"prefix": ["ieee", "libieee"],
 		"body": [
 			"library ieee;",
 			"use ieee.std_logic_1164.all;",
@@ -380,7 +423,7 @@
 		"description": "common IEEE libraries declaration"
 	},
 	"Library IEEE 2008": {
-		"prefix": "libraryieee",
+		"prefix": "lib2008",
 		"body": [
 			"library ieee;",
 			"context ieee.ieee_std_context;",
@@ -390,7 +433,7 @@
 		"description": "common IEEE libraries declaration with 2008 standard context (vhdl 2008)"
 	},
 	"Library TextIO": {
-		"prefix": "librarytextio",
+		"prefix": "libtextio",
 		"body": [
 			"library std;",
 			"use std.textio.all;",
@@ -418,8 +461,8 @@
 		"description": "next loop"
 	},
 	"Others": {
-		"prefix": ["others"],
-		"body": [ "(others => ${1:<value>})${2| ,;|}$0" ],
+		"prefix": "others",
+		"body": "(others => '${1:<value>}')${2| ,;|}$0",
 		"description": "others declaration"
 	},
 	"Package": {
@@ -477,9 +520,9 @@
 		"description": "procedure declaration"
 	},
 	"Process Asynchronous": {
-		"prefix": ["aproc", "processasync"],
+		"prefix": ["asyncproc", "processasync"],
 		"body": [
-			"process (${1:clk}, ${2:reset})",
+			"process (${1:iClk}, ${2:inRstAsync})",
 			"begin",
 			"\tif $2 = ${3|'1','0'|} then",
 			"\t\t$0",
@@ -491,12 +534,12 @@
 		"description": "asynchronous process block"
 	},
 	"Process Synchronous": {
-		"prefix": ["sproc", "processsync"],
+		"prefix": ["syncproc", "processsync"],
 		"body": [
-			"process (${1:clk})",
+			"process (${1:iClk})",
 			"begin",
 			"\tif ${2|rising_edge,falling_edge|}($1) then",
-			"\t\tif ${3:reset} = ${4|'1','0'|} then",
+			"\t\tif ${3:inRstAsync} = ${4|'1','0'|} then",
 			"\t\t\t$0",
 			"\t\telse",
 			"\t\t\t",
@@ -507,9 +550,9 @@
 		"description": "clocked process block"
 	},
 	"Process Clocked": {
-		"prefix": ["cproc", "processclk"],
+		"prefix": ["clkproc", "processclk"],
 		"body": [
-			"process (${1:clk})",
+			"process (${1:iClk})",
 			"begin",
 			"\tif ${2|rising_edge,falling_edge|}($1) then",
 			"\t\t$0",
@@ -537,53 +580,103 @@
 		],
 		"description": "record declaration"
 	},
-	"Signed": {
-		"prefix": "sign",
-		"body": [ "signed($1 ${2|downto,to|} $3)${4| := (others => '0');,;|}$0" ],
+	"Report": {
+		"prefix": "report",
+		"body": [
+			"report \"${1:<message>}\";",
+			"$0"
+		],
+		"description": "others declaration"
+	},
+	"Rising Edge": {
+		"prefix": "rise",
+		"body": "rising_edge(${1:iClk})$0",
+		"description": "rising edge"
+	},
+	"Signal": {
+		"prefix": "signal",
+		"body": [
+			"signal ${1:<name>} : ${2:<type>} := ${3:<default_value>};",
+			"$0"
+		],
+		"description": "signal declaration"
+	},
+	"Signed Declaration": {
+		"prefix": "signdec",
+		"body": "signed($1 ${2|downto,to|} $3)${4| := (others => '0');,;|}$0",
 		"description": "signed declaration"
 	},
+	"Signed": {
+		"prefix": "sign",
+		"body": "signed$0",
+		"description": "signed"
+	},
 	"Standard Logic": {
-		"prefix": "sl",
+		"prefix": "stdl",
 		"body": [ "std_logic$0" ],
 		"description": "std_logic"
 	},
 	"Standard ULogic": {
-		"prefix": "sul",
+		"prefix": "stdul",
 		"body": [ "std_ulogic$0" ],
-		"description": "std_logic"
+		"description": "std_ulogic"
 	},
 	"Standard Logic Vector": {
-		"prefix": ["std", "slv"],
+		"prefix": "stdlvec",
 		"body": [ "std_logic_vector$0" ],
 		"description": "std_logic_vector"
 	},
 	"Standard Logic Vector Declaration": {
-		"prefix": ["stddec", "slvdec"],
+		"prefix": "stdlvecdec",
 		"body": [ "std_logic_vector($1 ${2|downto,to|} $3)${4| := (others => '0');,;|}$0" ],
 		"description": "std_logic_vector declaration"
 	},
 	"Standard ULogic Vector": {
-		"prefix": ["stdu", "sulv"],
+		"prefix": "stdulvec",
 		"body": [ "std_ulogic_vector" ],
 		"description": "std_ulogic_vector"
 	},
 	"Standard ULogic Vector Declaration": {
-		"prefix": ["stdudec", "sulvdec"],
+		"prefix": "stdulvecdec",
 		"body": [ "std_ulogic_vector($1 ${2|downto,to|} $3)${4| := (others => '0');,;|}$0" ],
 		"description": "std_ulogic_vector declaration"
 	},
 	"Subtype": {
-		"prefix": "typesubtype",
+		"prefix": "sub",
 		"body": [
 			"subtype ${1:<name>} is ${2:<base_type>} range ${3:0} ${4|to,downto|} ${5:<value>};",
 			"$0"
 		],
 		"description": "std_ulogic_vector declaration"
 	},
-	"Unsigned": {
-		"prefix": "uns",
+	"State Processes": {
+		"prefix": ["statesproc", "processstates"],
+		"body": [
+			"NextStateLogic : process (${1:all})",
+			"begin",
+			"\t",
+			"end process;",
+			"",
+			"State : process (${2:iClk}, ${3:inRstAsync})",
+			"begin",
+			"\tif $3 = ${4|'1','0'|} then",
+			"\t\t$0",
+			"\telsif ${5|rising_edge,falling_edge|}($2) then",
+			"\t\t",
+			"\tend if;",
+			"end process;"
+		],
+		"description": "State-NextState-Logic"
+	},
+	"Unsigned Declaration": {
+		"prefix": "unsigndec",
 		"body": [ "unsigned(${1} ${2|downto,to|} ${3})${4| := (others => '0');,;|}$0" ],
 		"description": "unsigned declaration"
+	},
+	"Unsigned": {
+		"prefix": "unsign",
+		"body": "unsigned$0",
+		"description": "unsigned"
 	},
 	"Use": {
 		"prefix": "use",
@@ -601,6 +694,133 @@
 		],
 		"description": "use clause IEEE standard package (std_logic_1164,std_logic_textio,numeric_std,math_real,math_complex)"
 	},
+	"Variable": {
+		"prefix": "var",
+		"body": [
+			"variable ${1:<name>} : ${2:<type>} := ${3:<default_value>};",
+			"$0"
+		],
+		"description": "variable"
+	},
+	"VHDL Testbench": {
+		"prefix": "tb",
+		"body": [
+			"library ieee;",
+			"use ieee.std_logic_1164.all;",
+			"use ieee.numeric_std.all;",
+			"",
+			"entity tb_${1:$TM_FILENAME_BASE} is",
+			"begin",
+			"\t",
+			"end tb_$1;",
+			"",
+			"architecture ${2:Bhv} of tb_$1 is",
+			"\t",
+			"\t----------------------------------------------------",
+			"\t-- ClockFrequency",
+			"\t----------------------------------------------------",
+			"\tconstant cClkFreq  : natural  := ${3:50E6};",
+			"",
+			"\t----------------------------------------------------",
+			"\t-- component ports",
+			"\t----------------------------------------------------",
+			"\tsignal Clk       : std_logic  := '1';",
+			"\tsignal nRstAsync : std_ulogic := not('1');",
+			"\t$0",
+			"begin",
+			"",
+			"\t----------------------------------------------------",
+			"\t-- entity instantiation with components",
+			"\t----------------------------------------------------",
+			"\t",
+			"\t",
+			"\t----------------------------------------------------",
+			"\t-- clock generation",
+			"\t----------------------------------------------------",
+			"\tClk <= not(Clk) after 1 sec/cClkFreq/2;",
+			"",
+			"\t----------------------------------------------------",
+			"\t-- Testcases",
+			"\t----------------------------------------------------",
+			"\tTestcase_Proc : process",
+			"\tbegin",
+			"\t\t",
+			"\t\t",
+			"\t\t",
+			"\tend process Testcase_Proc;",
+			"",
+			"end architecture;"
+		],
+		"description": "VHDL testbench template"
+	},	
+	"VHDL Testbench with VUnit": {
+		"prefix": "tbvunit",
+		"body": [
+			"library ieee;",
+			"use ieee.std_logic_1164.all;",
+			"use ieee.numeric_std.all;",
+			"",
+			"library vunit_lib;",
+			"use vunit_lib.vunit_context;",
+			"",
+			"entity tb_${1:$TM_FILENAME_BASE} is",
+			"\t-- used by VUnit",
+			"\tgeneric (runner_cfg : string);",
+			"end tb_$1;",
+			"",
+			"architecture ${2:Bhv} of tb_$1 is",
+			"\t",
+			"\t----------------------------------------------------",
+			"\t-- ClockFrequency",
+			"\t----------------------------------------------------",
+			"\tconstant cClkFreq  : natural  := ${3:50E6};",
+			"",
+			"\t----------------------------------------------------",
+			"\t-- component ports",
+			"\t----------------------------------------------------",
+			"\tsignal Clk       : std_logic  := '1';",
+			"\tsignal nRstAsync : std_ulogic := not('1');",
+			"\t$0",
+			"begin",
+			"",
+			"\t----------------------------------------------------",
+			"\t-- entity instantiation with components",
+			"\t----------------------------------------------------",
+			"\t",
+			"\t",
+			"\t----------------------------------------------------",
+			"\t-- clock generation",
+			"\t----------------------------------------------------",
+			"\tClk <= not(Clk) after 1 sec/cClkFreq/2;",
+			"",
+			"\t----------------------------------------------------",
+			"\t-- waveform generation",
+			"\t----------------------------------------------------",
+			"\tWaveGen_Proc : process",
+			"\tbegin",
+			"\t\t-- VUnit setup",
+			"\t\ttest_runner_setup(runner, runner_cfg);",
+			"\t\t-- loop used to run several VUnit testcases",
+			"\t\twhile test_suite loop",
+			"\t\t\t-- define one VUnit testcase",
+			"\t\t\tif run(\"testcase_1:test1\") then",
+			"\t\t\t\t",
+			"\t\t\t\t",
+			"\t\t\t\t",
+			"\t\t\t-- define another VUnit testcase",
+			"\t\t\telsif run(\"testcase_2:test2\") then",
+			"\t\t\t\t",
+			"\t\t\t\t",
+			"\t\t\t\t",
+			"\t\t\tend if;",
+			"\t\tend loop;",
+			"\t\ttest_runner_cleanup(runner);",
+			"\tend process WaveGen_Proc;",
+			"",
+			"end architecture;"
+		],
+		"description": "VHDL testbench VUnit template"
+	},	
 	"When": {
 		"prefix": "when",
 		"body": [
