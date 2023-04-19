@@ -1,5 +1,5 @@
 //Specific Imports
-import { VhdlFinder } from "./VhdlFinder";
+import { IVhdlFinder } from "./VhdlFinder";
 import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../../Constants";
 import { walk } from 'walk-file-tree';
 
@@ -13,7 +13,7 @@ import * as fs from 'fs';
 const DEFAULT_LIBRARY_NAME = "lib";
 
 
-export class SimpleVhdlFinder implements VhdlFinder
+export class SimpleVhdlFinder implements IVhdlFinder
 {
     public async GetVhdlFilesFromProject(WorkSpacePath: string) : Promise<VHDL_ProjectFiles> {
 

@@ -15,12 +15,16 @@ import { VHDL_TOP_LEVEL_ENTITY } from '../FileHolder';
 
 //Commands
 const cSetDesignName = "set DesignName ";
+const cSetProjectDirectory = "set ProjectDirectory ";
+const cSetFileList = "set filelist ";
 const cLoadPackage = "load_package ";
 const cProjectNew = "project_new ";
 const cProjectOpen = "project_open ";
 const cProjectClose = "project_close ";
 const cSetGlobalAssignment = "set_global_assignment ";
 const cExecuteFlow = "execute_flow ";
+const cExecute = "exec ";
+const cRemoveFile = "remove_file ";
 
 //Global Assignments
 const cFAMILY = "FAMILY ";
@@ -34,6 +38,11 @@ const cSpecifierOverwrite = "-overwrite ";
 const cSpecifierName = "-name ";
 const cFlowCompile = "-compile ";
 const cFlowAnalysis = "-analysis_and_elaboration ";
+const cSpecifierFile = "-file ";
+
+const cSpecifierGlob = "glob ";
+const cSpecifierNoComplain = "-nocomplain ";
+const cSpecifierDirectory = "-directory ";
 
 //packages
 const cPackageFlow = "flow";
@@ -41,9 +50,24 @@ const cPackageProject = "project";
 
 // Variable-References
 const cDesignNameReference = "$DesignName";
+const cProjectDirectoryReference = "$ProjectDirectory ";
+const cFileListReference = "$filelist ";
+const cFileReference = "$file ";
+
+// WildCards
+const cVhdlWildCard = "*.vhd";
 
 //Characters
 const cQuote = "\"";
+
+//Sequential Statements
+const cForEach = "foreach ";
+
+//Complex Commands
+const cRemoveAllFilesFromFileList = cForEach + "file " + cFileListReference + "{" + "\n" 
+                                    + "\t" + cRemoveFile + cSpecifierFile + cFileReference + "\n" 
+                                    + "}" + "\n\n";
+
 
 export class TclGenerator {
 
@@ -51,7 +75,6 @@ export class TclGenerator {
     // Private members
     // --------------------------------------------
     private mQuartus : Quartus;
-    private mTclScriptsFolder : string = "";
 
     // --------------------------------------------
     // public methods
@@ -63,21 +86,15 @@ export class TclGenerator {
 
     //Pass ProjectName as absolute path
     public GenerateQuartusProject() : void {
-
-        //When new Quartus-Project is created -> make directory for all Tcl-Scripts
-        this.mTclScriptsFolder = path.join(this.mQuartus.GetProjectPath(), TclScripts.Folder);
-        if (!fs.existsSync(this.mTclScriptsFolder)) {
-            fs.mkdirSync(this.mTclScriptsFolder);
-        }
         
         //writestream for Tcl-Script
-        if(fs.existsSync(path.join(this.mTclScriptsFolder, TclScripts.GenerateProject)))
+        if(fs.existsSync(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.GenerateProject)))
         {
             vscode.window.showInformationMessage(TclScripts.GenerateProject + " already exists and cannot be overwritten!");
             return;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mTclScriptsFolder, TclScripts.GenerateProject), { flags: 'w', emitClose:true });
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.GenerateProject), { flags: 'wx'});
         
         //check writestream
         if(!wstream.writable)
@@ -123,13 +140,23 @@ export class TclGenerator {
             return;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mTclScriptsFolder, TclScripts.UpdateFiles), { flags: 'w' });
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.UpdateFiles), { flags: 'w' });
         
+        //Load Packages
+        wstream.write(cLoadPackage + cPackageProject + "\n");
+        wstream.write(cLoadPackage + cPackageFlow + "\n\n");
+
         //Set DesignName
-        wstream.write(cSetDesignName + this.mQuartus.GetProjectName() + "\n\n");
+        wstream.write(cSetDesignName + this.mQuartus.GetProjectName() + "\n");
+        //Set ProjectDirectory
+        wstream.write(cSetProjectDirectory + this.mQuartus.GetProjectPath() + "\n\n");
 
         //Open Quartus-Project
         wstream.write(cProjectOpen + cDesignNameReference + "\n\n");
+        
+        //Remove all vhdl-files from qsf
+        wstream.write(cSetFileList + "[" + cSpecifierGlob + cSpecifierNoComplain + cSpecifierDirectory + cProjectDirectoryReference + cVhdlWildCard + "]" + "\n\n");
+        wstream.write(cRemoveAllFilesFromFileList);
 
         //Iterate over all libraries
         for(const [lib,files] of this.mQuartus.GetFileHolder().GetProjectFiles().entries())
@@ -137,9 +164,12 @@ export class TclGenerator {
             //Iterate over all files in a library
             for(let file of files)
             {
-                //write path of File
-                wstream.write(cSetGlobalAssignment + cSpecifierName + cVHDL_FILE);
-                wstream.write(path.relative(this.mQuartus.GetProjectPath(), file).replace(/\\/g, "/") + "\n");
+                if(!this.mQuartus.IsBlackListed(path.basename(file)))
+                {
+                    //write path of File
+                    wstream.write(cSetGlobalAssignment + cSpecifierName + cVHDL_FILE);
+                    wstream.write(path.relative(this.mQuartus.GetProjectPath(), file).replace(/\\/g, "/") + "\n");
+                }
             }
         }
         wstream.write("\n");
@@ -152,6 +182,47 @@ export class TclGenerator {
         return;
     }
 
+    public GenerateCompile() : void
+    {
+        if(this.mQuartus.GetProjectPath().length === 0)
+        {
+            vscode.window.showInformationMessage('No existing Quartus-Project -> No compilation posssible!');
+            return;
+        }
 
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.Compile), { flags: 'w'});
+
+        //Load Packages
+        wstream.write(cLoadPackage + cPackageProject + "\n");
+        wstream.write(cLoadPackage + cPackageFlow + "\n\n");
+
+        //Open Quartus-Project
+        wstream.write(cProjectOpen + path.join(this.mQuartus.GetProjectPath(),this.mQuartus.GetProjectName()).replace(/\\/g, "/") + "\n\n");
+
+        //Compile Project
+        wstream.write(cExecuteFlow + cFlowCompile + "\n\n");
+
+        //close project
+        wstream.write(cProjectClose);
+
+        //close writestream
+        wstream.end();
+
+        return;
+    }
+
+    public GenerateLaunchGUI() : void
+    {
+        if(this.mQuartus.GetProjectPath().length === 0)
+        {
+            vscode.window.showInformationMessage('No existing Quartus-Project -> Project cannot be opened!');
+            return;
+        }
+
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.LaunchGUI), { flags: 'w'});
+
+        //Launch Quartus-GUI
+        wstream.write(cExecute + (this.mQuartus.GetQuartusExePath().replace(/\\/g, "/")) + " " + path.join(this.mQuartus.GetProjectPath(),this.mQuartus.GetProjectName()).replace(/\\/g, "/"));
+    }
 
 }

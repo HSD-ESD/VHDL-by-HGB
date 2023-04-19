@@ -1,6 +1,6 @@
 // Specific Imports
 import { VHDL_ProjectFiles, VHDL_Library, VHDL_Files} from "../Constants";
-import { VhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
+import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { SimpleVhdlFinder } from "./FileTools/VhdlFinder/SimpleVhdlFinder";
 import { FileHolder } from "./FileTools/FileHolder";
 import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
@@ -14,17 +14,22 @@ export class ProjectManager {
     // --------------------------------------------
     // Private members
     // --------------------------------------------
+
+    // vscode-members
+    private mOutputChannel : vscode.OutputChannel;
+    private mExtensionContext : vscode.ExtensionContext;
+
+    // project-specific members
     private mWorkSpacePath : string = "";
-    private mVhdlFinder : VhdlFinder;
+    private mVhdlFinder : IVhdlFinder;
     private mTomlGenerator : TomlGenerator;
     private mFileHolder : FileHolder;
-    
     private mQuartus : Quartus;
     
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public constructor() 
+    public constructor(context: vscode.ExtensionContext, outputChannel : vscode.OutputChannel) 
     {
         if(vscode.workspace.workspaceFolders !== undefined)
         {
@@ -36,10 +41,12 @@ export class ProjectManager {
             }
         }
 
+        this.mExtensionContext = context;
+        this.mOutputChannel = outputChannel;
         this.mFileHolder = new FileHolder();
         this.mVhdlFinder = new SimpleVhdlFinder();
         this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath);
-        this.mQuartus = new Quartus(this.mFileHolder);
+        this.mQuartus = new Quartus(this.mFileHolder, this.mOutputChannel);
     }
 
     public async UpdateProjectFiles() : Promise<void> {

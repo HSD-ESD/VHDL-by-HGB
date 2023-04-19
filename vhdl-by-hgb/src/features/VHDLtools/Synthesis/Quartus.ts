@@ -5,6 +5,7 @@ import { OS } from "colibri2/out/process/common";
 import { get_os } from "colibri2/out/process/utils";
 import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../FileTools/FileHolder";
 import { TclGenerator } from "./../../FileTools/FileGenerator/TclGenerator";
+import { FileUtils } from "../../FileTools/FileUtils";
 
 import { Hdl_element } from "colibri2/out/parser/common";
 import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
@@ -15,7 +16,6 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 import * as path from 'path';
 import * as child_process from 'child_process';
-import * as chokidar from 'chokidar';
 
 //--------------------------------------------------------------
 //module-internal constants
@@ -24,6 +24,7 @@ const QUARTUS_PATH_WINDOWS : string = "C:\\intelFPGA_lite";
 const QUARTUS_PATH_LINUX : string = "/opt/intelFPGA_lite";
 
 const QUARTUS_SHELL = "quartus_sh";
+const QUARTUS_EXE = "quartus";
 
 //--------------------------------------------------------------
 // Quartus class
@@ -33,21 +34,30 @@ export class Quartus {
     // --------------------------------------------
     // Private members
     // --------------------------------------------
+
+    // vscode-members
+    private mOutputChannel : vscode.OutputChannel;
+
+    // class-specific members
     private mFileHolder : FileHolder;
     private mTclGenerator : TclGenerator;
 
-    private mQuartusPath : string = "";
+    private mQuartusBinaryPath : string = "";
+    private mQuartusExePath : string = "";
     private mProjectName : string = "";
     private mProjectPath : string = "";
-    
+    private mTclScriptsFolder : string = "";
+
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public constructor(fileHolder : FileHolder) 
+    public constructor(fileHolder : FileHolder, ouputChannel : vscode.OutputChannel) 
     {
+        this.mOutputChannel = ouputChannel;
         this.mFileHolder = fileHolder;
-        this.mQuartusPath = SearchQuartusPath();
+        this.mQuartusBinaryPath = SearchQuartusPath();
+        this.mQuartusExePath = path.join(this.mQuartusBinaryPath, QUARTUS_EXE);
         this.mTclGenerator = new TclGenerator(this);
 
         this.SetCommands();
@@ -58,9 +68,9 @@ export class Quartus {
         let IsSuccess : boolean = true;
 
         //if valid quartus path does not exist -> select path
-        if(this.mQuartusPath.length === 0)
+        if(this.mQuartusBinaryPath.length === 0)
         {
-            IsSuccess = await this.SelectQuartusPath();
+            IsSuccess = await this.SelectQuartusBinaryPath();
 
             if(!IsSuccess)
             {
@@ -86,16 +96,25 @@ export class Quartus {
         });
 
         //Enter project location
-        const uri = await vscode.window.showOpenDialog({
+        const projectPath = await vscode.window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
             canSelectMany: false,
             openLabel: 'Select Quartus-Project-Folder'
           });
 
-          if (uri && uri[0] && uri[0].fsPath)
+          if (projectPath && projectPath[0] && projectPath[0].fsPath)
           {
-            this.mProjectPath = uri[0].fsPath;
+            //read chosen directory and check, if a quartus-project already exists in this folder
+            const files = fs.readdirSync(projectPath[0].fsPath);
+            const projectFile = files.find((file) => file.endsWith(".qpf"));
+            if (projectFile) {
+                vscode.window.showInformationMessage('A Quartus-Project already exists in this folder!'); 
+                return false;
+            }
+
+            //chosen path is valid and gets stored
+            this.mProjectPath = projectPath[0].fsPath;
             vscode.window.showInformationMessage('Project-Location was set successfully!');
           }
           else
@@ -110,6 +129,12 @@ export class Quartus {
             //select top-level-entity
             IsSuccess = await this.SelectTopLevelEntity();
             if(!IsSuccess) {return false;}
+        }
+
+        //When new Quartus-Project is created -> make directory for all Tcl-Scripts
+        this.mTclScriptsFolder = path.join(this.mProjectPath, TclScripts.Folder);
+        if (!fs.existsSync(this.mTclScriptsFolder)) {
+            fs.mkdirSync(this.mTclScriptsFolder);
         }
 
         //create tcl-script
@@ -150,21 +175,74 @@ export class Quartus {
         return true;
     }
 
-
     public UpdateProject() : void {}
 
     public SetDevice(device : string) : void {}
 
     public SetTopLevelEntity(entity : string) : void {}
 
-    public GUI() : void {}
+    public async LaunchGUI() : Promise<boolean>
+    {
+        if(this.mProjectName.length === 0 || this.mProjectPath.length === 0)
+        {
+            vscode.window.showInformationMessage('No existing Quartus-Project -> GUI cannot be launched!');
+            return false;
+        }
 
-    public Compile() : void {}
+        if( !fs.existsSync(path.join(this.mTclScriptsFolder, TclScripts.LaunchGUI)))
+        {
+           this.mTclGenerator.GenerateLaunchGUI(); 
+        }
+
+        //Run Tcl-Script for launching GUI
+        const IsSuccess : boolean = await this.RunTclScript(TclScripts.LaunchGUI);
+
+        if (!IsSuccess) {
+            vscode.window.showErrorMessage("Launching Quartus-Project failed!");
+            return false;
+        }
+
+        return true;
+    }
+
+    public async Compile() : Promise<boolean>
+    {
+        if(this.mProjectName.length === 0 || this.mProjectPath.length === 0)
+        {
+            vscode.window.showInformationMessage('No existing Quartus-Project -> GUI cannot be launched!');
+            return false;
+        }
+
+        if( !fs.existsSync(path.join(this.mTclScriptsFolder, TclScripts.Compile)))
+        {
+           this.mTclGenerator.GenerateCompile(); 
+        }
+
+        //Run Tcl-Script for generating Project
+        const IsSuccess : boolean = await this.RunTclScript(TclScripts.Compile);
+
+        if (!IsSuccess) {
+            vscode.window.showErrorMessage("Compiling Quartus-Project failed!");
+            return false;
+        }
+
+        return true;
+    }
 
     //Getter-Methods
     public GetProjectName() : string {return this.mProjectName;}
     public GetProjectPath() : string {return this.mProjectPath;}
     public GetFileHolder() : FileHolder {return this.mFileHolder;}
+    public GetQuartusBinaryPath() : string {return this.mQuartusBinaryPath;}
+    public GetQuartusExePath() : string {return this.mQuartusExePath;}
+    public GetTclScriptsPath() : string {return this.mTclScriptsFolder;}
+
+    public IsBlackListed(fileName : string)
+    {
+        // ignore testbenches for synthesis
+            //return /^tb\b/.test(fileName);
+        return fileName.startsWith("tb");
+    }
 
 
     // --------------------------------------------
@@ -172,14 +250,14 @@ export class Quartus {
     // --------------------------------------------
     private SetCommands() : void
     {
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.SetBinaryPath", () => { this.SelectQuartusPath(); });
+        vscode.commands.registerCommand("VHDLbyHGB.Quartus.SetBinaryPath", () => { this.SelectQuartusBinaryPath(); });
         vscode.commands.registerCommand("VHDLbyHGB.Quartus.GenerateProject", () => { this.GenerateProject(); });
         vscode.commands.registerCommand("VHDLbyHGB.Quartus.UpdateFiles", () => { this.UpdateFiles(); });
         vscode.commands.registerCommand("VHDLbyHGB.Quartus.Compile", () => { this.Compile(); });
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.GUI", () => { this.GUI(); });
+        vscode.commands.registerCommand("VHDLbyHGB.Quartus.GUI", () => { this.LaunchGUI(); });
     }
 
-    private async SelectQuartusPath() : Promise<boolean> 
+    private async SelectQuartusBinaryPath() : Promise<boolean> 
     {
         try {
 
@@ -195,7 +273,7 @@ export class Quartus {
                 console.log(uri[0].fsPath);
                 if(uri[0].fsPath.length === 0) {console.log("length == 0");}
                 // Store quartus-path internally
-                this.mQuartusPath = uri[0].fsPath;
+                this.mQuartusBinaryPath = uri[0].fsPath;
                 vscode.window.showInformationMessage('Folder containing Quartus-Binaries was selected successfully!');
                 return true;
             }
@@ -213,18 +291,21 @@ export class Quartus {
 
     private async RunTclScript(TclScript : string) : Promise<boolean>
     {
-        //wait until file actually exists
-        await waitForFileCreation(path.join(this.mProjectPath, TclScripts.Folder), 10000);
-
         //check, if specified Tcl-Script exists
         if(!fs.existsSync(path.join(this.mProjectPath, TclScripts.Folder, TclScript)))
         {
-            vscode.window.showInformationMessage('Tcl-Script to be executed does not exist!');
-            return false;
+            //wait until specified tcl-script really exists
+            const IsSuccess : boolean = await FileUtils.WaitForFileCreation(path.join(this.mTclScriptsFolder, TclScript));
+
+            if(!IsSuccess)
+            {
+                vscode.window.showInformationMessage('Tcl-Script to be executed does not exist!');
+                return false;
+            }
         }
 
         //path for quartus-shell
-        const QuartusShellPath : string = path.join(this.mQuartusPath, QUARTUS_SHELL);
+        const QuartusShellPath : string = path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);
 
         //execute tcl-script with quartus-shell
         const quartusShell = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScript)], {
@@ -238,14 +319,17 @@ export class Quartus {
 
         quartusShell.stdout.on('data', (data: Buffer) => {
             console.log(data.toString());
-          });
+            this.mOutputChannel.appendLine(data.toString());
+        });
           
         quartusShell.stderr.on('data', (data: Buffer) => {
-        console.error(data.toString());
+            console.error(data.toString());
+            this.mOutputChannel.appendLine(data.toString());
         });
         
         quartusShell.on('close', (code: number) => {
-        console.log(`Quartus process exited with code ${code}`);
+            console.log(`Quartus process exited with code ${code}`);
+            this.mOutputChannel.appendLine(`Quartus process exited with code ${code}`);
         });
 
         //Check if process exited with code 0 (success)
@@ -255,8 +339,10 @@ export class Quartus {
             });
         });
 
+        //terminate child-process for quartusShell
         quartusShell.kill();
 
+        //check, if process was executed without any errors and return result
         const IsSuccess : boolean = exitCode === 0;
 
         return true;
@@ -386,27 +472,3 @@ function GetNewestQuartusVersion(DefaultPath : string) : string
     
     return NewestVersion.toString();
 }
-
-async function waitForFileCreation(filePath : string, timeout : number = 5000) : Promise<void> {
-    return new Promise((resolve, reject) => {
-      const watcher = chokidar.watch(filePath);
-  
-      // Event listener for file creation
-      watcher.on('add', () => {
-        watcher.close();
-        resolve();
-      });
-  
-      // Handle errors
-      watcher.on('error', (error) => {
-        watcher.close();
-        reject(error);
-      });
-  
-      // Timeout
-      setTimeout(() => {
-        watcher.close();
-        reject(new Error(`Timeout waiting for file creation: ${filePath}`));
-      }, timeout);
-    });
-  }

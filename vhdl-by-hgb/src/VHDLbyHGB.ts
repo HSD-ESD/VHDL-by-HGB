@@ -13,6 +13,7 @@ export class VHDLbyHGB {
 	//Private Members
 	//--------------------------------------------
     private mContext : vscode.ExtensionContext;
+	private mOutputChannel: vscode.OutputChannel;
 	private mRustHDL : RustHDL;
 	private mProjectManager : ProjectManager;
 
@@ -26,8 +27,9 @@ export class VHDLbyHGB {
 	constructor(context: vscode.ExtensionContext) 
 	{
 		this.mContext = context;
+		this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB');
 		this.mRustHDL = new RustHDL(this.mContext);
-		this.mProjectManager = new ProjectManager();
+		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
 
 		//Colibri-Init
 		// const homedir = teroshdl2.utils.common.get_home_directory();
