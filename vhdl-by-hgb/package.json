@@ -100,24 +100,40 @@
         },
         "commands": [
             {
+                "command": "VHDLbyHGB.vhdlls.restart",
+                "title": "VHDLbyHGB.VHDL_LS: restart"
+            },
+            {
+                "command": "VHDLbyHGB.vhdlls.activate",
+                "title": "VHDLbyHGB.VHDL_LS: activate"
+            },
+            {
+                "command": "VHDLbyHGB.vhdlls.deactivate",
+                "title": "VHDLbyHGB.VHDL_LS: deactivate"
+            },
+            {
+                "command": "VHDLbyHGB.ProjectManager.UpdateFiles",
+                "title": "VHDLbyHGB.ProjectManager: Update Files"
+            },
+            {
                 "command": "VHDLbyHGB.Quartus.SetBinaryPath",
-                "title": "Quartus: Set Binary-Path"
+                "title": "VHDLbyHGB.Quartus: Set Binary-Path"
             },
             {
                 "command": "VHDLbyHGB.Quartus.GenerateProject",
-                "title": "Quartus: Generate Quartus-Project"
+                "title": "VHDLbyHGB.Quartus: Generate Quartus-Project"
             },
             {
                 "command": "VHDLbyHGB.Quartus.UpdateFiles",
-                "title": "Quartus: Update Quartus-ProjectFiles"
+                "title": "VHDLbyHGB.Quartus: Update Quartus-ProjectFiles"
             },
             {
                 "command": "VHDLbyHGB.Quartus.Compile",
-                "title": "Quartus: Compile an existing Quartus-Project"
+                "title": "VHDLbyHGB.Quartus: Compile an existing Quartus-Project"
             },
             {
                 "command": "VHDLbyHGB.Quartus.GUI",
-                "title": "Quartus: Open GUI of an existing Quartus-Project"
+                "title": "VHDLbyHGB.Quartus: Open GUI of an existing Quartus-Project"
             }
 
         ],

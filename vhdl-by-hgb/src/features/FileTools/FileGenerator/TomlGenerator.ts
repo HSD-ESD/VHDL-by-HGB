@@ -5,6 +5,7 @@ import * as Constants from "../../../Constants";
 // General Imports
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
 
 // module-internal constants
 const TOML_Files_Spec = "files = ";
@@ -24,23 +25,25 @@ export class TomlGenerator {
     // Private members
     // --------------------------------------------
     private mWorkSpacePath : string = "";
+    private mFileHolder : FileHolder;
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public constructor(workSpacePath : string)
+    public constructor(workSpacePath : string, fileHolder : FileHolder)
     {
         this.mWorkSpacePath = workSpacePath;
+        this.mFileHolder = fileHolder;
     }
 
-    public async Generate_VHDL_LS(fileholder : FileHolder, IsRelativePaths: boolean = true) : Promise<void>
+    public async Generate_VHDL_LS(IsRelativePaths: boolean = true) : Promise<void>
     {
         const FileName : string = path.join(this.mWorkSpacePath, Constants.VHDL_LS_FILE);
 
         let wstream = fs.createWriteStream(FileName, { flags: 'w' });
 		
         //Iterate over all libraries
-        for(const [lib,files] of fileholder.GetProjectFiles().entries())
+        for(const [lib,files] of this.mFileHolder.GetProjectFiles().entries())
         {
             //print library name
 		    wstream.write(TOML_Open_Char + TOML_Libraries + TOML_Point + lib + TOML_Closing_Char + TOML_New_Line);

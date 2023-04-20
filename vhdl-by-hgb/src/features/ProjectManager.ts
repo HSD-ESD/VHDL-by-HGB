@@ -45,17 +45,32 @@ export class ProjectManager {
         this.mOutputChannel = outputChannel;
         this.mFileHolder = new FileHolder();
         this.mVhdlFinder = new SimpleVhdlFinder();
-        this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath);
+        this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath, this.mFileHolder);
         this.mQuartus = new Quartus(this.mFileHolder, this.mOutputChannel);
+
+        this.RegisterCommands();
     }
 
     public async UpdateProjectFiles() : Promise<void> {
-        await this.mVhdlFinder.GetVhdlFilesFromProject(this.mWorkSpacePath).then((projectFiles) => 
+        this.mVhdlFinder.GetVhdlFilesFromProject(this.mWorkSpacePath).then((projectFiles) => 
         { 
             this.mFileHolder.SetProjectFiles(projectFiles);
-            this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder);
+            vscode.commands.executeCommand("VHDLbyHGB.vhdlls.deactivate")
+                .then(
+                    () => {this.mTomlGenerator.Generate_VHDL_LS();}
+                )
+                .then(
+                    () => { vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate"); }
+                );
         });
     }
 
+    // --------------------------------------------
+    // Private methods
+    // --------------------------------------------
+    private RegisterCommands() : void
+    {
+        vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.UpdateFiles", () => this.UpdateProjectFiles());
+    }
 
 }

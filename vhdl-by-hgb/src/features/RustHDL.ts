@@ -51,6 +51,7 @@ export class RustHDL {
     //--------------------------------------------
     constructor(context: ExtensionContext) {
         this.context = context;
+        this.RegisterCommands();
     }
 
     public async Activate() {
@@ -140,7 +141,7 @@ export class RustHDL {
         // Register command to restart language server
         this.context.subscriptions.push(languageServerDisposable);
         this.context.subscriptions.push(
-            vscode.commands.registerCommand('vhdlls.restart', async () => {
+            vscode.commands.registerCommand('VHDLbyHGB.vhdlls.restart', async () => {
                 const MSG = 'Restarting VHDL LS';
                 output.appendLine(MSG);
                 window.showInformationMessage(MSG);
@@ -179,6 +180,14 @@ export class RustHDL {
         return this.client.stop();
     }
 
+    //--------------------------------------------
+    //Private Methods
+    //--------------------------------------------
+    private RegisterCommands() : void
+    {
+        vscode.commands.registerCommand('VHDLbyHGB.vhdlls.activate', () => this.Activate());
+        vscode.commands.registerCommand('VHDLbyHGB.vhdlls.deactivate', () => this.Deactivate());
+    }
 
 }
 

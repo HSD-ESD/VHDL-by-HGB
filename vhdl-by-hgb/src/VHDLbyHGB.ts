@@ -17,8 +17,7 @@ export class VHDLbyHGB {
 	private mRustHDL : RustHDL;
 	private mProjectManager : ProjectManager;
 
-	//private mMultiProjectManager : Multi_project_manager;
-    private mEventEmitter : events.EventEmitter = new events.EventEmitter();
+    private mEventEmitter : events.EventEmitter;
 
 
 	//--------------------------------------------
@@ -29,13 +28,9 @@ export class VHDLbyHGB {
 		this.mContext = context;
 		this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB');
 		this.mRustHDL = new RustHDL(this.mContext);
+		this.mEventEmitter = new events.EventEmitter();
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
 
-		//Colibri-Init
-		// const homedir = teroshdl2.utils.common.get_home_directory();
-        // const file_config_path = path.join(homedir, CONFIG_FILENAME);
-        // const file_prj_path = path.join(homedir, PRJ_FILENAME);
-		// this.mMultiProjectManager = new Multi_project_manager("VHDLbyHGB",file_config_path, file_prj_path, this.mEventEmitter);
     }
 
 	public Initialize() 
@@ -57,17 +52,14 @@ export class VHDLbyHGB {
 	//--------------------------------------------
 	//Private Methods
 	//--------------------------------------------
-	private RustHDL_Initialize() 
+	private async RustHDL_Initialize() 
 	{ 
 		
-		this.mProjectManager.UpdateProjectFiles().then(
-			//Start language-server
-			response => { this.mRustHDL.Activate(); }
-		);
+		this.mProjectManager.UpdateProjectFiles();
 
 	}
 
-	private VHDLFormatter_Initialize() 
+	private async VHDLFormatter_Initialize() 
 	{
 		
 	}
