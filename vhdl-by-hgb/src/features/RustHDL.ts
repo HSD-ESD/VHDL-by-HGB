@@ -185,8 +185,13 @@ export class RustHDL {
     //--------------------------------------------
     private RegisterCommands() : void
     {
-        vscode.commands.registerCommand('VHDLbyHGB.vhdlls.activate', () => this.Activate());
-        vscode.commands.registerCommand('VHDLbyHGB.vhdlls.deactivate', () => this.Deactivate());
+        let disposable : vscode.Disposable;
+
+        disposable = vscode.commands.registerCommand('VHDLbyHGB.vhdlls.activate', () => this.Activate());
+        this.context.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand('VHDLbyHGB.vhdlls.deactivate', () => this.Deactivate());
+        this.context.subscriptions.push(disposable);
     }
 
 }

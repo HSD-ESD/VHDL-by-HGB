@@ -17,7 +17,7 @@ export class ProjectManager {
 
     // vscode-members
     private mOutputChannel : vscode.OutputChannel;
-    private mExtensionContext : vscode.ExtensionContext;
+    private mContext : vscode.ExtensionContext;
 
     // project-specific members
     private mWorkSpacePath : string = "";
@@ -41,12 +41,12 @@ export class ProjectManager {
             }
         }
 
-        this.mExtensionContext = context;
+        this.mContext = context;
         this.mOutputChannel = outputChannel;
         this.mFileHolder = new FileHolder();
         this.mVhdlFinder = new SimpleVhdlFinder();
         this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath, this.mFileHolder);
-        this.mQuartus = new Quartus(this.mFileHolder, this.mOutputChannel);
+        this.mQuartus = new Quartus(this.mFileHolder, this.mOutputChannel, this.mContext);
 
         this.RegisterCommands();
     }
@@ -70,7 +70,10 @@ export class ProjectManager {
     // --------------------------------------------
     private RegisterCommands() : void
     {
-        vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.UpdateFiles", () => this.UpdateProjectFiles());
+        let disposable : vscode.Disposable;
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.UpdateFiles", () => this.UpdateProjectFiles());
+        this.mContext.subscriptions.push(disposable);
     }
 
 }

@@ -37,6 +37,7 @@ export class Quartus {
 
     // vscode-members
     private mOutputChannel : vscode.OutputChannel;
+    private mContext : vscode.ExtensionContext;
 
     // class-specific members
     private mFileHolder : FileHolder;
@@ -52,15 +53,16 @@ export class Quartus {
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public constructor(fileHolder : FileHolder, ouputChannel : vscode.OutputChannel) 
+    public constructor(fileHolder : FileHolder, ouputChannel : vscode.OutputChannel, context : vscode.ExtensionContext) 
     {
         this.mOutputChannel = ouputChannel;
+        this.mContext = context;
         this.mFileHolder = fileHolder;
         this.mQuartusBinaryPath = SearchQuartusPath();
         this.mQuartusExePath = path.join(this.mQuartusBinaryPath, QUARTUS_EXE);
         this.mTclGenerator = new TclGenerator(this);
 
-        this.SetCommands();
+        this.RegisterCommands();
     }
 
     public async GenerateProject() : Promise<boolean> 
@@ -248,13 +250,25 @@ export class Quartus {
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
-    private SetCommands() : void
+    private RegisterCommands() : void
     {
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.SetBinaryPath", () => { this.SelectQuartusBinaryPath(); });
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.GenerateProject", () => { this.GenerateProject(); });
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.UpdateFiles", () => { this.UpdateFiles(); });
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.Compile", () => { this.Compile(); });
-        vscode.commands.registerCommand("VHDLbyHGB.Quartus.GUI", () => { this.LaunchGUI(); });
+        let disposable : vscode.Disposable;
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.SetBinaryPath", () => { this.SelectQuartusBinaryPath(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.GenerateProject", () => { this.GenerateProject(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.UpdateFiles", () => { this.UpdateFiles(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.Compile", () => { this.Compile(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.GUI", () => { this.LaunchGUI(); });
+        this.mContext.subscriptions.push(disposable);
+
     }
 
     private async SelectQuartusBinaryPath() : Promise<boolean> 
