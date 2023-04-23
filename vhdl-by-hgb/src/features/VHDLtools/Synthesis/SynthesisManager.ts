@@ -18,9 +18,11 @@ export class SynthesisManager
         this.mSynthesisProjects = new Array<ISynthesisProject>();
     }
 
-    public AddProject(name : string, factory : SynthesisFactory)
+    public AddProject()
     {
         
+
+        // this.mSynthesisProjects.push( );
     }
 
 

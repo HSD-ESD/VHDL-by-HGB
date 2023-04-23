@@ -1,5 +1,5 @@
 //Specific Imports
-import { ISynthesisProject } from "./SynthesisProject";
+import { ISynthesisProject } from "../SynthesisProject";
 
 //General Imports
 

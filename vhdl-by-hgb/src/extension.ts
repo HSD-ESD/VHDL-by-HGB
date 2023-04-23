@@ -8,7 +8,7 @@
 'use strict';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { workspace, ExtensionContext, window } from 'vscode';
+import { workspace, ExtensionContext} from 'vscode';
 
 //Specific Imports
 import { VHDLbyHGB } from './VHDLbyHGB';
@@ -18,7 +18,8 @@ import { Quartus } from './features/VHDLtools/Synthesis/Quartus/Quartus';
 let VhdlByHgb : VHDLbyHGB;
 
 export async function activate(ctx: ExtensionContext) 
-{
+{ 
+
     VhdlByHgb = new VHDLbyHGB(ctx);
     VhdlByHgb.Initialize();
 
@@ -28,5 +29,4 @@ export function deactivate(): Thenable<void> | undefined
 {
     return VhdlByHgb.Deactivate();
 }
-
 
