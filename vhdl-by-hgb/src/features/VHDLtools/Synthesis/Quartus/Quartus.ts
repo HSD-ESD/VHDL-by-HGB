@@ -1,11 +1,11 @@
 //Specific Imports
-import * as Constants from "./../../../Constants";
-import * as TclScripts from "./TclScripts";
+import * as Constants from "../../../../Constants";
+import * as TclScripts from "../TclScripts";
 import { OS } from "colibri2/out/process/common";
 import { get_os } from "colibri2/out/process/utils";
-import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../FileTools/FileHolder";
-import { TclGenerator } from "./../../FileTools/FileGenerator/TclGenerator";
-import { FileUtils } from "../../FileTools/FileUtils";
+import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../../FileTools/FileHolder";
+import { TclGenerator } from "../../../FileTools/FileGenerator/TclGenerator";
+import { FileUtils } from "../../../FileTools/FileUtils";
 
 import { Hdl_element } from "colibri2/out/parser/common";
 import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";

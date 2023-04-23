@@ -13,7 +13,7 @@ import { workspace, ExtensionContext, window } from 'vscode';
 //Specific Imports
 import { VHDLbyHGB } from './VHDLbyHGB';
 
-import { Quartus } from './features/VHDLtools/Synthesis/Quartus';
+import { Quartus } from './features/VHDLtools/Synthesis/Quartus/Quartus';
 
 let VhdlByHgb : VHDLbyHGB;
 

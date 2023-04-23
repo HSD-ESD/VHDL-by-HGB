@@ -1,5 +1,5 @@
 //specific imports
-import { Quartus } from '../../VHDLtools/Synthesis/Quartus';
+import { Quartus } from '../../VHDLtools/Synthesis/Quartus/Quartus';
 import * as TclScripts from './../../VHDLtools/Synthesis/TclScripts';
 import * as Constants from './../../../Constants';
 

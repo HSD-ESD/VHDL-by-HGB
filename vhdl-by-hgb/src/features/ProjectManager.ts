@@ -4,7 +4,7 @@ import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { SimpleVhdlFinder } from "./FileTools/VhdlFinder/SimpleVhdlFinder";
 import { FileHolder } from "./FileTools/FileHolder";
 import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
-import { Quartus } from "./VHDLtools/Synthesis/Quartus";
+import { Quartus } from "./VHDLtools/Synthesis/Quartus/Quartus";
 
 // General Imports
 import * as vscode from 'vscode';
