@@ -1,8 +1,8 @@
-import { SynthesisFactory } from "./SynthesisFactory";
+import { ISynthesisFactory } from "./SynthesisFactory";
 import { ISynthesisProject } from "../SynthesisProject";
 import { QuartusProject } from "../Quartus/QuartusProject";
 
-export class QuartusFactory implements SynthesisFactory
+export class QuartusFactory implements ISynthesisFactory
 {
 
     // --------------------------------------------
@@ -24,9 +24,9 @@ export class QuartusFactory implements SynthesisFactory
         return QuartusFactory.mInstance;
     }
 
-    public CreateProject() : ISynthesisProject
+    public CreateProject(name : string, path : string) : ISynthesisProject
     {
-        return new QuartusProject();
+        return new QuartusProject(name, path);
     }
 
 }

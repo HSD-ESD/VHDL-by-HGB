@@ -12,13 +12,16 @@ import { workspace, ExtensionContext} from 'vscode';
 
 //Specific Imports
 import { VHDLbyHGB } from './VHDLbyHGB';
+import { SynthesisWizard } from './features/VHDLtools/SynthesisWizard';
 
-import { Quartus } from './features/VHDLtools/Synthesis/Quartus/Quartus';
 
 let VhdlByHgb : VHDLbyHGB;
 
 export async function activate(ctx: ExtensionContext) 
 { 
+
+    let test : SynthesisWizard = new SynthesisWizard();
+    test.Run();
 
     VhdlByHgb = new VHDLbyHGB(ctx);
     VhdlByHgb.Initialize();

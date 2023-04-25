@@ -1,6 +1,10 @@
 //specific imports
-import { SynthesisFactory } from "./Factory/SynthesisFactory";
-import { ISynthesisProject } from "./SynthesisProject";
+import { SynthesisWizard } from "../SynthesisWizard";
+import { ISynthesisFactory } from "./Factory/SynthesisFactory";
+import { ISynthesisProject, tSynthesisProjectConfig } from "./SynthesisProject";
+
+//general imports
+import * as vscode from 'vscode';
 
 export class SynthesisManager 
 {
@@ -8,6 +12,7 @@ export class SynthesisManager
     // Private members
     // --------------------------------------------
     private mSynthesisProjects : Array<ISynthesisProject>;
+    private mWizard : SynthesisWizard;
     private mActiveProject! : ISynthesisProject;
 
     // --------------------------------------------
@@ -16,13 +21,21 @@ export class SynthesisManager
     constructor()
     {
         this.mSynthesisProjects = new Array<ISynthesisProject>();
+        this.mWizard = new SynthesisWizard();
     }
 
-    public AddProject()
+    public async AddProject() : Promise<boolean>
     {
-        
+        let projectConfig : tSynthesisProjectConfig = await this.mWizard.Run();
+        if(projectConfig.factory === undefined || projectConfig.folderPath.length === 0 || projectConfig.name.length === 0)
+        {
+            vscode.window.showErrorMessage("Synthesis-Project could not be generated!");
+            return false;
+        }
 
-        // this.mSynthesisProjects.push( );
+        let newProject = projectConfig.factory.CreateProject(projectConfig.name, projectConfig.folderPath);
+        this.mSynthesisProjects.push(newProject);
+        return true;
     }
 
 

@@ -1,27 +1,51 @@
 //Specific Imports
-import { ISynthesisProject } from "../SynthesisProject";
+import { ISynthesisProject, SynthesisProject } from "../SynthesisProject";
 
 //General Imports
 
 
-export class QuartusProject implements ISynthesisProject
+export class QuartusProject extends SynthesisProject implements ISynthesisProject
 {
-    public GenerateProject() : boolean
+    // --------------------------------------------
+    // private members
+    // --------------------------------------------
+    
+
+    // --------------------------------------------
+    // public methods
+    // --------------------------------------------
+    public constructor(name : string, path : string)
+    {
+        super(name, path);
+        
+    }
+
+    public UpdateFiles() : boolean
     {
         return true;
     }
 
-    UpdateFiles() : boolean
-    {
-        return true;
-    }
-
-    LaunchGUI() : void
+    public LaunchGUI() : void
     {
         
     }
 
-    Compile() : boolean
+    public Compile() : boolean
+    {
+        return true;
+    }
+
+    public SetTopLevelEntity(entity : string) : boolean
+    {
+        return true;
+    }
+
+    public SetFamily(family : string) : boolean
+    {
+        return true;
+    }
+
+    public SetDevice(device : string) : boolean
     {
         return true;
     }

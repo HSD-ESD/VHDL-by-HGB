@@ -1,6 +1,6 @@
 import { ISynthesisProject } from "../SynthesisProject";
 
-export interface SynthesisFactory
+export interface ISynthesisFactory
 {
-    CreateProject() : ISynthesisProject;
+    CreateProject(name : string, path : string) : ISynthesisProject;
 }
