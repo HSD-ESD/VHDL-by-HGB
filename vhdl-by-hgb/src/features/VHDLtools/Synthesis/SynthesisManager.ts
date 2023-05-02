@@ -15,6 +15,10 @@ export class SynthesisManager
     private mWizard : SynthesisWizard;
     private mActiveProject! : ISynthesisProject;
 
+    //vscode-members
+    private mOutputChannel : vscode.OutputChannel;
+
+
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
@@ -22,6 +26,7 @@ export class SynthesisManager
     {
         this.mSynthesisProjects = new Array<ISynthesisProject>();
         this.mWizard = new SynthesisWizard();
+        this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB:Synthesis');
     }
 
     public async AddProject() : Promise<boolean>
@@ -33,7 +38,9 @@ export class SynthesisManager
             return false;
         }
 
+        //use factory of selected synthesis-tool to create a synthesis-project
         let newProject = projectConfig.factory.CreateProject(projectConfig.name, projectConfig.folderPath);
+        //add generated project to container of all synthesis-projects
         this.mSynthesisProjects.push(newProject);
         return true;
     }

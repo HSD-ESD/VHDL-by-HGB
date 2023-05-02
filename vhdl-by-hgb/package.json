@@ -246,7 +246,8 @@
         "tmp": "0.2.1",
         "vscode-languageclient": "7.0.0-next.6",
         "walk-file-tree": "^1.0.38",
-        "xml2js": "0.4.23"
+        "xml2js": "0.4.23",
+        "async-mutex": "^0.4.0"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",

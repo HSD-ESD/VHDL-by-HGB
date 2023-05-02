@@ -8,6 +8,7 @@ import { Quartus } from "./VHDLtools/Synthesis/Quartus/Quartus";
 
 // General Imports
 import * as vscode from 'vscode';
+import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
 
 export class ProjectManager {
 
@@ -24,7 +25,8 @@ export class ProjectManager {
     private mVhdlFinder : IVhdlFinder;
     private mTomlGenerator : TomlGenerator;
     private mFileHolder : FileHolder;
-    private mQuartus : Quartus;
+    
+    private mSynthesisManager : SynthesisManager;
     
     // --------------------------------------------
     // Public methods
@@ -46,7 +48,8 @@ export class ProjectManager {
         this.mFileHolder = new FileHolder();
         this.mVhdlFinder = new SimpleVhdlFinder();
         this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath, this.mFileHolder);
-        this.mQuartus = new Quartus(this.mFileHolder, this.mOutputChannel, this.mContext);
+        //this.mQuartus = new Quartus(this.mFileHolder, this.mOutputChannel, this.mContext);
+        this.mSynthesisManager = new SynthesisManager();
 
         this.RegisterCommands();
     }

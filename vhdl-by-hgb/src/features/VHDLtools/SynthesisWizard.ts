@@ -89,7 +89,8 @@ export class SynthesisWizard {
                 return selectedFactory;
             }
         }
-        
+
+        vscode.window.showErrorMessage("Selected Synthesis-Tool is not available!");
         return undefined;
     }
 

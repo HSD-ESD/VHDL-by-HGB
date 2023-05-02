@@ -1,4 +1,5 @@
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
+import * as vscode from 'vscode';
 
 export class tSynthesisProjectConfig {
     factory!     : ISynthesisFactory;
@@ -26,13 +27,25 @@ export abstract class SynthesisProject
     // --------------------------------------------
     // protected members
     // --------------------------------------------
+
+    //essential members
     protected mName : string;
     protected mPath : string;
 
-    protected constructor(name : string, path : string)
+    //optional members
+    protected mTopLevelEntity! : string;
+    protected mFamily! : string;
+    protected mDevice! : string;
+
+    //vscode-members
+    protected mOutputChannel : vscode.OutputChannel;
+
+    protected constructor(name : string, path : string, outputChannel : vscode.OutputChannel)
     {
         this.mName = name;
         this.mPath = path;
+
+        this.mOutputChannel = outputChannel;
     }
 
 }

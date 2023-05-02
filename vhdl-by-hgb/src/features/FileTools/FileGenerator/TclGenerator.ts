@@ -1,5 +1,5 @@
 //specific imports
-import { Quartus } from '../../VHDLtools/Synthesis/Quartus/Quartus';
+import { QuartusProject } from '../../VHDLtools/Synthesis/Quartus/QuartusProject';
 import * as TclScripts from './../../VHDLtools/Synthesis/TclScripts';
 import * as Constants from './../../../Constants';
 
@@ -74,21 +74,16 @@ export class TclGenerator {
     // --------------------------------------------
     // Private members
     // --------------------------------------------
-    private mQuartus : Quartus;
 
     // --------------------------------------------
     // public methods
     // --------------------------------------------
-    public constructor(quartus : Quartus) 
-    {
-        this.mQuartus = quartus;
-    }
 
     //Pass ProjectName as absolute path
-    public GenerateQuartusProject() : void {
+    public GenerateQuartusProject(quartusProject : QuartusProject) : void {
         
         //writestream for Tcl-Script
-        if(fs.existsSync(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.GenerateProject)))
+        if(fs.existsSync(path.join(quartusProject.GetTclScriptsPath(), TclScripts.GenerateProject)))
         {
             vscode.window.showInformationMessage(TclScripts.GenerateProject + " already exists and cannot be overwritten!");
             return;
