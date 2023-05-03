@@ -1,7 +1,7 @@
 //Specific Imports
 import { ISynthesisProject, SynthesisProject } from "../SynthesisProject";
 import * as TclScripts from "../TclScripts";
-import { TclGenerator } from "../../../FileTools/FileGenerator/TclGenerator";
+import { TclGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { Quartus} from "./Quartus";
 
 //General Imports
@@ -15,17 +15,22 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // private members
     // --------------------------------------------
     private mQuartus : Quartus;
-    private mTclScriptsFolder: string = "";
     private mTclGenerator: TclGenerator;
+
+    private mTclScriptsFolder: string = "";
 
 
     // --------------------------------------------
     // public methods
     // --------------------------------------------
-    public constructor(name : string, projectPath : string, outputChannel : vscode.OutputChannel)
+    public constructor(name : string, projectPath : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext)
     {
-        super(name, projectPath, outputChannel);
-        
+        // call constructor of base-class
+        super(name, projectPath, outputChannel, context);
+
+        this.mQuartus = new Quartus(super.mOutputChannel, super.mContext);
+        this.mTclGenerator = new TclGenerator();
+
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
         this.mTclScriptsFolder = path.join(super.mPath, TclScripts.Folder);
         if (!fs.existsSync(this.mTclScriptsFolder)) {
@@ -33,17 +38,12 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         //create tcl-script
-        this.mQuartus = new Quartus()
-        this.mTclGenerator = new TclGenerator();
         this.mTclGenerator.GenerateQuartusProject(this);
 
-        //Run Tcl-Script for generating Project
         let IsSuccess : boolean = true;
 
-
-        Quartus.getInstance().then(quartus => {
-            quartus.RunTclScript(TclScripts.GenerateProject);
-        });
+        //Run Tcl-Script for generating Project
+         this.mQuartus.RunTclScript(TclScripts.GenerateProject);
 
 
         if (!IsSuccess) {
@@ -57,31 +57,46 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public UpdateFiles() : boolean
     {
+        //TODO: Update Files with Tcl-Script
+        // 
+
         return true;
     }
 
     public LaunchGUI() : void
     {
-        
+        //TODO: Launch GUI with Tcl
     }
 
     public Compile() : boolean
     {
+        //TODO: Compile Project with Tcl
+
         return true;
     }
 
     public SetTopLevelEntity(entity : string) : boolean
     {
+        super.mTopLevelEntity = entity;
+
+        //TODO: Update TopLevel-Entity with Tcl-Script
+
         return true;
     }
 
     public SetFamily(family : string) : boolean
     {
+        super.mFamily = family;
+        //TODO: Update family with Tcl-Script
+
         return true;
     }
 
     public SetDevice(device : string) : boolean
     {
+        super.mDevice = device;
+        //TODO: Update device with Tcl-Script
+
         return true;
     }
 }

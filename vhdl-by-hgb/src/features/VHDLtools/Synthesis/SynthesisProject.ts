@@ -39,13 +39,15 @@ export abstract class SynthesisProject
 
     //vscode-members
     protected mOutputChannel : vscode.OutputChannel;
+    protected mContext : vscode.ExtensionContext;
 
-    protected constructor(name : string, path : string, outputChannel : vscode.OutputChannel)
+    protected constructor(name : string, path : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext)
     {
         this.mName = name;
         this.mPath = path;
 
         this.mOutputChannel = outputChannel;
+        this.mContext = context;
     }
 
 }

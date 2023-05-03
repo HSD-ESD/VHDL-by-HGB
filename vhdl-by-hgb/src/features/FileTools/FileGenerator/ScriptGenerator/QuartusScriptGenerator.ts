@@ -1,13 +1,13 @@
 //specific imports
-import { QuartusProject } from '../../VHDLtools/Synthesis/Quartus/QuartusProject';
-import * as TclScripts from './../../VHDLtools/Synthesis/TclScripts';
-import * as Constants from './../../../Constants';
+import { QuartusProject } from '../../../VHDLtools/Synthesis/Quartus/QuartusProject';
+import * as TclScripts from '../../../VHDLtools/Synthesis/TclScripts';
+import * as Constants from '../../../../Constants';
 
 // general imports
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { VHDL_TOP_LEVEL_ENTITY } from '../FileHolder';
+import { VHDL_TOP_LEVEL_ENTITY } from '../../FileHolder';
 
 //------------------------------------------------------------
 // module-internal constants
@@ -69,7 +69,7 @@ const cRemoveAllFilesFromFileList = cForEach + "file " + cFileListReference + "{
                                     + "}" + "\n\n";
 
 
-export class TclGenerator {
+export class QuartusScriptGenerator {
 
     // --------------------------------------------
     // Private members
@@ -80,7 +80,7 @@ export class TclGenerator {
     // --------------------------------------------
 
     //Pass ProjectName as absolute path
-    public GenerateQuartusProject(quartusProject : QuartusProject) : void {
+    public static GenerateProject(quartusProject : QuartusProject) : void {
         
         //writestream for Tcl-Script
         if(fs.existsSync(path.join(quartusProject.GetTclScriptsPath(), TclScripts.GenerateProject)))
@@ -89,7 +89,7 @@ export class TclGenerator {
             return;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.GenerateProject), { flags: 'wx'});
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsPath(), TclScripts.GenerateProject), { flags: 'wx'});
         
         //check writestream
         if(!wstream.writable)
@@ -99,7 +99,7 @@ export class TclGenerator {
         }
 
         //Set DesignName
-        wstream.write(cSetDesignName + this.mQuartus.GetProjectName() + "\n\n");
+        wstream.write(cSetDesignName + quartusProject.GetProjectName() + "\n\n");
 
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
@@ -113,7 +113,7 @@ export class TclGenerator {
         wstream.write(cSetGlobalAssignment + cSpecifierName + cDEVICE + "5CSEMA5F31C6" + "\n\n");
 
         //Specify Top-Level-Entity
-        wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + this.mQuartus.GetFileHolder().GetTopLevelEntity(VHDL_TOP_LEVEL_ENTITY.Synthesis) + "\n\n");
+        wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetFileHolder().GetTopLevelEntity(VHDL_TOP_LEVEL_ENTITY.Synthesis) + "\n\n");
 
         //Specify Output-Directory
         wstream.write(cSetGlobalAssignment + cSpecifierName + cPROJECT_OUTPUT_DIRECTORY + "output_files" + "\n\n");
@@ -127,24 +127,24 @@ export class TclGenerator {
         return;
     }
 
-    public GenerateUpdateFiles() : void
+    public static GenerateUpdateFiles(quartusProject : QuartusProject) : void
     {
-        if(this.mQuartus.GetProjectPath().length === 0)
+        if(quartusProject.GetProjectPath().length === 0)
         {
             vscode.window.showInformationMessage('No existing Quartus-Project -> Files cannot be updated!');
             return;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.UpdateFiles), { flags: 'w' });
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsPath(), TclScripts.UpdateFiles), { flags: 'w' });
         
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
         wstream.write(cLoadPackage + cPackageFlow + "\n\n");
 
         //Set DesignName
-        wstream.write(cSetDesignName + this.mQuartus.GetProjectName() + "\n");
+        wstream.write(cSetDesignName + quartusProject.GetProjectName() + "\n");
         //Set ProjectDirectory
-        wstream.write(cSetProjectDirectory + this.mQuartus.GetProjectPath() + "\n\n");
+        wstream.write(cSetProjectDirectory + quartusProject.GetProjectPath() + "\n\n");
 
         //Open Quartus-Project
         wstream.write(cProjectOpen + cDesignNameReference + "\n\n");
@@ -154,12 +154,12 @@ export class TclGenerator {
         wstream.write(cRemoveAllFilesFromFileList);
 
         //Iterate over all libraries
-        for(const [lib,files] of this.mQuartus.GetFileHolder().GetProjectFiles().entries())
+        for(const [lib,files] of quartusProject.GetFileHolder().GetProjectFiles().entries())
         {
             //Iterate over all files in a library
             for(let file of files)
             {
-                if(!this.mQuartus.IsBlackListed(path.basename(file)))
+                if(!quartusProject.IsBlackListed(path.basename(file)))
                 {
                     //write path of File
                     wstream.write(cSetGlobalAssignment + cSpecifierName + cVHDL_FILE);
@@ -177,22 +177,22 @@ export class TclGenerator {
         return;
     }
 
-    public GenerateCompile() : void
+    public static GenerateCompile(quartusProject : QuartusProject) : void
     {
-        if(this.mQuartus.GetProjectPath().length === 0)
+        if(quartusProject.GetProjectPath().length === 0)
         {
             vscode.window.showInformationMessage('No existing Quartus-Project -> No compilation posssible!');
             return;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.Compile), { flags: 'w'});
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsPath(), TclScripts.Compile), { flags: 'w'});
 
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
         wstream.write(cLoadPackage + cPackageFlow + "\n\n");
 
         //Open Quartus-Project
-        wstream.write(cProjectOpen + path.join(this.mQuartus.GetProjectPath(),this.mQuartus.GetProjectName()).replace(/\\/g, "/") + "\n\n");
+        wstream.write(cProjectOpen + path.join(quartusProject.GetProjectPath(),quartusProject.GetProjectName()).replace(/\\/g, "/") + "\n\n");
 
         //Compile Project
         wstream.write(cExecuteFlow + cFlowCompile + "\n\n");
@@ -206,7 +206,7 @@ export class TclGenerator {
         return;
     }
 
-    public GenerateLaunchGUI() : void
+    public static GenerateLaunchGUI(quartusProject : QuartusProject) : void
     {
         if(this.mQuartus.GetProjectPath().length === 0)
         {
@@ -217,7 +217,7 @@ export class TclGenerator {
         let wstream : fs.WriteStream = fs.createWriteStream(path.join(this.mQuartus.GetTclScriptsPath(), TclScripts.LaunchGUI), { flags: 'w'});
 
         //Launch Quartus-GUI
-        wstream.write(cExecute + (this.mQuartus.GetQuartusExePath().replace(/\\/g, "/")) + " " + path.join(this.mQuartus.GetProjectPath(),this.mQuartus.GetProjectName()).replace(/\\/g, "/"));
+        wstream.write(cExecute + (quartusProject.GetQuartusExePath().replace(/\\/g, "/")) + " " + path.join(quartusProject.GetProjectPath(),quartusProject.GetProjectName()).replace(/\\/g, "/"));
     }
 
 }

@@ -4,7 +4,7 @@ import * as TclScripts from "../TclScripts";
 import { OS } from "colibri2/out/process/common";
 import { get_os } from "colibri2/out/process/utils";
 import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../../FileTools/FileHolder";
-import { TclGenerator } from "../../../FileTools/FileGenerator/TclGenerator";
+import { TclGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { FileUtils } from "../../../FileTools/FileUtils";
 
 import { Hdl_element } from "colibri2/out/parser/common";
@@ -40,13 +40,6 @@ export class Quartus {
     private mOutputChannel: vscode.OutputChannel;
     private mContext: vscode.ExtensionContext;
 
-    // class-specific members
-    private static mQuartus: Quartus;
-    private static mMutex = new AsyncMutex.Mutex();
-
-    private mFileHolder: FileHolder;
-    private mTclGenerator: TclGenerator;
-
     private mQuartusBinaryPath: string = "";
     private mQuartusExePath: string = "";
     private mProjectName: string = "";
@@ -58,13 +51,11 @@ export class Quartus {
     // Public methods
     // --------------------------------------------
 
-    public constructor(fileHolder: FileHolder, ouputChannel: vscode.OutputChannel, context: vscode.ExtensionContext) {
+    public constructor(ouputChannel: vscode.OutputChannel, context: vscode.ExtensionContext) {
         this.mOutputChannel = ouputChannel;
         this.mContext = context;
-        this.mFileHolder = fileHolder;
-        this.mQuartusBinaryPath = SearchQuartusPath();
+        this.mQuartusBinaryPath = SearchQuartusBinaryPath();
         this.mQuartusExePath = path.join(this.mQuartusBinaryPath, QUARTUS_EXE);
-        this.mTclGenerator = new TclGenerator(this);
 
         this.RegisterCommands();
     }
@@ -391,7 +382,7 @@ export class Quartus {
 
 
 //automatically get Quartus path with newest version -> if not found, path will be empty
-function SearchQuartusPath(): string {
+function SearchQuartusBinaryPath(): string {
     const OperatingSystem: OS = get_os();
     let QuartusPath: string = "";
 
