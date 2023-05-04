@@ -4,7 +4,7 @@ import * as TclScripts from "../TclScripts";
 import { OS } from "colibri2/out/process/common";
 import { get_os } from "colibri2/out/process/utils";
 import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../../FileTools/FileHolder";
-import { TclGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
+import { QuartusScriptGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { FileUtils } from "../../../FileTools/FileUtils";
 
 import { Hdl_element } from "colibri2/out/parser/common";
@@ -330,7 +330,7 @@ export class Quartus {
         //check, if process was executed without any errors and return result
         const IsSuccess: boolean = exitCode === 0;
 
-        return true;
+        return IsSuccess;
     }
 
     private async SelectTopLevelEntity(): Promise<boolean> {

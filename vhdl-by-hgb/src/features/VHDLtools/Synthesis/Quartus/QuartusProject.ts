@@ -1,7 +1,7 @@
 //Specific Imports
 import { ISynthesisProject, SynthesisProject } from "../SynthesisProject";
 import * as TclScripts from "../TclScripts";
-import { TclGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
+import { QuartusScriptGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { Quartus} from "./Quartus";
 
 //General Imports
@@ -15,10 +15,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // private members
     // --------------------------------------------
     private mQuartus : Quartus;
-    private mTclGenerator: TclGenerator;
-
     private mTclScriptsFolder: string = "";
-
 
     // --------------------------------------------
     // public methods
@@ -28,23 +25,27 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         // call constructor of base-class
         super(name, projectPath, outputChannel, context);
 
+        //Quartus-Instance for using Quartus-Utility-Functions
         this.mQuartus = new Quartus(super.mOutputChannel, super.mContext);
-        this.mTclGenerator = new TclGenerator();
 
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
         this.mTclScriptsFolder = path.join(super.mPath, TclScripts.Folder);
         if (!fs.existsSync(this.mTclScriptsFolder)) {
             fs.mkdirSync(this.mTclScriptsFolder);
         }
+        
+    }
 
-        //create tcl-script
-        this.mTclGenerator.GenerateQuartusProject(this);
+    public async Generate() : Promise<boolean>
+    {
+        //create tcl-script for generating a Quartus-Project
+        QuartusScriptGenerator.GenerateProject(this);
 
-        let IsSuccess : boolean = true;
+        //compute script-path
+        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.GenerateProject);
 
         //Run Tcl-Script for generating Project
-         this.mQuartus.RunTclScript(TclScripts.GenerateProject);
-
+        const IsSuccess : boolean = await this.mQuartus.RunTclScript(ScriptPath);
 
         if (!IsSuccess) {
             vscode.window.showErrorMessage("Creating Quartus-Project failed!");
@@ -52,30 +53,73 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         vscode.window.showInformationMessage('Quartus-Project was created successfully!');
-        
+
+        return true;
     }
 
-    public UpdateFiles() : boolean
+    public async UpdateFiles() : Promise<boolean>
     {
         //TODO: Update Files with Tcl-Script
-        // 
+        
+        //create tcl-script for updating files of a Quartus-Project
+        QuartusScriptGenerator.GenerateUpdateFiles(this);
+
+        //compute script-path
+        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.UpdateFiles);
+
+        //Run Tcl-Script for updating files of a Quartus-Project
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+
+        if (!IsSuccess) {
+            vscode.window.showErrorMessage("Updating files in Quartus-Project failed!");
+            return false;
+        }
+
+        vscode.window.showInformationMessage('Files in Quartus-Project were updated successfully!');
+        return true;
+    }
+
+    public async LaunchGUI() : Promise<boolean>
+    {
+        //compute script-path
+        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.LaunchGUI);
+
+        if (!fs.existsSync(ScriptPath)) {
+            QuartusScriptGenerator.GenerateLaunchGUI(this);
+        }
+
+        //Run Tcl-Script for launching GUI
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+
+        if (!IsSuccess) {
+            vscode.window.showErrorMessage("Launching Quartus-Project failed!");
+            return false;
+        }
 
         return true;
     }
 
-    public LaunchGUI() : void
+    public async Compile() : Promise<boolean>
     {
-        //TODO: Launch GUI with Tcl
-    }
+        //compute script-path
+        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.Compile);
 
-    public Compile() : boolean
-    {
-        //TODO: Compile Project with Tcl
+        if (!fs.existsSync(ScriptPath)) {
+            QuartusScriptGenerator.GenerateCompile(this);
+        }
+
+        //Run Tcl-Script for generating Project
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+
+        if (!IsSuccess) {
+            vscode.window.showErrorMessage("Compiling Quartus-Project failed!");
+            return false;
+        }
 
         return true;
     }
 
-    public SetTopLevelEntity(entity : string) : boolean
+    public async SetTopLevelEntity(entity : string) : Promise<boolean>
     {
         super.mTopLevelEntity = entity;
 
@@ -84,7 +128,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         return true;
     }
 
-    public SetFamily(family : string) : boolean
+    public async SetFamily(family : string) : Promise<boolean>
     {
         super.mFamily = family;
         //TODO: Update family with Tcl-Script
@@ -92,7 +136,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         return true;
     }
 
-    public SetDevice(device : string) : boolean
+    public async SetDevice(device : string) : Promise<boolean>
     {
         super.mDevice = device;
         //TODO: Update device with Tcl-Script

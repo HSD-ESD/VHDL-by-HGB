@@ -9,17 +9,19 @@ export class tSynthesisProjectConfig {
 
 export interface ISynthesisProject 
 {
-    UpdateFiles() : boolean;
+    Generate() : Promise<boolean>;
+    
+    UpdateFiles() : Promise<boolean>;
 
-    LaunchGUI() : void;
+    LaunchGUI() : Promise<boolean>;
 
-    Compile() : boolean;
+    Compile() : Promise<boolean>;
 
-    SetTopLevelEntity(entity : string) : boolean;
+    SetTopLevelEntity(entity : string) : Promise<boolean>;
 
-    SetFamily(family : string) : boolean;
+    SetFamily(family : string) : Promise<boolean>;
 
-    SetDevice(device : string) : boolean;
+    SetDevice(device : string) : Promise<boolean>;
 }
 
 export abstract class SynthesisProject
