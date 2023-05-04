@@ -1,6 +1,11 @@
+// specific members
 import { ISynthesisFactory } from "./SynthesisFactory";
 import { ISynthesisProject } from "../SynthesisProject";
 import { QuartusProject } from "../Quartus/QuartusProject";
+
+// general members
+import * as vscode from 'vscode';
+import { FileHolder } from "../../../FileTools/FileHolder";
 
 export class QuartusFactory implements ISynthesisFactory
 {
@@ -24,9 +29,9 @@ export class QuartusFactory implements ISynthesisFactory
         return QuartusFactory.mInstance;
     }
 
-    public CreateProject(name : string, path : string) : ISynthesisProject
+    public CreateProject(name : string, path : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext, fileHolder : FileHolder) : ISynthesisProject
     {
-        return new QuartusProject(name, path);
+        return new QuartusProject(name, path, outputChannel, context, fileHolder);
     }
 
 }

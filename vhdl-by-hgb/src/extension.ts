@@ -19,13 +19,8 @@ let VhdlByHgb : VHDLbyHGB;
 
 export async function activate(ctx: ExtensionContext) 
 { 
-
-    let test : SynthesisWizard = new SynthesisWizard();
-    test.Run();
-
     VhdlByHgb = new VHDLbyHGB(ctx);
     VhdlByHgb.Initialize();
-
 }
 
 export function deactivate(): Thenable<void> | undefined 

@@ -34,7 +34,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mQuartus = new Quartus(super.mOutputChannel, super.mContext);
 
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
-        this.mTclScriptsFolder = path.join(super.mPath, TclScripts.Folder);
+        this.mTclScriptsFolder = path.join(projectPath, TclScripts.Folder);
         if (!fs.existsSync(this.mTclScriptsFolder)) {
             fs.mkdirSync(this.mTclScriptsFolder);
         }

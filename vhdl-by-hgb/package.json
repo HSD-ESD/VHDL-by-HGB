@@ -116,24 +116,36 @@
                 "title": "VHDLbyHGB.ProjectManager: Update Files"
             },
             {
-                "command": "VHDLbyHGB.Quartus.SetBinaryPath",
-                "title": "VHDLbyHGB.Quartus: Set Binary-Path"
+                "command": "VHDLbyHGB.SynthesisManager.AddNewProject",
+                "title": "VHDLbyHGB.SynthesisManager.AddNewProject"
             },
             {
-                "command": "VHDLbyHGB.Quartus.GenerateProject",
-                "title": "VHDLbyHGB.Quartus: Generate Quartus-Project"
+                "command": "VHDLbyHGB.SynthesisManager.AddExistingProject",
+                "title": "VHDLbyHGB.SynthesisManager.AddExistingProject"
             },
             {
-                "command": "VHDLbyHGB.Quartus.UpdateFiles",
-                "title": "VHDLbyHGB.Quartus: Update Quartus-ProjectFiles"
+                "command": "VHDLbyHGB.SynthesisManager.UpdateFiles",
+                "title": "VHDLbyHGB.SynthesisManager.UpdateFiles"
             },
             {
-                "command": "VHDLbyHGB.Quartus.Compile",
-                "title": "VHDLbyHGB.Quartus: Compile an existing Quartus-Project"
+                "command": "VHDLbyHGB.SynthesisManager.Compile",
+                "title": "VHDLbyHGB.SynthesisManager.Compile"
             },
             {
-                "command": "VHDLbyHGB.Quartus.GUI",
-                "title": "VHDLbyHGB.Quartus: Open GUI of an existing Quartus-Project"
+                "command": "VHDLbyHGB.SynthesisManager.LaunchGUI",
+                "title": "VHDLbyHGB.SynthesisManager.LaunchGUI"
+            },
+            {
+                "command": "VHDLbyHGB.SynthesisManager.SetTopLevelEntity",
+                "title": "VHDLbyHGB.SynthesisManager.SetTopLevelEntity"
+            },
+            {
+                "command": "VHDLbyHGB.SynthesisManager.SetDevice",
+                "title": "VHDLbyHGB.SynthesisManager.SetDevice"
+            },
+            {
+                "command": "VHDLbyHGB.SynthesisManager.SetFamily",
+                "title": "VHDLbyHGB.SynthesisManager.SetFamily"
             }
 
         ],

@@ -52,7 +52,9 @@ export class SynthesisManager
         }
 
         //use factory of selected synthesis-tool to create a synthesis-project
-        let newProject = projectConfig.factory.CreateProject(projectConfig.name, projectConfig.folderPath);
+        let newProject : ISynthesisProject = projectConfig.factory.CreateProject(projectConfig.name, projectConfig.folderPath, this.mOutputChannel, this.mContext, this.mFileHolder);
+        //Generate Project-Files
+        newProject.Generate();
         //add generated project to container of all synthesis-projects
         this.mSynthesisProjects.push(newProject);
         //set new Project as active project

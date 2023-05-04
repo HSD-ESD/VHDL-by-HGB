@@ -48,7 +48,7 @@ export class ProjectManager {
         this.mFileHolder = new FileHolder();
         this.mVhdlFinder = new SimpleVhdlFinder();
         this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath, this.mFileHolder);
-        this.mSynthesisManager = new SynthesisManager(this.mContext);
+        this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
 
         this.RegisterCommands();
     }
