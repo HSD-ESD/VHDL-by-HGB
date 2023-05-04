@@ -22,10 +22,11 @@ export class ProjectManager {
 
     // project-specific members
     private mWorkSpacePath : string = "";
+
     private mVhdlFinder : IVhdlFinder;
     private mTomlGenerator : TomlGenerator;
+
     private mFileHolder : FileHolder;
-    
     private mSynthesisManager : SynthesisManager;
     
     // --------------------------------------------
@@ -43,10 +44,13 @@ export class ProjectManager {
             }
         }
 
+        //vs-code members
         this.mContext = context;
         this.mOutputChannel = outputChannel;
-        this.mFileHolder = new FileHolder();
+
         this.mVhdlFinder = new SimpleVhdlFinder();
+        this.mFileHolder = new FileHolder();
+
         this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath, this.mFileHolder);
         this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
 

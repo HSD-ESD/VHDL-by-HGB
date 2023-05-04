@@ -17,8 +17,7 @@ export class VHDLbyHGB {
 	private mOutputChannel: vscode.OutputChannel;
 	private mRustHDL : RustHDL;
 	private mProjectManager : ProjectManager;
-	//private mFormatter : VhdlFormatter;
-
+	private mFormatter : VhdlFormatter;
     private mEventEmitter : events.EventEmitter;
 
 
@@ -30,7 +29,7 @@ export class VHDLbyHGB {
 		this.mContext = context;
 		this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB');
 		this.mRustHDL = new RustHDL(this.mContext);
-		//this.mFormatter = new VhdlFormatter(this.mContext);
+		this.mFormatter = new VhdlFormatter(this.mContext);
 		this.mEventEmitter = new events.EventEmitter();
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
 
@@ -38,12 +37,6 @@ export class VHDLbyHGB {
 
 	public Initialize() 
 	{
-		
-		//init Language-Server: RustHDL
-		this.RustHDL_Initialize();
-
-		//init Formatter for VHDL
-		this.VHDLFormatter_Initialize();
 
 	}
 
@@ -55,22 +48,5 @@ export class VHDLbyHGB {
 	//--------------------------------------------
 	//Private Methods
 	//--------------------------------------------
-	private async RustHDL_Initialize() 
-	{ 
-		
-		this.mProjectManager.UpdateProjectFiles();
-	}
-
-	private async VHDLFormatter_Initialize() 
-	{
-		
-	}
-
-	private TreeViewManager_Initialize() 
-	{ 
-
-	}
-
-
 
 }
