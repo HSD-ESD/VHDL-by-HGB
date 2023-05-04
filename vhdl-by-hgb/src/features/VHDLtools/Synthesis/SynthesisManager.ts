@@ -140,5 +140,62 @@ export class SynthesisManager
         return IsSuccess;
     }
 
+    public async SetFamily() : Promise<boolean>
+    {
+        // check, if a synthesis-project is selected
+        if(!this.mActiveProject)
+        {
+            vscode.window.showErrorMessage("No Synthesis-Project selected for setting Family!");
+        }
+
+        // ask user to select top-level-entity
+        const FamilyName : string = await this.mWizard.SelectFamily();
+
+        //check selected entity for validity
+        if(FamilyName.length === 0)
+        {
+            vscode.window.showErrorMessage("No valid Family chosen for selected Synthesis-Project!");
+            return false;
+        }
+
+        // set TopLevelEntity for selected synthesis-project
+        const IsSuccess : boolean = await this.mActiveProject.SetFamily(FamilyName);
+
+        if(!IsSuccess)
+        {
+            vscode.window.showErrorMessage("Family could not be set for selected Synthesis-Project!");
+        }
+
+        return IsSuccess;
+    }
+
+    public async SetDevice() : Promise<boolean>
+    {
+        // check, if a synthesis-project is selected
+        if(!this.mActiveProject)
+        {
+            vscode.window.showErrorMessage("No Synthesis-Project selected for setting Device!");
+        }
+
+        // ask user to select top-level-entity
+        const DeviceName : string = await this.mWizard.SelectDevice();
+
+        //check selected entity for validity
+        if(DeviceName.length === 0)
+        {
+            vscode.window.showErrorMessage("No valid Device chosen for selected Synthesis-Project!");
+            return false;
+        }
+
+        // set TopLevelEntity for selected synthesis-project
+        const IsSuccess : boolean = await this.mActiveProject.SetDevice(DeviceName);
+
+        if(!IsSuccess)
+        {
+            vscode.window.showErrorMessage("Device could not be set for selected Synthesis-Project!");
+        }
+
+        return IsSuccess;
+    }
 
 }

@@ -72,56 +72,37 @@ export class SynthesisWizard {
 
     public async SelectFamily() : Promise<string>
     {
-        //Enter project location
-        const TopLevelEntity = await vscode.window.showOpenDialog({
-            canSelectFiles: true,
-            canSelectFolders: false,
-            canSelectMany: false,
-            openLabel: 'Select Top-Level-Entity'
-        });
+        // enter project name
+        let familyName : string | undefined =   await vscode.window.showInputBox({
+                                                    prompt: "Enter Family-Name",
+                                                    placeHolder: "Family",
+                                                });
 
-        // only parse file, if valid file was selected
-        if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd")) {
-
-            let parser : Vhdl_parser = new Vhdl_parser();
-            await parser.init();
-
-            let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
-            let text : string = await doc.getText();
-
-            let EntityName : string;
-            let VhdlFileInfo : Hdl_element;
-
-            // return empty string, if parsed file is invalid
-            if(!text)
-            {
-                return "";
-            }
-
-            VhdlFileInfo =  await parser.get_all(text,'--');
-            return VhdlFileInfo.name;
+        if(familyName) 
+        {
+            return familyName;
         }
-
-        // return empty string, if no valid file was selected
-        return "";
+        else
+        {
+            return "";
+        }
     }
 
     public async SelectDevice() : Promise<string>
     {
         // enter project name
-        let projectName : string | undefined =  await vscode.window.showInputBox({
-            prompt: "Enter Project-Name",
-            placeHolder: "MyProject",
-        });
+        let deviceName : string | undefined =   await vscode.window.showInputBox({
+                                                    prompt: "Enter Device-Name",
+                                                    placeHolder: "Device",
+                                                });
 
-        if(projectName) 
+        if(deviceName) 
         {
-        return projectName;
+            return deviceName;
         }
         else
         {
-        vscode.window.showInformationMessage('No valid Project-Name!');
-        return "";
+            return "";
         }
     }
 
