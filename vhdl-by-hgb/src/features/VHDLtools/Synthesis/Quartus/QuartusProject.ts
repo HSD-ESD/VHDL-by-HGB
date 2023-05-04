@@ -8,6 +8,8 @@ import { Quartus} from "./Quartus";
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
+import { VHDL_ProjectFiles } from "../../../../Constants";
+import { FileHolder } from "../../../FileTools/FileHolder";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
 {
@@ -15,15 +17,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // private members
     // --------------------------------------------
     private mQuartus : Quartus;
-    private mTclScriptsFolder: string = "";
+    private mTclScriptsFolder: string;
+    private mFileHolder : FileHolder;
 
     // --------------------------------------------
     // public methods
     // --------------------------------------------
-    public constructor(name : string, projectPath : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext)
+    public constructor(name : string, projectPath : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext, fileHolder : FileHolder)
     {
         // call constructor of base-class
         super(name, projectPath, outputChannel, context);
+
+        this.mFileHolder = fileHolder;
 
         //Quartus-Instance for using Quartus-Utility-Functions
         this.mQuartus = new Quartus(super.mOutputChannel, super.mContext);
@@ -143,4 +148,17 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
         return true;
     }
+
+    //Getter-Methods
+    public GetName() : string { return super.mName; }
+
+    public GetTclScriptsFolder() : string { return this.mTclScriptsFolder; }
+
+    public GetPath() : string { return super.mPath; }
+
+    public GetQuartus() : Quartus { return this.mQuartus; }
+
+    public GetFileHolder() : FileHolder { return this.mFileHolder; }
+
+
 }

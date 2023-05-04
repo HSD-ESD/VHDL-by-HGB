@@ -9,6 +9,7 @@ export enum eSynthesisTool {
     Vivado = "Vivado"
 }
 
+// mapping strings of eSynthesisTool-Enum to their factories
 export const SynthesisToolMap : Map<string,ISynthesisFactory> = new Map<string,ISynthesisFactory>([
 [eSynthesisTool.Quartus, QuartusFactory.getInstance()],
 ]);

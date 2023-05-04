@@ -9,14 +9,12 @@ import { FileUtils } from "../../../FileTools/FileUtils";
 
 import { Hdl_element } from "colibri2/out/parser/common";
 import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
-//import { Vhdl_parser } from "colibri2/src/parser/ts_vhdl/parser";
 
 //General Imports
 import * as fs from "fs";
 import * as vscode from "vscode";
 import * as path from 'path';
 import * as child_process from 'child_process';
-import * as AsyncMutex from 'async-mutex';
 
 //--------------------------------------------------------------
 //module-internal constants
@@ -41,11 +39,6 @@ export class Quartus {
     private mContext: vscode.ExtensionContext;
 
     private mQuartusBinaryPath: string = "";
-    private mQuartusExePath: string = "";
-    private mProjectName: string = "";
-    private mProjectPath: string = "";
-    private mTclScriptsFolder: string = "";
-
 
     // --------------------------------------------
     // Public methods
@@ -56,198 +49,22 @@ export class Quartus {
         this.mOutputChannel = ouputChannel;
         this.mContext = context;
         this.mQuartusBinaryPath = SearchQuartusBinaryPath();
-        this.mQuartusExePath = path.join(this.mQuartusBinaryPath, QUARTUS_EXE);
-
-        this.RegisterCommands();
-    }
-
-    public async GenerateProject(): Promise<boolean> {
-        let IsSuccess: boolean = true;
-
-        //if valid quartus path does not exist -> select path
-        if (this.mQuartusBinaryPath.length === 0) {
-            IsSuccess = await this.SelectQuartusBinaryPath();
-
-            if (!IsSuccess) {
-                vscode.window.showInformationMessage('Quartus-Project could not be generated!');
-                return false;
-            }
-        }
-
-        // enter project name
-        await vscode.window.showInputBox({
-            prompt: "Enter Project-Name",
-            placeHolder: "MyProject",
-        }).then((projectName) => {
-            if (projectName) {
-                this.mProjectName = projectName;
-            }
-            else {
-                vscode.window.showInformationMessage('No valid Project-Name!');
-                return false;
-            }
-        });
-
-        //Enter project location
-        const projectPath = await vscode.window.showOpenDialog({
-            canSelectFiles: false,
-            canSelectFolders: true,
-            canSelectMany: false,
-            openLabel: 'Select Quartus-Project-Folder'
-        });
-
-        if (projectPath && projectPath[0] && projectPath[0].fsPath) {
-            //read chosen directory and check, if a quartus-project already exists in this folder
-            const files = fs.readdirSync(projectPath[0].fsPath);
-            const projectFile = files.find((file) => file.endsWith(".qpf"));
-            if (projectFile) {
-                vscode.window.showInformationMessage('A Quartus-Project already exists in this folder!');
-                return false;
-            }
-
-            //chosen path is valid and gets stored
-            this.mProjectPath = projectPath[0].fsPath;
-            vscode.window.showInformationMessage('Project-Location was set successfully!');
-        }
-        else {
-            vscode.window.showInformationMessage('No valid Project-Location!');
-            return false;
-        }
-
-        //check for Top-Level-Entity
-        if (this.mFileHolder.GetTopLevelEntity(VHDL_TOP_LEVEL_ENTITY.Synthesis).length === 0) {
-            //select top-level-entity
-            IsSuccess = await this.SelectTopLevelEntity();
-            if (!IsSuccess) { return false; }
-        }
-
-        //When new Quartus-Project is created -> make directory for all Tcl-Scripts
-        this.mTclScriptsFolder = path.join(this.mProjectPath, TclScripts.Folder);
-        if (!fs.existsSync(this.mTclScriptsFolder)) {
-            fs.mkdirSync(this.mTclScriptsFolder);
-        }
-
-        //create tcl-script
-        this.mTclGenerator.GenerateQuartusProject();
-
-        //Run Tcl-Script for generating Project
-        IsSuccess = await this.RunTclScript(TclScripts.GenerateProject);
-
-        if (!IsSuccess) {
-            vscode.window.showErrorMessage("Creating Quartus-Project failed!");
-            return false;
-        }
-
-        vscode.window.showInformationMessage('Quartus-Project was created successfully!');
-
-        return true;
-    }
-
-
-    public async UpdateFiles(): Promise<boolean> {
-        if (this.mProjectName.length === 0 || this.mProjectPath.length === 0) {
-            vscode.window.showInformationMessage('No existing Quartus-Project -> Files cannot be updated!');
-            return false;
-        }
-
-        this.mTclGenerator.GenerateUpdateFiles();
-
-        const IsSuccess: boolean = await this.RunTclScript(TclScripts.UpdateFiles);
-
-        if (!IsSuccess) {
-            vscode.window.showErrorMessage("Updating files in Quartus-Project failed!");
-            return false;
-        }
-
-        vscode.window.showInformationMessage('Files in Quartus-Project were updated successfully!');
-        return true;
-    }
-
-    public UpdateProject(): void { }
-
-    public SetDevice(device: string): void { }
-
-    public SetTopLevelEntity(entity: string): void { }
-
-    public async LaunchGUI(): Promise<boolean> {
-        if (this.mProjectName.length === 0 || this.mProjectPath.length === 0) {
-            vscode.window.showInformationMessage('No existing Quartus-Project -> GUI cannot be launched!');
-            return false;
-        }
-
-        if (!fs.existsSync(path.join(this.mTclScriptsFolder, TclScripts.LaunchGUI))) {
-            this.mTclGenerator.GenerateLaunchGUI();
-        }
-
-        //Run Tcl-Script for launching GUI
-        const IsSuccess: boolean = await this.RunTclScript(TclScripts.LaunchGUI);
-
-        if (!IsSuccess) {
-            vscode.window.showErrorMessage("Launching Quartus-Project failed!");
-            return false;
-        }
-
-        return true;
-    }
-
-    public async Compile(): Promise<boolean> {
-        if (this.mProjectName.length === 0 || this.mProjectPath.length === 0) {
-            vscode.window.showInformationMessage('No existing Quartus-Project -> GUI cannot be launched!');
-            return false;
-        }
-
-        if (!fs.existsSync(path.join(this.mTclScriptsFolder, TclScripts.Compile))) {
-            this.mTclGenerator.GenerateCompile();
-        }
-
-        //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.RunTclScript(TclScripts.Compile);
-
-        if (!IsSuccess) {
-            vscode.window.showErrorMessage("Compiling Quartus-Project failed!");
-            return false;
-        }
-
-        return true;
     }
 
     //Getter-Methods
-    public GetProjectName(): string { return this.mProjectName; }
-    public GetProjectPath(): string { return this.mProjectPath; }
-    public GetFileHolder(): FileHolder { return this.mFileHolder; }
-    public GetQuartusBinaryPath(): string { return this.mQuartusBinaryPath; }
-    public GetQuartusExePath(): string { return this.mQuartusExePath; }
-    public GetTclScriptsPath(): string { return this.mTclScriptsFolder; }
+    public GetBinaryPath() : string { return this.mQuartusBinaryPath; }
+
+    public GetExePath() : string { return path.join(this.mQuartusBinaryPath, QUARTUS_EXE);}
+
+    public GetShellPath() : string { return path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);}
 
     public IsBlackListed(fileName: string) {
-        // ignore testbenches for synthesis
-        //return /^tb\b/.test(fileName);
         return fileName.startsWith("tb");
     }
-
 
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
-    private RegisterCommands(): void {
-        let disposable: vscode.Disposable;
-
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.SetBinaryPath", () => { this.SelectQuartusBinaryPath(); });
-        this.mContext.subscriptions.push(disposable);
-
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.GenerateProject", () => { this.GenerateProject(); });
-        this.mContext.subscriptions.push(disposable);
-
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.UpdateFiles", () => { this.UpdateFiles(); });
-        this.mContext.subscriptions.push(disposable);
-
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.Compile", () => { this.Compile(); });
-        this.mContext.subscriptions.push(disposable);
-
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.Quartus.GUI", () => { this.LaunchGUI(); });
-        this.mContext.subscriptions.push(disposable);
-
-    }
 
     private async SelectQuartusBinaryPath(): Promise<boolean> {
         try {
@@ -278,14 +95,15 @@ export class Quartus {
         }
     }
 
-    public async RunTclScript(TclScript: string): Promise<boolean> {
+    public async RunTclScript(TclScript: string): Promise<boolean> 
+    {
 
         let IsSuccess : boolean = false;
 
         //check, if specified Tcl-Script exists
         if (!fs.existsSync(TclScript)) {
             //wait until specified tcl-script really exists
-            IsSuccess = await FileUtils.WaitForFileCreation(path.join(this.mTclScriptsFolder, TclScript));
+            IsSuccess = await FileUtils.WaitForFileCreation(TclScript);
 
             if (!IsSuccess) {
                 vscode.window.showInformationMessage('Tcl-Script to be executed does not exist!');
@@ -308,7 +126,7 @@ export class Quartus {
 
         //execute tcl-script with quartus-shell
         const quartusShell = child_process.spawn(QuartusShellPath, ['-t', TclScript], {
-            cwd: this.mProjectPath
+            cwd: path.join(TclScript, "..") //set current working directory to Quartus-Project-Folder
         });
 
         if (quartusShell === null) {
@@ -351,49 +169,6 @@ export class Quartus {
 
 
         return true;
-    }
-
-    private async SelectTopLevelEntity(): Promise<boolean> {
-        //Enter project location
-        const TopLevelEntity = await vscode.window.showOpenDialog({
-            canSelectFiles: true,
-            canSelectFolders: false,
-            canSelectMany: false,
-            openLabel: 'Select Top-Level-Entity'
-        });
-
-        if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd")) {
-
-            let parser : Vhdl_parser = new Vhdl_parser();
-            parser.init();
-
-            let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
-            let text : string = await doc.getText();
-
-            let EntityName : string;
-            let VhdlFileInfo : Hdl_element;
-
-            if(text)
-            {
-                VhdlFileInfo =  await parser.get_all(text,'--');
-                this.mFileHolder.SetTopLevelEntity(VhdlFileInfo.name, VHDL_TOP_LEVEL_ENTITY.Synthesis);
-            }
-
-            let substr: string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
-
-            if (substr) {
-                this.mFileHolder.SetTopLevelEntity(substr, VHDL_TOP_LEVEL_ENTITY.Synthesis);
-                vscode.window.showInformationMessage('Top-Level-Entity was set successfully!');
-                return true;
-            }
-            else {
-                vscode.window.showInformationMessage('No valid Top-Level-Entity!');
-                return false;
-            }
-        }
-
-        vscode.window.showInformationMessage('No valid File selected as Top-Level-Entity!');
-        return false;
     }
 
 }

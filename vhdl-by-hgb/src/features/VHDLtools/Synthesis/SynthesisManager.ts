@@ -1,6 +1,6 @@
 //specific imports
+import { FileHolder } from "../../FileTools/FileHolder";
 import { SynthesisWizard } from "../SynthesisWizard";
-import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import { ISynthesisProject, tSynthesisProjectConfig } from "./SynthesisProject";
 
 //general imports
@@ -15,18 +15,29 @@ export class SynthesisManager
     private mWizard : SynthesisWizard;
     private mActiveProject! : ISynthesisProject;
 
+    private mFileHolder : FileHolder;
+
     //vscode-members
     private mOutputChannel : vscode.OutputChannel;
+    private mContext : vscode.ExtensionContext;
 
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    constructor()
+    constructor(context : vscode.ExtensionContext, fileHolder : FileHolder)
     {
+        //vs-code members
+        this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB:Synthesis');
+        this.mContext = context;
+
+        //custom-members
         this.mSynthesisProjects = new Array<ISynthesisProject>();
         this.mWizard = new SynthesisWizard();
-        this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB:Synthesis');
+        
+        this.mFileHolder = fileHolder;
+
+        this.RegisterCommands();
     }
 
     public async AddNewProject() : Promise<boolean>
@@ -44,6 +55,9 @@ export class SynthesisManager
         let newProject = projectConfig.factory.CreateProject(projectConfig.name, projectConfig.folderPath);
         //add generated project to container of all synthesis-projects
         this.mSynthesisProjects.push(newProject);
+        //set new Project as active project
+        this.mActiveProject = newProject;
+
         return true;
     }
 
@@ -196,6 +210,38 @@ export class SynthesisManager
         }
 
         return IsSuccess;
+    }
+
+    // --------------------------------------------
+    // Private methods
+    // --------------------------------------------
+    private RegisterCommands(): void {
+
+        let disposable: vscode.Disposable;
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.AddNewProject", () => { this.AddNewProject(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.AddExistingProject", () => { this.AddExistingProjecct(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.UpdateFiles", () => { this.UpdateFiles(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.Compile", () => { this.Compile(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.LaunchGUI", () => { this.Compile(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.SetTopLevelEntity", () => { this.SetTopLevelEntity(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.SetDevice", () => { this.SetDevice(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.SetFamily", () => { this.SetFamily(); });
+        this.mContext.subscriptions.push(disposable);
     }
 
 }
