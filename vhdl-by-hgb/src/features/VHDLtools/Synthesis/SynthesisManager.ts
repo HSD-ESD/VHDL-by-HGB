@@ -233,7 +233,7 @@ export class SynthesisManager
         disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.Compile", () => { this.Compile(); });
         this.mContext.subscriptions.push(disposable);
 
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.LaunchGUI", () => { this.Compile(); });
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.LaunchGUI", () => { this.LaunchGUI(); });
         this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.SetTopLevelEntity", () => { this.SetTopLevelEntity(); });

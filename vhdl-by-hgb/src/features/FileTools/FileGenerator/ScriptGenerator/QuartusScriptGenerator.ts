@@ -109,11 +109,11 @@ export class QuartusScriptGenerator {
         wstream.write(cProjectNew + cDesignNameReference + "\n\n");
         
         //Specify FPGA-Device
-        wstream.write(cSetGlobalAssignment + cSpecifierName + cFAMILY + cQuote + "Cyclone V" + cQuote + "\n");
-        wstream.write(cSetGlobalAssignment + cSpecifierName + cDEVICE + "5CSEMA5F31C6" + "\n\n");
+            // wstream.write(cSetGlobalAssignment + cSpecifierName + cFAMILY + cQuote + "Cyclone V" + cQuote + "\n");
+            // wstream.write(cSetGlobalAssignment + cSpecifierName + cDEVICE + "5CSEMA5F31C6" + "\n\n");
 
         //Specify Top-Level-Entity
-        wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetFileHolder().GetTopLevelEntity(VHDL_TOP_LEVEL_ENTITY.Synthesis) + "\n\n");
+            //wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetFileHolder().GetTopLevelEntity(VHDL_TOP_LEVEL_ENTITY.Synthesis) + "\n\n");
 
         //Specify Output-Directory
         wstream.write(cSetGlobalAssignment + cSpecifierName + cPROJECT_OUTPUT_DIRECTORY + "output_files" + "\n\n");

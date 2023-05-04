@@ -31,10 +31,10 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mFileHolder = fileHolder;
 
         //Quartus-Instance for using Quartus-Utility-Functions
-        this.mQuartus = new Quartus(super.mOutputChannel, super.mContext);
+        this.mQuartus = new Quartus(this.mOutputChannel, this.mContext);
 
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
-        this.mTclScriptsFolder = path.join(projectPath, TclScripts.Folder);
+        this.mTclScriptsFolder = path.join(this.mPath, TclScripts.Folder);
         if (!fs.existsSync(this.mTclScriptsFolder)) {
             fs.mkdirSync(this.mTclScriptsFolder);
         }
@@ -126,7 +126,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public async SetTopLevelEntity(entity : string) : Promise<boolean>
     {
-        super.mTopLevelEntity = entity;
+        this.mTopLevelEntity = entity;
 
         //TODO: Update TopLevel-Entity with Tcl-Script
 
@@ -135,7 +135,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public async SetFamily(family : string) : Promise<boolean>
     {
-        super.mFamily = family;
+        this.mFamily = family;
         //TODO: Update family with Tcl-Script
 
         return true;
@@ -143,18 +143,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public async SetDevice(device : string) : Promise<boolean>
     {
-        super.mDevice = device;
+        this.mDevice = device;
         //TODO: Update device with Tcl-Script
 
         return true;
     }
 
     //Getter-Methods
-    public GetName() : string { return super.mName; }
+    public GetName() : string { return this.mName; }
 
     public GetTclScriptsFolder() : string { return this.mTclScriptsFolder; }
 
-    public GetPath() : string { return super.mPath; }
+    public GetPath() : string { return this.mPath; }
 
     public GetQuartus() : Quartus { return this.mQuartus; }
 

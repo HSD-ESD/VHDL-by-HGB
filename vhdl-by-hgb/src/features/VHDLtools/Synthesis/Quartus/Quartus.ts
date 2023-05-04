@@ -125,8 +125,8 @@ export class Quartus {
         const QuartusShellPath: string = path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);
 
         //execute tcl-script with quartus-shell
-        const quartusShell = child_process.spawn(QuartusShellPath, ['-t', TclScript, ".."], {
-            cwd: path.join(TclScript, "..") //set current working directory to Quartus-Project-Folder
+        const quartusShell = child_process.spawn(QuartusShellPath, ['-t', TclScript], {
+            cwd: path.join(TclScript, "..", "..") //set current working directory to Quartus-Project-Folder
         });
 
         if (quartusShell === null) {
