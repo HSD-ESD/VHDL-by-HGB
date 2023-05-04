@@ -165,10 +165,62 @@ export class Quartus {
         return IsSuccess;
     }
 
-    public async RunTclCommand(TclScript: string): Promise<boolean> {
+    public async RunTclCommand(tclCommand: string, currentWorkingDirectory : string): Promise<boolean> {
 
-
-        return true;
+        let IsSuccess: boolean = false;
+    
+        //if no valid quartus binary-path -> select path
+        if (this.mQuartusBinaryPath.length === 0) {
+            IsSuccess = await this.SelectQuartusBinaryPath();
+    
+            if (!IsSuccess) {
+                vscode.window.showInformationMessage('Quartus-Binary-Path not set!');
+                return false;
+            }
+        }
+    
+        //path for quartus-shell
+        const QuartusShellPath: string = path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);
+    
+        //execute tcl-command with quartus-shell
+        const quartusShell = child_process.spawn(QuartusShellPath, ['-tcl', tclCommand], {
+            cwd: currentWorkingDirectory //set current working directory to Quartus-Project-Folder
+        });
+    
+        if (quartusShell === null) {
+            vscode.window.showInformationMessage('Failed to start Quartus-Shell!');
+            return false;
+        }
+    
+        quartusShell.stdout.on('data', (data: Buffer) => {
+            console.log(data.toString());
+            this.mOutputChannel.appendLine(data.toString());
+        });
+    
+        quartusShell.stderr.on('data', (data: Buffer) => {
+            console.error(data.toString());
+            this.mOutputChannel.appendLine(data.toString());
+        });
+    
+        quartusShell.on('close', (code: number) => {
+            console.log(`Quartus process exited with code ${code}`);
+            this.mOutputChannel.appendLine(`Quartus process exited with code ${code}`);
+        });
+    
+        //Check if process exited with code 0 (success)
+        const exitCode = await new Promise<number>((resolve, reject) => {
+            quartusShell.on('exit', (code: number) => {
+                resolve(code);
+            });
+        });
+    
+        //terminate child-process for quartusShell
+        quartusShell.kill();
+    
+        //check, if process was executed without any errors and return result
+        IsSuccess = exitCode === 0;
+    
+        return IsSuccess;
     }
 
 }

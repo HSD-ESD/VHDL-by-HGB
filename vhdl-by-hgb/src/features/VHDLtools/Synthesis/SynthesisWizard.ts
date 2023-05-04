@@ -1,7 +1,7 @@
 // specific imports
-import { ISynthesisFactory } from "./Synthesis/Factory/SynthesisFactory";
-import { SynthesisToolMap, eSynthesisTool } from "./Synthesis/SynthesisPackage";
-import { tSynthesisProjectConfig } from "./Synthesis/SynthesisProject";
+import { ISynthesisFactory } from "./Factory/SynthesisFactory";
+import { SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
+import { tSynthesisProjectConfig } from "./SynthesisProject";
 
 import { Hdl_element } from "colibri2/out/parser/common";
 import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";

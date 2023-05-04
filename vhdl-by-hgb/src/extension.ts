@@ -12,7 +12,7 @@ import { workspace, ExtensionContext} from 'vscode';
 
 //Specific Imports
 import { VHDLbyHGB } from './VHDLbyHGB';
-import { SynthesisWizard } from './features/VHDLtools/SynthesisWizard';
+import { SynthesisWizard } from './features/VHDLtools/Synthesis/SynthesisWizard';
 
 
 let VhdlByHgb : VHDLbyHGB;

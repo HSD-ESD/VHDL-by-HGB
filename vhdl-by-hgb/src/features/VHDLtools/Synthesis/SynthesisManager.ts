@@ -1,6 +1,6 @@
 //specific imports
 import { FileHolder } from "../../FileTools/FileHolder";
-import { SynthesisWizard } from "../SynthesisWizard";
+import { SynthesisWizard } from "./SynthesisWizard";
 import { ISynthesisProject, tSynthesisProjectConfig } from "./SynthesisProject";
 
 //general imports

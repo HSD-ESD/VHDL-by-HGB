@@ -8,7 +8,6 @@ import { Quartus} from "./Quartus";
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { VHDL_ProjectFiles } from "../../../../Constants";
 import { FileHolder } from "../../../FileTools/FileHolder";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
@@ -90,6 +89,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.LaunchGUI);
 
         if (!fs.existsSync(ScriptPath)) {
+            //create tcl-script for launching a Quartus-Project
             QuartusScriptGenerator.GenerateLaunchGUI(this);
         }
 
@@ -110,8 +110,12 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.Compile);
 
         if (!fs.existsSync(ScriptPath)) {
+            //create tcl-script for compiling a Quartus-Project
             QuartusScriptGenerator.GenerateCompile(this);
         }
+
+        //inform user about compiling
+        vscode.window.showInformationMessage(`Quartus-Project: ${this.mName} -> compiling started...`);
 
         //Run Tcl-Script for generating Project
         const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
@@ -121,6 +125,9 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
             return false;
         }
 
+        //inform user about compiling
+        vscode.window.showInformationMessage(`Quartus-Project: ${this.mName} -> compiling finished...`);
+
         return true;
     }
 
@@ -128,7 +135,19 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     {
         this.mTopLevelEntity = entity;
 
-        //TODO: Update TopLevel-Entity with Tcl-Script
+        //create tcl-script for setting TopLevelEntity of a Quartus-Project
+        QuartusScriptGenerator.GenerateTopLevelEntity(this);
+
+        //compute script-path
+        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.TopLevelEntity);
+
+        //Run Tcl-Script for generating Project
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+
+        if (!IsSuccess) {
+            vscode.window.showErrorMessage("Setting TopLevelEntity for Quartus-Project failed!");
+            return false;
+        }
 
         return true;
     }
@@ -136,7 +155,20 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     public async SetFamily(family : string) : Promise<boolean>
     {
         this.mFamily = family;
-        //TODO: Update family with Tcl-Script
+
+        //create tcl-script for setting Family of a Quartus-Project
+        QuartusScriptGenerator.GenerateFamily(this);
+
+        //compute script-path
+        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.Family);
+
+        //Run Tcl-Script for generating Project
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+
+        if (!IsSuccess) {
+            vscode.window.showErrorMessage("Setting Family for Quartus-Project failed!");
+            return false;
+        }
 
         return true;
     }
@@ -144,7 +176,20 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     public async SetDevice(device : string) : Promise<boolean>
     {
         this.mDevice = device;
-        //TODO: Update device with Tcl-Script
+
+        //create tcl-script for setting Device of a Quartus-Project
+        QuartusScriptGenerator.GenerateDevice(this);
+
+        //compute script-path
+        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.Device);
+
+        //Run Tcl-Script for generating Project
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+
+        if (!IsSuccess) {
+            vscode.window.showErrorMessage("Setting Device for Quartus-Project failed!");
+            return false;
+        }
 
         return true;
     }
@@ -157,6 +202,12 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     public GetPath() : string { return this.mPath; }
 
     public GetQuartus() : Quartus { return this.mQuartus; }
+
+    public GetTopLevelEntity() : string { return this.mTopLevelEntity; }
+
+    public GetDevice() : string { return this.mDevice; }
+
+    public GetFamily() : string { return this.mFamily; }
 
     public GetFileHolder() : FileHolder { return this.mFileHolder; }
 

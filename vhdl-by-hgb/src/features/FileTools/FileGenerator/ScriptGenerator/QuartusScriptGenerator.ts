@@ -106,11 +106,7 @@ export class QuartusScriptGenerator {
         wstream.write(cLoadPackage + cPackageFlow + "\n\n");
 
         //Create Project
-        wstream.write(cProjectNew + cDesignNameReference + "\n\n");
-        
-        //Specify FPGA-Device
-            // wstream.write(cSetGlobalAssignment + cSpecifierName + cFAMILY + cQuote + "Cyclone V" + cQuote + "\n");
-            // wstream.write(cSetGlobalAssignment + cSpecifierName + cDEVICE + "5CSEMA5F31C6" + "\n\n");
+        wstream.write(cProjectNew + cDesignNameReference + "\n\n");    
 
         //Specify Top-Level-Entity
             //wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetFileHolder().GetTopLevelEntity(VHDL_TOP_LEVEL_ENTITY.Synthesis) + "\n\n");
@@ -210,7 +206,7 @@ export class QuartusScriptGenerator {
     {
         if(quartusProject.GetPath().length === 0)
         {
-            vscode.window.showInformationMessage('No existing Quartus-Project -> Project cannot be opened!');
+            vscode.window.showInformationMessage('No existing Quartus-Project -> GUI cannot be launched!');
             return false;
         }
 
@@ -218,6 +214,114 @@ export class QuartusScriptGenerator {
 
         //Launch Quartus-GUI
         wstream.write(cExecute + (quartusProject.GetQuartus().GetExePath().replace(/\\/g, "/")) + " " + path.join(quartusProject.GetPath() ,quartusProject.GetName()).replace(/\\/g, "/"));
+
+        return true;
+    }
+
+    public static GenerateTopLevelEntity(quartusProject : QuartusProject) : boolean
+    {
+        if(quartusProject.GetPath().length === 0)
+        {
+            vscode.window.showInformationMessage('No existing Quartus-Project -> TopLevelEntity cannot be set!');
+            return false;
+        }
+
+        //check, if top-level-entity has already been set
+        if(!quartusProject.GetTopLevelEntity())
+        {
+            vscode.window.showWarningMessage('Top-Level-Entity has not been set yet!');
+            return false;
+        }
+
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.TopLevelEntity), { flags: 'w'});
+
+        //Load Packages
+        wstream.write(cLoadPackage + cPackageProject + "\n");
+        wstream.write(cLoadPackage + cPackageFlow + "\n\n");
+
+        //Open Quartus-Project
+        wstream.write(cProjectOpen + path.join(quartusProject.GetPath(), quartusProject.GetName()).replace(/\\/g, "/") + "\n\n");
+
+        //Set Top-Level-Entity
+        wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetTopLevelEntity() + "\n");
+
+        //close project
+        wstream.write(cProjectClose);
+
+        //close writestream
+        wstream.end();
+
+        return true;
+    }
+
+    public static GenerateDevice(quartusProject : QuartusProject) : boolean
+    {
+        if(quartusProject.GetPath().length === 0)
+        {
+            vscode.window.showInformationMessage('No existing Quartus-Project -> Device cannot be set!');
+            return false;
+        }
+
+        //check, if device has already been set
+        if(!quartusProject.GetDevice())
+        {
+            vscode.window.showWarningMessage('Device has not been set yet!');
+            return false;
+        }
+
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.Device), { flags: 'w'});
+
+        //Load Packages
+        wstream.write(cLoadPackage + cPackageProject + "\n");
+        wstream.write(cLoadPackage + cPackageFlow + "\n\n");
+
+        //Open Quartus-Project
+        wstream.write(cProjectOpen + path.join(quartusProject.GetPath(), quartusProject.GetName()).replace(/\\/g, "/") + "\n\n");
+
+        //Set Device
+        wstream.write(cSetGlobalAssignment + cSpecifierName + cDEVICE + quartusProject.GetDevice() + "\n\n");
+
+        //close project
+        wstream.write(cProjectClose);
+
+        //close writestream
+        wstream.end();
+
+        return true;
+    }
+
+    public static GenerateFamily(quartusProject : QuartusProject) : boolean
+    {
+        if(quartusProject.GetPath().length === 0)
+        {
+            vscode.window.showInformationMessage('No existing Quartus-Project -> Family cannot be set!');
+            return false;
+        }
+
+        //check, if device has already been set
+        if(!quartusProject.GetFamily())
+        {
+            vscode.window.showWarningMessage('Family has not been set yet!');
+            return false;
+        }
+
+        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.Family), { flags: 'w'});
+
+        //Load Packages
+        wstream.write(cLoadPackage + cPackageProject + "\n");
+        wstream.write(cLoadPackage + cPackageFlow + "\n\n");
+
+        //Open Quartus-Project
+        wstream.write(cProjectOpen + path.join(quartusProject.GetPath(), quartusProject.GetName()).replace(/\\/g, "/") + "\n\n");
+
+        //Set Device
+        wstream.write(cSetGlobalAssignment + cSpecifierName + cFAMILY + cQuote + quartusProject.GetFamily() + cQuote + "\n\n");
+
+        //close project
+        wstream.write(cProjectClose);
+
+        //close writestream
+        wstream.end();
 
         return true;
     }
