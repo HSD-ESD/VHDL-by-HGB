@@ -3,6 +3,9 @@ import { ISynthesisFactory } from "./Synthesis/Factory/SynthesisFactory";
 import { SynthesisToolMap, eSynthesisTool } from "./Synthesis/SynthesisPackage";
 import { tSynthesisProjectConfig } from "./Synthesis/SynthesisProject";
 
+import { Hdl_element } from "colibri2/out/parser/common";
+import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
+
 // general imports
 import * as vscode from 'vscode';
 
@@ -28,6 +31,98 @@ export class SynthesisWizard {
         config.folderPath = await this.SelectProjectPath();
 
         return config;
+    }
+
+    public async SelectTopLevelEntity() : Promise<string>
+    {
+        //Enter project location
+        const TopLevelEntity = await vscode.window.showOpenDialog({
+            canSelectFiles: true,
+            canSelectFolders: false,
+            canSelectMany: false,
+            openLabel: 'Select Top-Level-Entity'
+        });
+
+        // only parse file, if valid file was selected
+        if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd")) {
+
+            let parser : Vhdl_parser = new Vhdl_parser();
+            await parser.init();
+
+            let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
+            let text : string = await doc.getText();
+
+            let EntityName : string;
+            let VhdlFileInfo : Hdl_element;
+
+            // return empty string, if parsed file is invalid
+            if(!text)
+            {
+                return "";
+            }
+
+            VhdlFileInfo =  await parser.get_all(text,'--');
+            return VhdlFileInfo.name;
+        }
+
+        // return empty string, if no valid file was selected
+        return "";
+    }
+
+
+    public async SelectFamily() : Promise<string>
+    {
+        //Enter project location
+        const TopLevelEntity = await vscode.window.showOpenDialog({
+            canSelectFiles: true,
+            canSelectFolders: false,
+            canSelectMany: false,
+            openLabel: 'Select Top-Level-Entity'
+        });
+
+        // only parse file, if valid file was selected
+        if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd")) {
+
+            let parser : Vhdl_parser = new Vhdl_parser();
+            await parser.init();
+
+            let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
+            let text : string = await doc.getText();
+
+            let EntityName : string;
+            let VhdlFileInfo : Hdl_element;
+
+            // return empty string, if parsed file is invalid
+            if(!text)
+            {
+                return "";
+            }
+
+            VhdlFileInfo =  await parser.get_all(text,'--');
+            return VhdlFileInfo.name;
+        }
+
+        // return empty string, if no valid file was selected
+        return "";
+    }
+
+    public async SelectDevice() : Promise<string>
+    {
+        // enter project name
+        let projectName : string | undefined =  await vscode.window.showInputBox({
+            prompt: "Enter Project-Name",
+            placeHolder: "MyProject",
+        });
+
+        if(projectName) 
+        {
+        return projectName;
+        }
+        else
+        {
+        vscode.window.showInformationMessage('No valid Project-Name!');
+        return "";
+        }
     }
 
 

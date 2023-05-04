@@ -29,9 +29,11 @@ export class SynthesisManager
         this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB:Synthesis');
     }
 
-    public async AddProject() : Promise<boolean>
+    public async AddNewProject() : Promise<boolean>
     {
+        // ask user to set configuration for new synthesis-project
         let projectConfig : tSynthesisProjectConfig = await this.mWizard.Run();
+        // check selected configuration for validity
         if(projectConfig.factory === undefined || projectConfig.folderPath.length === 0 || projectConfig.name.length === 0)
         {
             vscode.window.showErrorMessage("Synthesis-Project could not be generated!");
@@ -43,6 +45,99 @@ export class SynthesisManager
         //add generated project to container of all synthesis-projects
         this.mSynthesisProjects.push(newProject);
         return true;
+    }
+
+    public async AddExistingProjecct() : Promise<boolean>
+    {
+
+        return true;
+    }
+
+    public async UpdateFiles() : Promise<boolean>
+    {
+        // check, if a synthesis-project is selected
+        if(!this.mActiveProject)
+        {
+            vscode.window.showErrorMessage("No Synthesis-Project selected for updating files!");
+        }
+
+        // update files of selected synthesis-project
+        const IsSuccess : boolean = await this.mActiveProject.UpdateFiles();
+
+        if(!IsSuccess)
+        {
+            vscode.window.showErrorMessage("Files of selected Synthesis-Project could not be updated!");
+        }
+
+        return IsSuccess;
+    }
+
+    public async LaunchGUI() : Promise<boolean>
+    {
+        // check, if a synthesis-project is selected
+        if(!this.mActiveProject)
+        {
+            vscode.window.showErrorMessage("No Synthesis-Project selected for launching GUI!");
+        }
+
+        // launch GUI of selected synthesis-project
+        const IsSuccess : boolean = await this.mActiveProject.LaunchGUI();
+
+        if(!IsSuccess)
+        {
+            vscode.window.showErrorMessage("GUI of selected Synthesis-Project could not be launched!");
+        }
+
+        return IsSuccess;
+    }
+
+    public async Compile() : Promise<boolean>
+    {
+        // check, if a synthesis-project is selected
+        if(!this.mActiveProject)
+        {
+            vscode.window.showErrorMessage("No Synthesis-Project selected for compiling!");
+        }
+
+        // compile selected synthesis-project
+        const IsSuccess : boolean = await this.mActiveProject.Compile();
+
+        if(!IsSuccess)
+        {
+            vscode.window.showErrorMessage("Selected Synthesis-Project could not be compiled!");
+        }
+
+        return IsSuccess;
+    }
+
+    
+    public async SetTopLevelEntity() : Promise<boolean>
+    {
+        // check, if a synthesis-project is selected
+        if(!this.mActiveProject)
+        {
+            vscode.window.showErrorMessage("No Synthesis-Project selected for setting Top-Level-Entity!");
+        }
+
+        // ask user to select top-level-entity
+        const EntityName : string = await this.mWizard.SelectTopLevelEntity();
+
+        //check selected entity for validity
+        if(EntityName.length === 0)
+        {
+            vscode.window.showErrorMessage("No valid TopLevelEntity chosen for selected Synthesis-Project!");
+            return false;
+        }
+
+        // set TopLevelEntity for selected synthesis-project
+        const IsSuccess : boolean = await this.mActiveProject.SetTopLevelEntity(EntityName);
+
+        if(!IsSuccess)
+        {
+            vscode.window.showErrorMessage("TopLevelEntity could not be set for selected Synthesis-Project!");
+        }
+
+        return IsSuccess;
     }
 
 

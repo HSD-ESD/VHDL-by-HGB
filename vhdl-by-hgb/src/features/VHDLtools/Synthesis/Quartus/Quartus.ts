@@ -52,6 +52,7 @@ export class Quartus {
     // --------------------------------------------
 
     public constructor(ouputChannel: vscode.OutputChannel, context: vscode.ExtensionContext) {
+        //setting vscode-members
         this.mOutputChannel = ouputChannel;
         this.mContext = context;
         this.mQuartusBinaryPath = SearchQuartusBinaryPath();
@@ -278,13 +279,26 @@ export class Quartus {
     }
 
     public async RunTclScript(TclScript: string): Promise<boolean> {
+
+        let IsSuccess : boolean = false;
+
         //check, if specified Tcl-Script exists
-        if (!fs.existsSync(path.join(this.mProjectPath, TclScripts.Folder, TclScript))) {
+        if (!fs.existsSync(TclScript)) {
             //wait until specified tcl-script really exists
-            const IsSuccess: boolean = await FileUtils.WaitForFileCreation(path.join(this.mTclScriptsFolder, TclScript));
+            IsSuccess = await FileUtils.WaitForFileCreation(path.join(this.mTclScriptsFolder, TclScript));
 
             if (!IsSuccess) {
                 vscode.window.showInformationMessage('Tcl-Script to be executed does not exist!');
+                return false;
+            }
+        }
+
+        //if no valid quartus binary-path -> select path
+        if (this.mQuartusBinaryPath.length === 0) {
+            IsSuccess = await this.SelectQuartusBinaryPath();
+
+            if (!IsSuccess) {
+                vscode.window.showInformationMessage('Quartus-Binary-Path not set!');
                 return false;
             }
         }
@@ -293,7 +307,7 @@ export class Quartus {
         const QuartusShellPath: string = path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);
 
         //execute tcl-script with quartus-shell
-        const quartusShell = child_process.spawn(QuartusShellPath, ['-t', path.join(this.mProjectPath, TclScripts.Folder, TclScript)], {
+        const quartusShell = child_process.spawn(QuartusShellPath, ['-t', TclScript], {
             cwd: this.mProjectPath
         });
 
@@ -328,9 +342,15 @@ export class Quartus {
         quartusShell.kill();
 
         //check, if process was executed without any errors and return result
-        const IsSuccess: boolean = exitCode === 0;
+        IsSuccess = exitCode === 0;
 
         return IsSuccess;
+    }
+
+    public async RunTclCommand(TclScript: string): Promise<boolean> {
+
+
+        return true;
     }
 
     private async SelectTopLevelEntity(): Promise<boolean> {
@@ -344,22 +364,20 @@ export class Quartus {
 
         if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd")) {
 
-            // let parser : Vhdl_parser = new Vhdl_parser();
-            // parser.init();
+            let parser : Vhdl_parser = new Vhdl_parser();
+            parser.init();
 
-            // let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
-            // let text : string = await doc.getText();
+            let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
+            let text : string = await doc.getText();
 
-            // console.log(text);
+            let EntityName : string;
+            let VhdlFileInfo : Hdl_element;
 
-            // let EntityName : string;
-            // let VhdlFileInfo : Hdl_element;
-
-            // if(text)
-            // {
-            //     VhdlFileInfo =  await parser.get_all(text,'--');
-            //     this.mFileHolder.SetTopLevelEntity(VhdlFileInfo.name, VHDL_TOP_LEVEL_ENTITY.Synthesis);
-            // }
+            if(text)
+            {
+                VhdlFileInfo =  await parser.get_all(text,'--');
+                this.mFileHolder.SetTopLevelEntity(VhdlFileInfo.name, VHDL_TOP_LEVEL_ENTITY.Synthesis);
+            }
 
             let substr: string = path.basename(TopLevelEntity[0].fsPath).split(".")[0].split("-")[0];
 
