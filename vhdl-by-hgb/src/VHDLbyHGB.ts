@@ -32,12 +32,11 @@ export class VHDLbyHGB {
 		this.mFormatter = new VhdlFormatter(this.mContext);
 		this.mEventEmitter = new events.EventEmitter();
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
-
     }
 
 	public Initialize() 
 	{
-
+		
 	}
 
 	public Deactivate() : Thenable<void> | undefined
@@ -48,5 +47,5 @@ export class VHDLbyHGB {
 	//--------------------------------------------
 	//Private Methods
 	//--------------------------------------------
-
+	
 }

@@ -75,6 +75,7 @@ export class SynthesisManager
         if(!this.mActiveProject)
         {
             vscode.window.showErrorMessage("No Synthesis-Project selected for updating files!");
+            return false;
         }
 
         // update files of selected synthesis-project
@@ -94,6 +95,7 @@ export class SynthesisManager
         if(!this.mActiveProject)
         {
             vscode.window.showErrorMessage("No Synthesis-Project selected for launching GUI!");
+            return false;
         }
 
         // launch GUI of selected synthesis-project
@@ -113,6 +115,7 @@ export class SynthesisManager
         if(!this.mActiveProject)
         {
             vscode.window.showErrorMessage("No Synthesis-Project selected for compiling!");
+            return false;
         }
 
         // compile selected synthesis-project
@@ -133,6 +136,7 @@ export class SynthesisManager
         if(!this.mActiveProject)
         {
             vscode.window.showErrorMessage("No Synthesis-Project selected for setting Top-Level-Entity!");
+            return false;
         }
 
         // ask user to select top-level-entity
@@ -162,6 +166,7 @@ export class SynthesisManager
         if(!this.mActiveProject)
         {
             vscode.window.showErrorMessage("No Synthesis-Project selected for setting Family!");
+            return false;
         }
 
         // ask user to select top-level-entity
@@ -191,6 +196,7 @@ export class SynthesisManager
         if(!this.mActiveProject)
         {
             vscode.window.showErrorMessage("No Synthesis-Project selected for setting Device!");
+            return false;
         }
 
         // ask user to select top-level-entity
