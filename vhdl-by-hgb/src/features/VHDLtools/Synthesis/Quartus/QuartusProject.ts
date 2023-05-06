@@ -9,6 +9,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { FileHolder } from "../../../FileTools/FileHolder";
+import { VhdlEntity } from "../../../VhdlDefinitions";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
 {
@@ -52,19 +53,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const IsSuccess : boolean = await this.mQuartus.RunTclScript(ScriptPath);
 
         if (!IsSuccess) {
-            vscode.window.showErrorMessage("Creating Quartus-Project failed!");
+            vscode.window.showErrorMessage(`Creating Quartus-Project "${this.mName}" failed!`);
             return false;
         }
 
-        vscode.window.showInformationMessage('Quartus-Project was created successfully!');
+        vscode.window.showInformationMessage(`Quartus-Project "${this.mName}" was created successfully!`);
 
         return true;
     }
 
     public async UpdateFiles() : Promise<boolean>
     {
-        //TODO: Update Files with Tcl-Script
-        
+
         //create tcl-script for updating files of a Quartus-Project
         QuartusScriptGenerator.GenerateUpdateFiles(this);
 
@@ -75,11 +75,11 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
 
         if (!IsSuccess) {
-            vscode.window.showErrorMessage("Updating files in Quartus-Project failed!");
+            vscode.window.showErrorMessage(`Updating files in Quartus-Project "${this.mName}" failed!`);
             return false;
         }
 
-        vscode.window.showInformationMessage('Files in Quartus-Project were updated successfully!');
+        vscode.window.showInformationMessage(`Files for Quartus-Project "${this.mName}" were updated successfully!`);
         return true;
     }
 
@@ -97,7 +97,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
 
         if (!IsSuccess) {
-            vscode.window.showErrorMessage("Launching Quartus-Project failed!");
+            vscode.window.showErrorMessage(`Launching Quartus-Project "${this.mName}" failed!`);
             return false;
         }
 
@@ -115,23 +115,23 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         //inform user about compiling
-        vscode.window.showInformationMessage(`Quartus-Project: ${this.mName} -> compiling started...`);
+        vscode.window.showInformationMessage(`Quartus-Project "${this.mName}" -> compiling started...`);
 
         //Run Tcl-Script for generating Project
         const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
 
         if (!IsSuccess) {
-            vscode.window.showErrorMessage("Compiling Quartus-Project failed!");
+            vscode.window.showErrorMessage(`Compiling Quartus-Project "${this.mName}" failed!`);
             return false;
         }
 
         //inform user about compiling
-        vscode.window.showInformationMessage(`Quartus-Project: ${this.mName} -> compiling finished...`);
+        vscode.window.showInformationMessage(`Quartus-Project "${this.mName}" -> compiling finished...`);
 
         return true;
     }
 
-    public async SetTopLevelEntity(entity : string) : Promise<boolean>
+    public async SetTopLevelEntity(entity : VhdlEntity) : Promise<boolean>
     {
         this.mTopLevelEntity = entity;
 
@@ -145,9 +145,11 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
 
         if (!IsSuccess) {
-            vscode.window.showErrorMessage("Setting TopLevelEntity for Quartus-Project failed!");
+            vscode.window.showErrorMessage(`Setting TopLevelEntity for Quartus-Project "${this.mName}" failed!`);
             return false;
         }
+
+        vscode.window.showInformationMessage(`TopLevelEntity "${this.mTopLevelEntity.mName}" for Quartus-Project "${this.mName}" was set successfully!`);
 
         return true;
     }
@@ -166,9 +168,11 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
 
         if (!IsSuccess) {
-            vscode.window.showErrorMessage("Setting Family for Quartus-Project failed!");
+            vscode.window.showErrorMessage(`Setting Family for Quartus-Project "${this.mName}" failed!`);
             return false;
         }
+
+        vscode.window.showInformationMessage(`Family "${this.mFamily}" for Quartus-Project "${this.mName}" was set successfully!`);
 
         return true;
     }
@@ -187,9 +191,11 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
 
         if (!IsSuccess) {
-            vscode.window.showErrorMessage("Setting Device for Quartus-Project failed!");
+            vscode.window.showErrorMessage(`Setting Device for Quartus-Project "${this.mName}" failed!`);
             return false;
         }
+
+        vscode.window.showInformationMessage(`Device "${this.mDevice}" for Quartus-Project "${this.mName}" was set successfully!`);
 
         return true;
     }
@@ -203,7 +209,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public GetQuartus() : Quartus { return this.mQuartus; }
 
-    public GetTopLevelEntity() : string { return this.mTopLevelEntity; }
+    public GetTopLevelEntity() : VhdlEntity { return this.mTopLevelEntity; }
 
     public GetDevice() : string { return this.mDevice; }
 

@@ -1,4 +1,4 @@
-import { VHDL_ProjectFiles } from "../../../Constants";
+import { VHDL_ProjectFiles } from "../../../features/VhdlDefinitions";
 
 export interface IVhdlFinder {
 

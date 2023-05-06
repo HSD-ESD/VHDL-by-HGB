@@ -1,6 +1,6 @@
 
 import { CANCELLED } from "dns";
-import { VHDL_Library, VHDL_Files, VHDL_ProjectFiles } from "../../Constants";
+import { VHDL_Library, VHDL_Files, VHDL_ProjectFiles } from "../../features/VhdlDefinitions";
 
 export enum VHDL_TOP_LEVEL_ENTITY
 {

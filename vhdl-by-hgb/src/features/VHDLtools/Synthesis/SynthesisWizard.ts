@@ -1,7 +1,8 @@
 // specific imports
+import { VhdlEntity } from "../../VhdlDefinitions";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import { SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
-import { tSynthesisProjectConfig } from "./SynthesisProject";
+import { TSynthesisProjectConfig } from "./SynthesisProject";
 
 import { Hdl_element } from "colibri2/out/parser/common";
 import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
@@ -15,9 +16,9 @@ export class SynthesisWizard {
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public async Run() : Promise<tSynthesisProjectConfig>
+    public async Run() : Promise<TSynthesisProjectConfig>
     {
-        let config : tSynthesisProjectConfig = new tSynthesisProjectConfig();
+        let config : TSynthesisProjectConfig = new TSynthesisProjectConfig();
 
         //select synthesis-Tool
         let synthesisTool = await this.SelectSynthesisTool();
@@ -33,8 +34,10 @@ export class SynthesisWizard {
         return config;
     }
 
-    public async SelectTopLevelEntity() : Promise<string>
+    public async SelectTopLevelEntity() : Promise<VhdlEntity>
     {
+        let entity : VhdlEntity = new VhdlEntity();
+
         //Enter project location
         const TopLevelEntity = await vscode.window.showOpenDialog({
             canSelectFiles: true,
@@ -46,27 +49,33 @@ export class SynthesisWizard {
         // only parse file, if valid file was selected
         if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd")) {
 
+            //initialize VHDLparser
             let parser : Vhdl_parser = new Vhdl_parser();
             await parser.init();
 
+            //open specified entity as vs-code-document
             let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
             let text : string = await doc.getText();
 
-            let EntityName : string;
             let VhdlFileInfo : Hdl_element;
 
             // return empty string, if parsed file is invalid
             if(!text)
             {
-                return "";
+                return entity;
             }
 
+            //set filepath for entity
+            entity.mPath = TopLevelEntity[0].fsPath;
+
+            //parse name of entity
             VhdlFileInfo =  await parser.get_all(text,'--');
-            return VhdlFileInfo.name;
+            //set name for returned entity
+            entity.mName = VhdlFileInfo.name;
         }
 
-        // return empty string, if no valid file was selected
-        return "";
+        // return filled entity
+        return entity;
     }
 
 

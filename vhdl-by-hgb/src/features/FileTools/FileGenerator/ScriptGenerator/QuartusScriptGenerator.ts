@@ -243,7 +243,7 @@ export class QuartusScriptGenerator {
         wstream.write(cProjectOpen + path.join(quartusProject.GetPath(), quartusProject.GetName()).replace(/\\/g, "/") + "\n\n");
 
         //Set Top-Level-Entity
-        wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetTopLevelEntity() + "\n");
+        wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetTopLevelEntity().mName + "\n");
 
         //close project
         wstream.write(cProjectClose);

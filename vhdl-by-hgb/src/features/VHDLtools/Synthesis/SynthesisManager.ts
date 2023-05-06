@@ -1,10 +1,11 @@
 //specific imports
 import { FileHolder } from "../../FileTools/FileHolder";
 import { SynthesisWizard } from "./SynthesisWizard";
-import { ISynthesisProject, tSynthesisProjectConfig } from "./SynthesisProject";
+import { ISynthesisProject, TSynthesisProjectConfig } from "./SynthesisProject";
 
 //general imports
 import * as vscode from 'vscode';
+import { VhdlEntity } from "../../VhdlDefinitions";
 
 export class SynthesisManager 
 {
@@ -43,7 +44,7 @@ export class SynthesisManager
     public async AddNewProject() : Promise<boolean>
     {
         // ask user to set configuration for new synthesis-project
-        let projectConfig : tSynthesisProjectConfig = await this.mWizard.Run();
+        let projectConfig : TSynthesisProjectConfig = await this.mWizard.Run();
         // check selected configuration for validity
         if(projectConfig.factory === undefined || projectConfig.folderPath.length === 0 || projectConfig.name.length === 0)
         {
@@ -140,17 +141,17 @@ export class SynthesisManager
         }
 
         // ask user to select top-level-entity
-        const EntityName : string = await this.mWizard.SelectTopLevelEntity();
+        const Entity : VhdlEntity = await this.mWizard.SelectTopLevelEntity();
 
         //check selected entity for validity
-        if(EntityName.length === 0)
+        if(Entity.mName.length === 0 || Entity.mPath.length === 0)
         {
             vscode.window.showErrorMessage("No valid TopLevelEntity chosen for selected Synthesis-Project!");
             return false;
         }
 
         // set TopLevelEntity for selected synthesis-project
-        const IsSuccess : boolean = await this.mActiveProject.SetTopLevelEntity(EntityName);
+        const IsSuccess : boolean = await this.mActiveProject.SetTopLevelEntity(Entity);
 
         if(!IsSuccess)
         {

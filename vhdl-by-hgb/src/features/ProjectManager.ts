@@ -1,5 +1,5 @@
 // Specific Imports
-import { VHDL_ProjectFiles, VHDL_Library, VHDL_Files} from "../Constants";
+import { VHDL_ProjectFiles, VHDL_Library, VHDL_Files} from "../features/VhdlDefinitions";
 import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { SimpleVhdlFinder } from "./FileTools/VhdlFinder/SimpleVhdlFinder";
 import { FileHolder } from "./FileTools/FileHolder";

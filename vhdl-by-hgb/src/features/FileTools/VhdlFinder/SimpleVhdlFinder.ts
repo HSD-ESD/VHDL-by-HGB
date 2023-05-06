@@ -1,6 +1,6 @@
 //Specific Imports
 import { IVhdlFinder } from "./VhdlFinder";
-import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../../Constants";
+import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../../features/VhdlDefinitions";
 import { walk } from 'walk-file-tree';
 
 //General Imports
