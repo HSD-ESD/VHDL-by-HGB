@@ -20,7 +20,7 @@ let VhdlByHgb : VHDLbyHGB;
 export async function activate(ctx: ExtensionContext) 
 { 
     VhdlByHgb = new VHDLbyHGB(ctx);
-    VhdlByHgb.Initialize();
+    await VhdlByHgb.Initialize();
 }
 
 export function deactivate(): Thenable<void> | undefined 

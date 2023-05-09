@@ -34,9 +34,9 @@ export class VHDLbyHGB {
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
     }
 
-	public Initialize() 
+	public async Initialize() 
 	{
-		
+		//await this.mOutputFromLs.GetOutput();
 	}
 
 	public Deactivate() : Thenable<void> | undefined

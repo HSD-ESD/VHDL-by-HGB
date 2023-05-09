@@ -228,7 +228,7 @@
 	"Entity": {
 		"prefix": "entity",
 			"body": [
-				"entity ${1:$TM_FILENAME_BASE} is",
+				"entity ${1:Entity} is",
 				"\tport (",
 				"\t\t${2:iClk        : in std_ulogic;}",
 				"\t\t${3:inRstAsync  : in std_ulogic;}",
@@ -295,7 +295,7 @@
 		"body": [
 			"process (${1:iClk})",
 			"begin",
-			"\tif ${2|rising_edge,falling_edge|}($1) then",
+			"\tif ${2:${6|HILFE,Geh,Doch|}}($1) then",
 			"\t\t$0",
 			"\t\tcase ${3:sel} is",
 			"\t\t\twhen ${4:sel} =>",
@@ -856,4 +856,4 @@
 		],
 		"description": "concurrent with select declaration"
 	}
-}
+  }
