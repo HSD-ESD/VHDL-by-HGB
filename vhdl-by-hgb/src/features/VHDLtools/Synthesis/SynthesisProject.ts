@@ -57,29 +57,66 @@ export abstract class SynthesisProject
         this.mContext = context;
     }
 
-    protected async GetDependencies(filePath: string, topLevelEntity: string): Promise<Set<string>> 
+    protected async GetDependencies(filePath: string): Promise<Set<string>> 
     {
-        const dependencies = new Set<string>();
+      // store dependency-files in set to avoid duplicates
+      let dependencies = new Set<string>();
+
+      // add passed entity-file to dependencies
+      dependencies.add(filePath);
+
+      //TODO: parse packages and add to dependencies
+
+      // get all document-symbols from a file
+      const docSymbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+        'vscode.executeDocumentSymbolProvider',
+        vscode.Uri.file(filePath)
+      );
       
-        const topLevelEntityImplementation = await vscode.commands.executeCommand<vscode.Location[]>(
-            'vscode.executeImplementationProvider',
-            vscode.Uri.file(filePath),
-            new vscode.Position(0, 0),
-            { filterText: topLevelEntity }
-        );
-      
-        if (topLevelEntityImplementation) {
-          for (const location of topLevelEntityImplementation) {
-            const dependencyPath = location.uri.fsPath;
-            dependencies.add(dependencyPath);
-      
-            // Recursively get dependencies of the entity's implementations
-            const entityDependencies = await this.GetDependencies(dependencyPath, topLevelEntity);
-            entityDependencies.forEach(dep => dependencies.add(dep));
-          }
-        }
-      
-        return dependencies;
+      // find entity-definition in file
+      const entitySymbol = docSymbols.find(symbol =>
+          symbol.kind === vscode.SymbolKind.Module 
+      );
+
+      // Find the implementation of the entity
+      const implementation = await vscode.commands.executeCommand<vscode.Location[]>(
+          'vscode.executeImplementationProvider',
+          vscode.Uri.file(filePath),
+          entitySymbol?.range.start
+      );
+
+      // add architecture-file to dependencies
+      dependencies.add(implementation[0].uri.toString());
+
+      //TODO: parse packages and add to dependencies
+
+      // check for valid implementation-file
+      if (!implementation) {
+          return dependencies;
       }
+
+      // Find all symbols in the implementation file
+      const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+          'vscode.executeDocumentSymbolProvider',
+          implementation[0].uri
+      );
+
+      // Find all entity instances in the symbols
+      const instantiationSymbols = symbols.filter(symbol => symbol.kind === vscode.SymbolKind.Namespace);
+
+      for (const symbol of instantiationSymbols) {
+
+        //TODO: get associated entity-file for instantiated entity
+        // let entityFilePath : string = symbol.GetEntityFilePath   // PSEUDO-CODE !!!
+        
+        // Recursively get dependencies of the entity's instances
+        /*
+        const entityDependencies = await this.GetDependencies(entityFilePath);
+        entityDependencies.forEach(dep => dependencies.add(dep));
+        */
+      }
+      
+      return dependencies;
+  }
         
 }
