@@ -65,7 +65,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     public async UpdateFiles() : Promise<boolean>
     {
         //TODO: Remove!!!
-        //let test = await this.GetDependencies(this.mTopLevelEntity.mPath, this.mTopLevelEntity.mName);
+        let test = await this.GetDependencies(this.mTopLevelEntity.mPath);
 
         //create tcl-script for updating files of a Quartus-Project
         QuartusScriptGenerator.GenerateUpdateFiles(this);
