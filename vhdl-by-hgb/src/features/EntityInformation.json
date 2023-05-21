@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Tbd_LedDimmableHPS",
+    "ports": [
+      "CLOCK_50",
+      "KEY",
+      "HPS_DDR3_ADDR",
+      "HPS_DDR3_BA",
+      "HPS_DDR3_CK_P",
+      "HPS_DDR3_CK_N",
+      "HPS_DDR3_CKE",
+      "HPS_DDR3_CS_N",
+      "HPS_DDR3_RAS_N",
+      "HPS_DDR3_CAS_N",
+      "HPS_DDR3_WE_N",
+      "HPS_DDR3_RESET_N",
+      "HPS_DDR3_DQ",
+      "HPS_DDR3_DQS_P",
+      "HPS_DDR3_DQS_N",
+      "HPS_DDR3_ODT",
+      "HPS_DDR3_DM",
+      "HPS_DDR3_RZQ",
+      "LEDR",
+      "SW"
+    ],
+    "generics": [],
+    "architectures": [
+      {
+        "name": "rtl",
+        "component": [
+          {
+            "name": "LedDimmableIP",
+            "ports": [
+              "clk_clk",
+              "leds_export",
+              "memory_mem_a",
+              "memory_mem_ba",
+              "memory_mem_ck",
+              "memory_mem_ck_n",
+              "memory_mem_cke",
+              "memory_mem_cs_n",
+              "memory_mem_ras_n",
+              "memory_mem_cas_n",
+              "memory_mem_we_n",
+              "memory_mem_reset_n",
+              "memory_mem_dq",
+              "memory_mem_dqs",
+              "memory_mem_dqs_n",
+              "memory_mem_odt",
+              "memory_mem_dm",
+              "memory_oct_rzqin",
+              "reset_reset_n",
+              "switches_export"
+            ],
+            "generics": []
+          }
+        ]
+      },
+      {
+        "name": "Rtl2",
+        "component": []
+      }
+    ]
+  }
+]
