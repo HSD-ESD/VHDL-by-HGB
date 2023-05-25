@@ -64,7 +64,7 @@ export class SynthesisManager
         return true;
     }
 
-    public async AddExistingProjecct() : Promise<boolean>
+    public async AddExistingProject() : Promise<boolean>
     {
 
         return true;
@@ -247,7 +247,7 @@ export class SynthesisManager
         disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.AddNewProject", () => { this.AddNewProject(); });
         this.mContext.subscriptions.push(disposable);
 
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.AddExistingProject", () => { this.AddExistingProjecct(); });
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.AddExistingProject", () => { this.AddExistingProject(); });
         this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.SetActiveProject", () => { this.SetActiveProject(); });
