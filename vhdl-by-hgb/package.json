@@ -1,6 +1,6 @@
 {
     "name": "vhdl-by-hgb",
-    "displayName": "VHDLbyHGB",
+    "displayName": "VHDL by HGB",
     "publisher": "FH Hagenberg",
     "description": "VS-Code Extension for VHDL",
     "version": "3.3.0",
@@ -233,7 +233,7 @@
         ],
         "configuration": {
 			"type": "object",
-			"title": "VHDL",
+			"title": "VHDL by HGB",
 			"properties": {
 				"vhdlls.languageServer": {
 					"description": "Language server location. Changing this option requires a restart.",
