@@ -72,12 +72,12 @@ export class ProjectManager {
                 )
                 .then(
                     () => { vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate"); }
-                )
+                )/*
                 .then(
                     () => {
                         this.mOutputFromLs.GetOutput(this.mWorkSpacePath);
                     }
-                );
+                )*/;
         });
     }
 

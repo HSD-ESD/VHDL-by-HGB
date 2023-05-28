@@ -19,11 +19,18 @@
 		"ide",
 		"vhdl_ls"
     ],
+    "main": "./out/extension.js",
+    "activationEvents": [
+        "onLanguage:vhdl",
+		"onCommand:vhdlls.restart",
+        "onCommand:VHDLbyHGB.reloadEntities"
+    ],
     "categories": [
         "Programming Languages",
         "Snippets",
         "Formatters",
-        "Linters"
+        "Linters",
+        "Keymaps"
     ],
     "icon": "resources/images/logo.jpg",
     "repository": {
@@ -33,11 +40,6 @@
     "bugs": {
         "url": "https://github.com/jakobjung10/pro4_vhdl_IDE/issues"
     },
-    "main": "./out/extension.js",
-    "activationEvents": [
-        "onLanguage:vhdl",
-		"onCommand:vhdlls.restart"
-    ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -146,6 +148,10 @@
             {
                 "command": "VHDLbyHGB.SynthesisManager.SetFamily",
                 "title": "VHDLbyHGB.SynthesisManager.SetFamily"
+            },
+            {
+                "command": "VHDLbyHGB.reloadEntities",
+                "title": "VHDLbyHGB.Reload Entities"
             }
 
         ],
@@ -265,7 +271,11 @@
 			}
 		},
         "keybindings": [
-            
+            {
+                "key": "Ctrl+Alt+S",
+                "command": "VHDLbyHGB.reloadEntities",
+                "mac": "shift+cmd+s"
+            }
         ]
     },
     "scripts": {

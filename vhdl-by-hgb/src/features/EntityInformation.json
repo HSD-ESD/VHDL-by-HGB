@@ -55,11 +55,45 @@
             "generics": []
           }
         ]
-      },
+      }
+    ]
+  },
+  {
+    "name": "TestHdl",
+    "ports": [
+      "iClk",
+      "inRstAsync",
+      "oLed"
+    ],
+    "generics": [],
+    "architectures": [
       {
-        "name": "Rtl2",
+        "name": "Rtl",
         "component": []
       }
     ]
+  },
+  {
+    "name": "LedDimmable",
+    "ports": [
+      "csi_clk",
+      "rsi_reset_n",
+      "avs_s0_address",
+      "avs_s0_write",
+      "avs_s0_writedata",
+      "avs_s0_read",
+      "avs_s0_readdata",
+      "oLed"
+    ],
+    "generics": [
+      "gClkFrequency",
+      "gPulseResolution",
+      "gNrOfLeds",
+      "gNrAddressLines",
+      "gWriteDataWidth",
+      "gImplementReadInterface",
+      "gMaxNrOfLeds"
+    ],
+    "architectures": []
   }
 ]
