@@ -6,6 +6,7 @@ import { get_os } from "colibri2/out/process/utils";
 import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../../FileTools/FileHolder";
 import { QuartusScriptGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { FileUtils } from "../../../FileTools/FileUtils";
+import {QuartusQsf} from "./QuartusPackage";
 
 import { Hdl_element } from "colibri2/out/parser/common";
 import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
@@ -24,6 +25,12 @@ const QUARTUS_PATH_LINUX: string = "/opt/intelFPGA_lite";
 
 const QUARTUS_SHELL = "quartus_sh";
 const QUARTUS_EXE = "quartus";
+
+const cFamilyRegex   : RegExp = /^set_global_assignment\s+-name\s+FAMILY\s+"([^"]+)"/;
+const cDeviceRegex   : RegExp = /^set_global_assignment\s+-name\s+DEVICE\s+([^"\s]+)/;
+const cTopLevelRegex : RegExp = /^set_global_assignment\s+-name\s+TOP_LEVEL_ENTITY\s+([^"\s]+)/;
+const cVhdlFileRegex : RegExp = /^set_global_assignment\s+-name\s+VHDL_FILE\s+"([^"]+\.vhd)"/;
+
 
 //--------------------------------------------------------------
 // Quartus class
@@ -177,6 +184,56 @@ export class Quartus {
         IsSuccess = exitCode === 0;
     
         return IsSuccess;
+    }
+
+    public async ParseQsf(qsfPath : string) : Promise<QuartusQsf>
+    {
+        //empty qsf
+        let qsf : QuartusQsf = {
+            Device : "",
+            Family : "",
+            TopLevelEntity : "",
+            VhdlFiles : []
+        };
+
+        //read complete qsf
+        const qsfFile : string = fs.readFileSync(qsfPath, 'utf8');
+        const qsfFileLines : string[] = qsfFile.split('\n');
+        
+        for(const line of qsfFileLines)
+        {
+            let match : RegExpMatchArray | null;
+    
+            // extract Family 
+            match = line.match(cFamilyRegex);
+            if (match) {
+                qsf.Family = match[1];
+                continue;
+            }
+            
+            // extract Device
+            match = line.match(cDeviceRegex);
+            if (match) {
+                qsf.Device = match[1];
+                continue;
+            }
+            
+            // extract Top-Level-Entity 
+            match = line.match(cTopLevelRegex);
+            if (match) {
+                qsf.TopLevelEntity = match[1];
+                continue;
+            }
+
+            match = line.match(cVhdlFileRegex);
+            if(match)
+            {
+                qsf.VhdlFiles.push(match[1]);
+                continue;
+            }
+        }
+
+        return qsf;
     }
 
     //Getter-Methods

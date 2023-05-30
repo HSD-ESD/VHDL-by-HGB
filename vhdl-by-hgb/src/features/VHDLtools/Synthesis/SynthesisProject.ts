@@ -1,5 +1,5 @@
 
-import { VhdlParser } from "../../FileTools/VhdlParser/VhdlParser";
+//import { VhdlParser } from "../../FileTools/VhdlParser/VhdlParser";
 import { VhdlEntity } from "../../VhdlDefinitions";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import * as vscode from 'vscode';
@@ -107,9 +107,9 @@ export abstract class SynthesisProject
 
       for (const symbol of instantiationSymbols) {
 
-        let parser : VhdlParser = new VhdlParser();
-        let doc = await vscode.workspace.openTextDocument(implementation[0].uri);
-        const name : string = parser.ParseInstantiation(doc,symbol.range);
+        // let parser : VhdlParser = new VhdlParser();
+        // let doc = await vscode.workspace.openTextDocument(implementation[0].uri);
+        // const name : string = parser.ParseInstantiation(doc,symbol.range);
 
         //TODO: get associated entity-file for instantiated entity
         // let entityFilePath : string = symbol.GetEntityFilePath   // PSEUDO-CODE !!!

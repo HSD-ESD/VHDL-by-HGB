@@ -38,7 +38,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         if (!fs.existsSync(this.mTclScriptsFolder)) {
             fs.mkdirSync(this.mTclScriptsFolder);
         }
-        
+
+        const qsfPath = path.join(this.mPath, this.mName + ".qsf");
+        const qsfWatcher : vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher(qsfPath);
+
+        qsfWatcher.onDidCreate((uri) => {
+            const qsfContents = this.mQuartus.ParseQsf(qsfPath);
+        });
+
+        qsfWatcher.onDidChange((uri) => {
+            const qsfContents = this.mQuartus.ParseQsf(qsfPath);
+        });
+
     }
 
     public async Generate() : Promise<boolean>

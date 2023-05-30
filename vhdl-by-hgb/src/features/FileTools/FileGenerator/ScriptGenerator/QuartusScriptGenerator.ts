@@ -244,7 +244,7 @@ export class QuartusScriptGenerator {
 
         //Set Top-Level-Entity
         wstream.write(cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetTopLevelEntity().mName + "\n");
-
+        
         //close project
         wstream.write(cProjectClose);
 
