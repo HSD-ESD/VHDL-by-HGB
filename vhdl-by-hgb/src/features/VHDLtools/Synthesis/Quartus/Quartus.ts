@@ -51,50 +51,6 @@ export class Quartus {
         this.mQuartusBinaryPath = SearchQuartusBinaryPath();
     }
 
-    //Getter-Methods
-    public GetBinaryPath() : string { return this.mQuartusBinaryPath; }
-
-    public GetExePath() : string { return path.join(this.mQuartusBinaryPath, QUARTUS_EXE);}
-
-    public GetShellPath() : string { return path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);}
-
-    public IsBlackListed(fileName: string) {
-        return fileName.startsWith("tb");
-    }
-
-    // --------------------------------------------
-    // Private methods
-    // --------------------------------------------
-
-    private async SelectQuartusBinaryPath(): Promise<boolean> {
-        try {
-
-            const uri = await vscode.window.showOpenDialog({
-                canSelectFiles: false,
-                canSelectFolders: true,
-                canSelectMany: false,
-                openLabel: 'Select Folder of Quartus-Binaries'
-            });
-
-            if (uri && uri[0] && uri[0].fsPath && fs.existsSync(path.join(uri[0].fsPath, get_os() === OS.LINUX ? QUARTUS_SHELL : (QUARTUS_SHELL + ".exe")))) {
-                console.log(uri[0].fsPath);
-                if (uri[0].fsPath.length === 0) { console.log("length == 0"); }
-                // Store quartus-path internally
-                this.mQuartusBinaryPath = uri[0].fsPath;
-                vscode.window.showInformationMessage('Folder containing Quartus-Binaries was selected successfully!');
-                return true;
-            }
-            else {
-                vscode.window.showInformationMessage('No valid folder containing Quartus-Binaries was selected!');
-                return false;
-            }
-
-        } catch (err) {
-            console.error(err);
-            return false;
-        }
-    }
-
     public async RunTclScript(TclScript: string): Promise<boolean> 
     {
 
@@ -221,6 +177,50 @@ export class Quartus {
         IsSuccess = exitCode === 0;
     
         return IsSuccess;
+    }
+
+    //Getter-Methods
+    public GetBinaryPath() : string { return this.mQuartusBinaryPath; }
+
+    public GetExePath() : string { return path.join(this.mQuartusBinaryPath, QUARTUS_EXE);}
+
+    public GetShellPath() : string { return path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);}
+
+    public IsBlackListed(fileName: string) {
+        return fileName.startsWith("tb");
+    }
+
+    // --------------------------------------------
+    // Private methods
+    // --------------------------------------------
+
+    private async SelectQuartusBinaryPath(): Promise<boolean> {
+        try {
+
+            const uri = await vscode.window.showOpenDialog({
+                canSelectFiles: false,
+                canSelectFolders: true,
+                canSelectMany: false,
+                openLabel: 'Select Folder of Quartus-Binaries'
+            });
+
+            if (uri && uri[0] && uri[0].fsPath && fs.existsSync(path.join(uri[0].fsPath, get_os() === OS.LINUX ? QUARTUS_SHELL : (QUARTUS_SHELL + ".exe")))) {
+                console.log(uri[0].fsPath);
+                if (uri[0].fsPath.length === 0) { console.log("length == 0"); }
+                // Store quartus-path internally
+                this.mQuartusBinaryPath = uri[0].fsPath;
+                vscode.window.showInformationMessage('Folder containing Quartus-Binaries was selected successfully!');
+                return true;
+            }
+            else {
+                vscode.window.showInformationMessage('No valid folder containing Quartus-Binaries was selected!');
+                return false;
+            }
+
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
     }
 
 }
