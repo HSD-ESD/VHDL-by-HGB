@@ -1,6 +1,5 @@
 
-import { CANCELLED } from "dns";
-import { VHDL_Library, VHDL_Files, VHDL_ProjectFiles } from "../../features/VhdlDefinitions";
+import { VHDL_Library, VHDL_Files, VHDL_ProjectFiles } from "../../Constants";
 
 export class FileHolder {
 
@@ -8,8 +7,6 @@ export class FileHolder {
     // Key: Library name
     // Value: Array of file paths
     private mProjectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
-    
-    private mIsCompileOrder : boolean = false;
 
     public SetProjectFiles(projectFiles : VHDL_ProjectFiles) : void
     {

@@ -67,7 +67,7 @@ export class SimulationManager {
     // --------------------------------------------
     private async Update() : Promise<void> {
         
-        const files = await this.mVUnit.FindRunPy((vscode.workspace.workspaceFolders || [])[0])
+        const files = await this.mVUnit.FindRunPy((vscode.workspace.workspaceFolders || [])[0]);
         
         if(files)
         {

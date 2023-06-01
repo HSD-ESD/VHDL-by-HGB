@@ -15,7 +15,7 @@ const DEFAULT_LIBRARY_NAME = "lib";
 
 export class SimpleVhdlFinder implements IVhdlFinder
 {
-    public async GetVhdlFilesFromProject(WorkSpacePath: string) : Promise<VHDL_ProjectFiles> {
+    public async GetVhdlFiles(WorkSpacePath: string) : Promise<VHDL_ProjectFiles> {
 
         if(!fs.existsSync(WorkSpacePath)) 
         {

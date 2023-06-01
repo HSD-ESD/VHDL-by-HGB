@@ -1,17 +1,16 @@
 // Specific Imports
-import { VHDL_ProjectFiles, VHDL_Library, VHDL_Files} from "../features/VhdlDefinitions";
 import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { SimpleVhdlFinder } from "./FileTools/VhdlFinder/SimpleVhdlFinder";
 import { FileHolder } from "./FileTools/FileHolder";
 import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
-import { Quartus } from "./VHDLtools/Synthesis/Quartus/Quartus";
+import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
+import { SimulationManager } from "./VHDLtools/Simulation/SimulationManager";
 
 import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 
 // General Imports
 import * as vscode from 'vscode';
-import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
-import { HDLUtils } from "./FileTools/HDLUtils";
+import * as path from 'path';
 
 export class ProjectManager {
 
@@ -22,6 +21,7 @@ export class ProjectManager {
     // vscode-members
     private mOutputChannel : vscode.OutputChannel;
     private mContext : vscode.ExtensionContext;
+    private mProjectWatcher : vscode.FileSystemWatcher;
 
     // project-specific members
     private mWorkSpacePath : string = "";
@@ -31,6 +31,7 @@ export class ProjectManager {
 
     private mFileHolder : FileHolder;
     private mSynthesisManager : SynthesisManager;
+    private mSimulationManager : SimulationManager;
     
     private mDynamicSnip : DynamicSnippets;
 
@@ -53,19 +54,31 @@ export class ProjectManager {
         this.mContext = context;
         this.mOutputChannel = outputChannel;
 
+        //specific members
         this.mVhdlFinder = new SimpleVhdlFinder();
         this.mFileHolder = new FileHolder();
 
         this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath, this.mFileHolder);
-        this.mSynthesisManager = new SynthesisManager(this.mWorkSpacePath, this.mContext);
+        this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
+        this.mSimulationManager = new SimulationManager(this.mContext);
+
+        this.mProjectWatcher = vscode.workspace.createFileSystemWatcher(path.join(this.mWorkSpacePath, "**/*.vhd"));
+
+        //handle events for ProjectWatcher
+        this.mProjectWatcher.onDidCreate( (uri) => {
+            this.UpdateProjectFiles();
+        });
+        this.mProjectWatcher.onDidDelete( (uri) => {
+            this.UpdateProjectFiles();
+        });
 
         this.mDynamicSnip = new DynamicSnippets(this.mContext);
         this.RegisterCommands();
     }
 
-    public async UpdateProjectFiles() : Promise<void> {
+    private async UpdateProjectFiles() : Promise<void> {
 
-        this.mVhdlFinder.GetVhdlFilesFromProject(this.mWorkSpacePath).then((projectFiles) => 
+        this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath).then((projectFiles) => 
         { 
             this.mFileHolder.SetProjectFiles(projectFiles);
             vscode.commands.executeCommand("VHDLbyHGB.vhdlls.deactivate")
