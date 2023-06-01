@@ -150,6 +150,11 @@ export class VUnit {
             })
             .catch((err) => {
                 vunitData = cEmptyVunitExportData;
+                if(fs.existsSync(vunitJson))
+                {
+                    vunitData = JSON.parse(fs.readFileSync(vunitJson, 'utf-8'));
+                    fs.unlinkSync(vunitJson);
+                }
             });
         return vunitData;
     }

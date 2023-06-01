@@ -1,4 +1,10 @@
 //Specific Imports
+import * as Constants from "../../../../Constants";
+import * as TclScripts from "../TclScripts";
+import { OS } from "colibri2/out/process/common";
+import { get_os } from "colibri2/out/process/utils";
+import { FileHolder} from "../../../FileTools/FileHolder";
+import { QuartusScriptGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { FileUtils } from "../../../FileTools/FileUtils";
 import {QuartusQsf, cEmptyQsf} from "./QuartusPackage";
 

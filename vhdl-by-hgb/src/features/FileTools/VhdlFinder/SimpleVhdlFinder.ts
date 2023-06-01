@@ -1,6 +1,6 @@
 //Specific Imports
 import { IVhdlFinder } from "./VhdlFinder";
-import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../../features/VhdlDefinitions";
+import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "./../../VHDLtools/VhdlPackage";
 import { walk } from 'walk-file-tree';
 
 //General Imports
@@ -15,21 +15,19 @@ const DEFAULT_LIBRARY_NAME = "lib";
 
 export class SimpleVhdlFinder implements IVhdlFinder
 {
-    public async GetVhdlFiles(WorkSpacePath: string) : Promise<VHDL_ProjectFiles> {
+    public async GetVhdlFiles(workSpacePath: string) : Promise<VHDL_ProjectFiles> {
 
-        if(!fs.existsSync(WorkSpacePath)) 
+        if(!fs.existsSync(workSpacePath)) 
         {
             return new Map();
         }
 
-        let ProjectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
+        let projectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
 
-		let files : VHDL_Files = await GetLibFiles(WorkSpacePath);
-    	ProjectFiles.set(DEFAULT_LIBRARY_NAME, files);
+		let files : VHDL_Files = await GetLibFiles(workSpacePath);
+    	projectFiles.set(DEFAULT_LIBRARY_NAME, files);
 
-		//GetLibFiles(WorkSpacePath).then((files) => { ProjectFiles.set(DEFAULT_LIBRARY_NAME, files);});
-
-		return ProjectFiles;
+		return projectFiles;
 		
     }
 }

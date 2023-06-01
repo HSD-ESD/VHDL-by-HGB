@@ -1,5 +1,5 @@
 
-import { VHDL_Library, VHDL_Files, VHDL_ProjectFiles } from "../../Constants";
+import { VHDL_Library, VHDL_Files, VHDL_ProjectFiles } from "../VHDLtools/VhdlPackage";
 
 export class FileHolder {
 

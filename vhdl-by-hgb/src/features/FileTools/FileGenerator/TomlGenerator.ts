@@ -25,25 +25,23 @@ export class TomlGenerator {
     // Private members
     // --------------------------------------------
     private mWorkSpacePath : string = "";
-    private mFileHolder : FileHolder;
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public constructor(workSpacePath : string, fileHolder : FileHolder)
+    public constructor(workSpacePath : string)
     {
         this.mWorkSpacePath = workSpacePath;
-        this.mFileHolder = fileHolder;
     }
 
-    public async Generate_VHDL_LS(IsRelativePaths: boolean = true) : Promise<void>
+    public async Generate_VHDL_LS(fileHolder : FileHolder, isRelativePaths: boolean = true) : Promise<void>
     {
         const FileName : string = path.join(this.mWorkSpacePath, Constants.VHDL_LS_FILE);
 
         let wstream = fs.createWriteStream(FileName, { flags: 'w' });
 		
         //Iterate over all libraries
-        for(const [lib,files] of this.mFileHolder.GetProjectFiles().entries())
+        for(const [lib,files] of fileHolder.GetProjectFiles().entries())
         {
             //print library name
 		    wstream.write(TOML_Open_Char + TOML_Libraries + TOML_Point + lib + TOML_Closing_Char + TOML_New_Line);
@@ -56,7 +54,7 @@ export class TomlGenerator {
             {
                 wstream.write(TOML_Quote);
 
-                if(IsRelativePaths)
+                if(isRelativePaths)
                 {
                     //relative path
                     wstream.write(path.relative(this.mWorkSpacePath,file).replace(/\\/g, '\\\\'));
