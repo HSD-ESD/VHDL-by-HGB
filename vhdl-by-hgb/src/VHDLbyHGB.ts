@@ -37,7 +37,7 @@ export class VHDLbyHGB {
 
 	public Initialize() 
 	{
-		
+		this.mProjectManager.Initialize();
 	}
 
 	public async Initialize() {

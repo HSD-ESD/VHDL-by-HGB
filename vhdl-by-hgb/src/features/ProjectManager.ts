@@ -12,6 +12,7 @@ import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 // General Imports
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as fs from 'fs';
 import * as child_process from 'child_process';
 
 export class ProjectManager {
@@ -78,6 +79,15 @@ export class ProjectManager {
         this.RegisterCommands();
     }
 
+    public Initialize() 
+	{
+		if(fs.existsSync(path.join(this.mWorkSpacePath, "vhdl_ls.toml")))
+        {
+            // only activate Language-Server at extension-start, if file-information is available
+            vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate");
+        }
+	}
+
     private async UpdateProjectFiles() : Promise<void> {
 
         this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath).then((projectFiles) => 
@@ -125,6 +135,7 @@ export class ProjectManager {
             {
                 if(this.InstallVunitHdl())
                 {
+                    vscode.window.showInformationMessage("VUnit was installed successfully!");
                     vhdlFinder = new VunitVhdlFinder();
                 }
                 else

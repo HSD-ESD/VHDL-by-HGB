@@ -10,13 +10,19 @@ export class SimulationManager {
     // --------------------------------------------
     // Private members
     // --------------------------------------------
-    private mVUnit : VUnit;
-    private mVUnitProjects : Array<string>;
+
+    //general
     private mWorkSpacePath : string = "";
+    private mOutputChannel : vscode.OutputChannel;
 
     //vscode-members
     private mContext : vscode.ExtensionContext;
     private mVUnitWatcher : vscode.FileSystemWatcher;
+
+    //VUnit
+    private mVUnit : VUnit;
+    private mVUnitProjects : Array<string>;
+    private mActiveVUnitProject : string = "";
 
     // --------------------------------------------
     // Public methods
@@ -25,6 +31,7 @@ export class SimulationManager {
     {
         //init vs-code members
         this.mContext = context;
+        this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB:Simulation');
 
         //init specific members
         this.mVUnit = new VUnit();

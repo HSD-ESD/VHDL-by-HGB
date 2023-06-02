@@ -21,22 +21,9 @@ const TOML_Point = ".";
 
 export class TomlGenerator {
 
-    // --------------------------------------------
-    // Private members
-    // --------------------------------------------
-    private mWorkSpacePath : string = "";
-
-    // --------------------------------------------
-    // Public methods
-    // --------------------------------------------
-    public constructor(workSpacePath : string)
+    public async Generate_VHDL_LS(fileHolder : FileHolder, workSpacePath : string, isRelativePaths: boolean = true) : Promise<void>
     {
-        this.mWorkSpacePath = workSpacePath;
-    }
-
-    public async Generate_VHDL_LS(fileHolder : FileHolder, isRelativePaths: boolean = true) : Promise<void>
-    {
-        const FileName : string = path.join(this.mWorkSpacePath, Constants.VHDL_LS_FILE);
+        const FileName : string = path.join(workSpacePath, Constants.VHDL_LS_FILE);
 
         let wstream = fs.createWriteStream(FileName, { flags: 'w' });
 		
@@ -57,7 +44,7 @@ export class TomlGenerator {
                 if(isRelativePaths)
                 {
                     //relative path
-                    wstream.write(path.relative(this.mWorkSpacePath,file).replace(/\\/g, '\\\\'));
+                    wstream.write(path.relative(workSpacePath,file).replace(/\\/g, '\\\\'));
                 }
                 else
                 {
