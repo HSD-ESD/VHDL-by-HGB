@@ -95,10 +95,12 @@ export class ProjectManager {
     private async Update() : Promise<void> {
 
         this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath).then((projectFiles) => 
-        { 
-            this.mFileHolder.SetProjectFiles(projectFiles);
-
-            this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
+        {
+            if(projectFiles.size !== 0)
+            {
+                this.mFileHolder.SetProjectFiles(projectFiles);
+                this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
+            }
         });
     }
 

@@ -8,6 +8,7 @@ import { ACTIVE_SIMULATION_PROJECT, TSimulationProject, eSimulationTool } from '
 //general imports
 import * as vscode from 'vscode';
 import * as child_process from 'child_process';
+import * as fs from 'fs';
 
 
 export class VhdlFinderFactory {
@@ -52,7 +53,10 @@ export class VhdlFinderFactory {
                         }
                     }
                     
-                    vhdlFinder = new VunitVhdlFinder(activeSimulationProject.file);
+                    if(fs.existsSync(activeSimulationProject.file))
+                    {
+                        vhdlFinder = new VunitVhdlFinder(activeSimulationProject.file);
+                    }
                 }
             }      
         }

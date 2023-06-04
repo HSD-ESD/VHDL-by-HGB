@@ -125,6 +125,18 @@ export class SimulationManager {
         if(files)
         {
             this.mVUnitProjects = files;
+            //if active SimulationProject does not exist anymore -> VhdlFinder must be changed
+            const activeSimulationProject : TSimulationProject | undefined = this.mContext.workspaceState.get(ACTIVE_SIMULATION_PROJECT);
+            if (activeSimulationProject)
+            {
+                if (!this.mVUnitProjects.includes(activeSimulationProject.file))
+                {
+                    vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder")
+                    .then(
+                        () => {vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Update");}
+                    );
+                }
+            }
         }
     }
 
