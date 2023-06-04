@@ -15,13 +15,15 @@ export class VunitVhdlFinder {
     // Private members
     // --------------------------------------------
     private mVUnit : VUnit;
+    private mRunPyPath : string;
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public constructor() 
+    public constructor(runPyPath : string) 
     {
         this.mVUnit = new VUnit();
+        this.mRunPyPath = runPyPath;
     }
 
     public async GetVhdlFiles(workSpacePath: string) : Promise<VHDL_ProjectFiles> {
@@ -33,21 +35,12 @@ export class VunitVhdlFinder {
 
         let projectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
 
-        const DirName = "VHDLbyHGB";
-        const DirPath = path.join(workSpacePath, DirName);
-        if(!fs.existsSync(DirPath))
+        if(!fs.existsSync(this.mRunPyPath))
         {
-            fs.mkdirSync(DirPath);
-        }
-        const runPyPath = path.join(DirPath, "VHDLbyHGB.py");
-
-        if(!fs.existsSync(runPyPath))
-        {
-            PythonGenerator.GenerateRunPy_VHDLbyHGB(runPyPath);
-            await FileUtils.WaitForFileCreation(runPyPath);
+            return projectFiles;
         }
 
-        const data : VunitExportData = await this.mVUnit.GetVunitData(workSpacePath, runPyPath);
+        const data : VunitExportData = await this.mVUnit.GetVunitData(workSpacePath, this.mRunPyPath);
 
         for (const file of data.files)
         {

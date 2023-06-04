@@ -35,7 +35,7 @@ export class VHDLbyHGB {
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
     }
 
-	public Initialize() 
+	public async Initialize() : Promise<void>
 	{
 		this.mProjectManager.Initialize();
 	}

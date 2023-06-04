@@ -1,9 +1,11 @@
+//specific imports
+import { ACTIVE_SIMULATION_PROJECT, TSimulationProject, eSimulationTool } from './SimulationPackage'; 
+import { VUnit } from './VUnit/VUnit';
+import { SimulationWizard } from './SimulationWizard';
 
 //general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { VUnit } from './VUnit/VUnit';
-import { SimulationWizard } from './SimulationWizard';
 
 
 export class SimulationManager {
@@ -24,7 +26,6 @@ export class SimulationManager {
     //VUnit
     private mVUnit : VUnit;
     private mVUnitProjects : Array<string>;
-    private mActiveVUnitProject : string = "";
 
     // --------------------------------------------
     // Public methods
@@ -39,7 +40,7 @@ export class SimulationManager {
         this.mVUnit = new VUnit();
         this.mVUnitProjects = new Array<string>();
         this.mWizard = new SimulationWizard(this.mContext);
-        this.mWizard.Run();
+        //this.mWizard.Run();
 
         //get workspace path
         const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
@@ -69,13 +70,55 @@ export class SimulationManager {
         const disposable = vscode.Disposable.from(this.mVUnitWatcher);
         // Dispose the watcher when extension is not active
         context.subscriptions.push(disposable);
+
+        this.RegisterCommands();
     }
 
+    public async Initialize() : Promise<void>
+    {
+        this.Update();
+    }
+
+    public async SetActiveProject() : Promise<boolean>
+    {
+        // quick pick menu with available tools
+        let selectedTool = await vscode.window.showQuickPick(Object.values(eSimulationTool));
+
+        if(selectedTool)
+        {
+            let selectedProject : string | undefined;
+
+            if(selectedTool === eSimulationTool.VUnit)
+            {
+                selectedProject = await vscode.window.showQuickPick(this.mVUnitProjects);
+                if(selectedProject)
+                {
+                    const simulationProject : TSimulationProject = {
+                        tool: selectedTool,
+                        file: selectedProject
+                    };
+                    this.mContext.workspaceState.update(ACTIVE_SIMULATION_PROJECT, simulationProject);
+                    vscode.window.showInformationMessage(`VUnit-Project: ${path.relative(this.mWorkSpacePath, selectedProject)} -> Active!`);
+                    vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder")
+                    .then(
+                        () => {vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Update");}
+                    );
+                    
+                    return true;
+                }
+            }
+            
+        }
+
+        vscode.window.showErrorMessage("No Simulation-Project was set!");
+        return false;
+    }
 
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
-    private async Update() : Promise<void> {
+    private async Update() : Promise<void> 
+    {
         
         const files = await this.mVUnit.FindRunPy((vscode.workspace.workspaceFolders || [])[0]);
         
@@ -84,6 +127,16 @@ export class SimulationManager {
             this.mVUnitProjects = files;
         }
     }
-    
 
+    private RegisterCommands(): void {
+
+        let disposable: vscode.Disposable;
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SimulationManager.SetActiveProject", () => { this.SetActiveProject(); });
+        this.mContext.subscriptions.push(disposable);
+    }
+
+    
 }
+
+

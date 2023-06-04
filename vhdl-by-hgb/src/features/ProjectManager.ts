@@ -1,11 +1,12 @@
 // Specific Imports
 import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
-import { SimpleVhdlFinder } from "./FileTools/VhdlFinder/SimpleVhdlFinder";
+import { VhdlFinderFactory } from "./FileTools/VhdlFinder/VhdlFinderFactory";
 import { FileHolder } from "./FileTools/FileHolder";
 import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
 import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
 import { SimulationManager } from "./VHDLtools/Simulation/SimulationManager";
-import { VunitVhdlFinder } from "./FileTools/VhdlFinder/VunitVhdlFinder";
+
+import { ACTIVE_SIMULATION_PROJECT } from "./VHDLtools/Simulation/SimulationPackage";
 
 import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 
@@ -13,8 +14,6 @@ import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as child_process from 'child_process';
-
 export class ProjectManager {
 
     // --------------------------------------------
@@ -29,6 +28,7 @@ export class ProjectManager {
     // project-specific members
     private mWorkSpacePath : string = "";
 
+    private mVhdlFinderFactory : VhdlFinderFactory;
     private mVhdlFinder : IVhdlFinder;
     private mTomlGenerator : TomlGenerator;
 
@@ -58,7 +58,8 @@ export class ProjectManager {
         this.mOutputChannel = outputChannel;
 
         //specific members
-        this.mVhdlFinder = this.AutoSelectFileFinder();
+        this.mVhdlFinderFactory = new VhdlFinderFactory(this.mContext, this.mOutputChannel);
+        this.mVhdlFinder = this.mVhdlFinderFactory.CreateVhdlFinder();
         this.mFileHolder = new FileHolder();
 
         this.mTomlGenerator = new TomlGenerator();
@@ -69,26 +70,29 @@ export class ProjectManager {
 
         //handle events for ProjectWatcher
         this.mProjectWatcher.onDidCreate( (uri) => {
-            this.UpdateProjectFiles();
+            this.Update();
         });
         this.mProjectWatcher.onDidDelete( (uri) => {
-            this.UpdateProjectFiles();
+            this.Update();
         });
 
         this.mDynamicSnip = new DynamicSnippets(this.mContext);
         this.RegisterCommands();
     }
 
-    public Initialize() 
+    public async Initialize() : Promise<void>
 	{
 		if(fs.existsSync(path.join(this.mWorkSpacePath, "vhdl_ls.toml")))
         {
             // only activate Language-Server at extension-start, if file-information is available
             vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate");
         }
+
+        this.mSimulationManager.Initialize();
+        this.Update();
 	}
 
-    private async UpdateProjectFiles() : Promise<void> {
+    private async Update() : Promise<void> {
 
         this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath).then((projectFiles) => 
         { 
@@ -107,86 +111,24 @@ export class ProjectManager {
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
+    private RefreshVhdlFinder() : void
+    {
+        this.mVhdlFinder = this.mVhdlFinderFactory.CreateVhdlFinder();
+    }
+
     private RegisterCommands() : void
     {
         let disposable : vscode.Disposable;
 
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.UpdateFiles", () => this.UpdateProjectFiles());
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.Update", () => this.Update());
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder", () => this.RefreshVhdlFinder());
         this.mContext.subscriptions.push(disposable);
     }
 
-    private AutoSelectFileFinder() : IVhdlFinder
-    {
-        let vhdlFinder : IVhdlFinder;
+    
 
-        if(!this.IsPythonInstalled())
-        {
-            vhdlFinder = new SimpleVhdlFinder();
-            vscode.window.showInformationMessage("Install python for advanced library-mapping");
-        }
-        else
-        {
-
-            if(this.IsVunitHdlInstalled())
-            {
-                vhdlFinder = new VunitVhdlFinder();
-            }
-            else
-            {
-                if(this.InstallVunitHdl())
-                {
-                    vscode.window.showInformationMessage("VUnit was installed successfully!");
-                    vhdlFinder = new VunitVhdlFinder();
-                }
-                else
-                {
-                    vhdlFinder = new SimpleVhdlFinder();
-                }
-            }          
-        }
-
-        return vhdlFinder;
-    }
-
-    private IsPythonInstalled(): boolean
-    {
-        //result.error === null && 
-        const result = child_process.spawnSync('python', ['--version']);
-        if (result.status === 0) {
-            const output = result.stdout.toString().trim();
-            this.mOutputChannel.appendLine(`Python version: ${output}`);
-            return true;
-        } else {
-            this.mOutputChannel.appendLine('Python is not installed.');
-            return false;
-        }
-    }
-
-    private IsVunitHdlInstalled(): boolean {
-        const result = child_process.spawnSync('pip', ['show', 'vunit_hdl']);
-        if (result.status === 0) {
-            const output = result.stdout.toString().trim();
-            const infoLines = output.split('\n');
-            this.mOutputChannel.appendLine(`VUnit-${infoLines[1]}`);
-            return true;
-        }
-        else
-        {
-            this.mOutputChannel.appendLine('VUnit is not installed');
-            return false;
-        }
-    }
-
-    private InstallVunitHdl(IsUpdate: boolean = false): boolean {
-        const command = IsUpdate ? ['install', '-U', 'vunit_hdl'] : ['install', 'vunit_hdl'];
-        const result = child_process.spawnSync('pip', command);
-        if (result.error === null && result.status === 0) {
-            this.mOutputChannel.appendLine('VUnit was updated');
-            return true;
-        } else {
-            this.mOutputChannel.appendLine('Failed to install VUnit!');
-            return false;
-        }
-    }
+    
 
 }
