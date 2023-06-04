@@ -98,13 +98,7 @@ export class ProjectManager {
         { 
             this.mFileHolder.SetProjectFiles(projectFiles);
 
-            vscode.commands.executeCommand("VHDLbyHGB.vhdlls.deactivate")
-            .then(
-                () => {this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);}
-            )
-            .then(
-                () => { vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate"); }
-            );
+            this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
         });
     }
 

@@ -44,6 +44,7 @@ export class RustHDL {
     //Private Members
     //--------------------------------------------
     private client!: LanguageClient;
+    private languageServerDisposable! : vscode.Disposable;
     private context: ExtensionContext;
 
     //--------------------------------------------
@@ -136,21 +137,10 @@ export class RustHDL {
         );
     
         // Start the client. This will also launch the server
-        let languageServerDisposable = this.client.start();
+        this.languageServerDisposable = this.client.start();
     
         // Register command to restart language server
-        this.context.subscriptions.push(languageServerDisposable);
-        this.context.subscriptions.push(
-            vscode.commands.registerCommand('VHDLbyHGB.vhdlls.restart', async () => {
-                const MSG = 'Restarting VHDL LS';
-                output.appendLine(MSG);
-                window.showInformationMessage(MSG);
-                await this.client.stop();
-                languageServerDisposable.dispose();
-                languageServerDisposable = this.client.start();
-                this.context.subscriptions.push(languageServerDisposable);
-            })
-        );
+        this.context.subscriptions.push(this.languageServerDisposable);
     
         output.appendLine('Checking for updates...');
         lockfile
@@ -172,6 +162,17 @@ export class RustHDL {
     
     }
 
+    public async Restart() : Promise<void>
+    {
+        const MSG = 'Restarting VHDL LS';
+        output.appendLine(MSG);
+        window.showInformationMessage(MSG);
+        await this.client.stop();
+        this.languageServerDisposable.dispose();
+        this.languageServerDisposable = this.client.start();
+        this.context.subscriptions.push(this.languageServerDisposable);
+    }
+
     public Deactivate() : Thenable<void> | undefined
     {
         if (!this.client) {
@@ -191,6 +192,9 @@ export class RustHDL {
         this.context.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand('VHDLbyHGB.vhdlls.deactivate', () => this.Deactivate());
+        this.context.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand('VHDLbyHGB.vhdlls.restart', async () => this.Restart());
         this.context.subscriptions.push(disposable);
     }
 
