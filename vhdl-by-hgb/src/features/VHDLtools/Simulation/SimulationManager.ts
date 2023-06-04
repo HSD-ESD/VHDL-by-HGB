@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { VUnit } from './VUnit/VUnit';
+import { SimulationWizard } from './SimulationWizard';
 
 
 export class SimulationManager {
@@ -11,13 +12,14 @@ export class SimulationManager {
     // Private members
     // --------------------------------------------
 
-    //general
-    private mWorkSpacePath : string = "";
-    private mOutputChannel : vscode.OutputChannel;
-
     //vscode-members
     private mContext : vscode.ExtensionContext;
     private mVUnitWatcher : vscode.FileSystemWatcher;
+    private mOutputChannel : vscode.OutputChannel;
+
+    //general
+    private mWorkSpacePath : string = "";
+    private mWizard : SimulationWizard;
 
     //VUnit
     private mVUnit : VUnit;
@@ -36,6 +38,8 @@ export class SimulationManager {
         //init specific members
         this.mVUnit = new VUnit();
         this.mVUnitProjects = new Array<string>();
+        this.mWizard = new SimulationWizard(this.mContext);
+        this.mWizard.Run();
 
         //get workspace path
         const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
@@ -65,7 +69,6 @@ export class SimulationManager {
         const disposable = vscode.Disposable.from(this.mVUnitWatcher);
         // Dispose the watcher when extension is not active
         context.subscriptions.push(disposable);
-
     }
 
 

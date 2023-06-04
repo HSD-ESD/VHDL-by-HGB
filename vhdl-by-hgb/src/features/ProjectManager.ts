@@ -61,7 +61,7 @@ export class ProjectManager {
         this.mVhdlFinder = this.AutoSelectFileFinder();
         this.mFileHolder = new FileHolder();
 
-        this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath);
+        this.mTomlGenerator = new TomlGenerator();
         this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
         this.mSimulationManager = new SimulationManager(this.mContext);
 
@@ -96,7 +96,7 @@ export class ProjectManager {
 
             vscode.commands.executeCommand("VHDLbyHGB.vhdlls.deactivate")
             .then(
-                () => {this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder);}
+                () => {this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);}
             )
             .then(
                 () => { vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate"); }
