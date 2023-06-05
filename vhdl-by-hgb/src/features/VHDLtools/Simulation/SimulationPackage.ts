@@ -1,5 +1,5 @@
 
-export const ACTIVE_SIMULATION_PROJECT = "ActiveVUnitProject";
+export const ACTIVE_SIMULATION_PROJECT = "ActiveSimulationProject";
 
 export interface TSimulationProject {
     tool: eSimulationTool;

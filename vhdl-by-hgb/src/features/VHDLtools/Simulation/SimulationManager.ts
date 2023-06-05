@@ -16,7 +16,6 @@ export class SimulationManager {
 
     //vscode-members
     private mContext : vscode.ExtensionContext;
-    private mVUnitWatcher : vscode.FileSystemWatcher;
     private mOutputChannel : vscode.OutputChannel;
 
     //general
@@ -49,28 +48,7 @@ export class SimulationManager {
             this.mWorkSpacePath = workspaceFolder.uri.fsPath;
         }
 
-        //watch all python files
-        this.mVUnitWatcher = vscode.workspace.createFileSystemWatcher(path.join(this.mWorkSpacePath, "**/*.py"));
-        
-        //handle events for VUnitWatcher
-        this.mVUnitWatcher.onDidCreate( (uri) => {
-            if(uri.fsPath.endsWith("run.py"))
-            {
-                this.Update();
-            }
-        });
-        this.mVUnitWatcher.onDidDelete( (uri) => {
-            if(uri.fsPath.endsWith("run.py"))
-            {
-                this.Update();
-            }
-        });
-
-        // Start watching the workspace-folder
-        const disposable = vscode.Disposable.from(this.mVUnitWatcher);
-        // Dispose the watcher when extension is not active
-        context.subscriptions.push(disposable);
-
+        this.HandleFileEvents();
         this.RegisterCommands();
     }
 
@@ -131,13 +109,50 @@ export class SimulationManager {
             {
                 if (!this.mVUnitProjects.includes(activeSimulationProject.file))
                 {
-                    vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder")
-                    .then(
-                        () => {vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Update");}
-                    );
+                    vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder");
                 }
             }
         }
+    }
+
+    private async HandleFileEvents() : Promise<void>
+    {
+        vscode.workspace.onDidCreateFiles((event) => 
+        {
+            const containsSimulationProject : boolean = event.files.some((file) => {
+                const filePath = file.fsPath.toLowerCase();
+                return filePath.endsWith('run.py');
+            });
+            if(containsSimulationProject)
+            {
+                this.Update();
+            }
+        });
+
+        vscode.workspace.onDidDeleteFiles((event) => 
+        {
+            const containsSimulationProject : boolean = event.files.some((file) => {
+                const filePath = file.fsPath.toLowerCase();
+                return filePath.endsWith('run.py');
+            });
+            if(containsSimulationProject)
+            {
+                this.Update();
+            }
+        });
+
+        vscode.workspace.onDidRenameFiles((event) => 
+        {
+            const containsSimulationProject : boolean = event.files.some((file) => {
+                const newFilePath = file.newUri.fsPath.toLowerCase();
+                const oldFilePath = file.oldUri.fsPath.toLowerCase();
+                return newFilePath.endsWith('run.py') || oldFilePath.endsWith('run.py');
+            });
+            if(containsSimulationProject)
+            {
+                this.Update();
+            }
+        });
     }
 
     private RegisterCommands(): void {

@@ -23,13 +23,13 @@ export class ProjectManager {
     // vscode-members
     private mOutputChannel : vscode.OutputChannel;
     private mContext : vscode.ExtensionContext;
-    private mProjectWatcher : vscode.FileSystemWatcher;
 
     // project-specific members
     private mWorkSpacePath : string = "";
+    private mIsProjectInitialised : boolean = false;
 
     private mVhdlFinderFactory : VhdlFinderFactory;
-    private mVhdlFinder : IVhdlFinder;
+    private mVhdlFinder! : IVhdlFinder;
     private mTomlGenerator : TomlGenerator;
 
     private mFileHolder : FileHolder;
@@ -59,24 +59,13 @@ export class ProjectManager {
 
         //specific members
         this.mVhdlFinderFactory = new VhdlFinderFactory(this.mContext, this.mOutputChannel);
-        this.mVhdlFinder = this.mVhdlFinderFactory.CreateVhdlFinder();
         this.mFileHolder = new FileHolder();
 
         this.mTomlGenerator = new TomlGenerator();
         this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
         this.mSimulationManager = new SimulationManager(this.mContext);
 
-        this.mProjectWatcher = vscode.workspace.createFileSystemWatcher(path.join(this.mWorkSpacePath, "**/*.vhd"));
-
-        //handle events for ProjectWatcher
-        this.mProjectWatcher.onDidCreate( (uri) => {
-            this.Update();
-        });
-        this.mProjectWatcher.onDidDelete( (uri) => {
-            this.Update();
-        });
-
-        this.mDynamicSnip = new DynamicSnippets(this.mContext);
+        this.HandleFileEvents();
         this.RegisterCommands();
     }
 
@@ -84,32 +73,89 @@ export class ProjectManager {
 	{
 		if(fs.existsSync(path.join(this.mWorkSpacePath, "vhdl_ls.toml")))
         {
-            // only activate Language-Server at extension-start, if file-information is available
-            vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate");
+            //load existing HDL-project
+            this.Setup();
         }
 
         this.mSimulationManager.Initialize();
-        this.Update();
 	}
-
-    private async Update() : Promise<void> {
-
-        this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath).then((projectFiles) => 
-        {
-            if(projectFiles.size !== 0)
-            {
-                this.mFileHolder.SetProjectFiles(projectFiles);
-                this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
-            }
-        });
-    }
 
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
+    private async Setup() : Promise<void>
+    {
+        //set flag for intialized hdl-project to true
+        this.mIsProjectInitialised = true;
+        // only activate Language-Server at extension-start, if file-information is available
+        vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate");
+
+        this.mVhdlFinder = this.mVhdlFinderFactory.CreateVhdlFinder();
+        this.Update();
+
+    }
+
     private RefreshVhdlFinder() : void
     {
         this.mVhdlFinder = this.mVhdlFinderFactory.CreateVhdlFinder();
+    }
+
+    private async Update() : Promise<void> 
+    {
+        if(this.mIsProjectInitialised)
+        {
+            this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath).then((projectFiles) => 
+            {
+                if(projectFiles.size !== 0)
+                {
+                    this.mFileHolder.SetProjectFiles(projectFiles);
+                    this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
+                }
+            });
+        }
+    }
+
+    private async HandleFileEvents() : Promise<void>
+    {
+        vscode.workspace.onDidCreateFiles((event) => 
+        {
+            const containsVhdlFile : boolean = event.files.some((file) => {
+                const filePath = file.fsPath.toLowerCase();
+                return filePath.endsWith('.vhd') || filePath.endsWith('.vhdl');
+            });
+            if(containsVhdlFile)
+            {
+                this.Update();
+            }
+        });
+
+        vscode.workspace.onDidDeleteFiles((event) => 
+        {
+            const containsVhdlFile : boolean = event.files.some((file) => {
+                const filePath = file.fsPath.toLowerCase();
+                return filePath.endsWith('.vhd') || filePath.endsWith('.vhdl');
+            });
+            if(containsVhdlFile)
+            {
+                this.Update();
+            }
+        });
+
+        vscode.workspace.onDidRenameFiles((event) => 
+        {
+            const containsVhdlFile : boolean = event.files.some((file) => {
+                const oldFilePath = file.oldUri.fsPath.toLowerCase();
+                const newFilePath = file.newUri.fsPath.toLowerCase();
+                return  oldFilePath.endsWith('.vhd')   || 
+                        oldFilePath.endsWith('.vhdl')  ||
+                        newFilePath.endsWith('.vhd')   || 
+                        newFilePath.endsWith('.vhdl');
+            });
+            if(containsVhdlFile)
+            {
+                this.Update();
+            }
+        });
     }
 
     private RegisterCommands() : void
