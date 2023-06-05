@@ -59,8 +59,9 @@ export class SimulationManager {
 
     public async SetActiveProject() : Promise<boolean>
     {
-        // quick pick menu with available tools
-        let selectedTool = await vscode.window.showQuickPick(Object.values(eSimulationTool));
+        // quick pick menu with available tools (including no tool)
+        const toolOptions = [...Object.values(eSimulationTool), 'None'];
+        let selectedTool = await vscode.window.showQuickPick(toolOptions);
 
         if(selectedTool)
         {
@@ -84,6 +85,16 @@ export class SimulationManager {
                     
                     return true;
                 }
+            }   
+            else if (selectedTool === 'None') {
+                //no active project
+                this.mContext.workspaceState.update(ACTIVE_SIMULATION_PROJECT, "");
+                vscode.window.showInformationMessage("No active Simulation-Project!");
+                vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder")
+                .then(
+                    () => {vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Update");}
+                );
+                return true;
             }
             
         }

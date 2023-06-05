@@ -85,10 +85,14 @@ export class ProjectManager {
     // --------------------------------------------
     private async Setup() : Promise<void>
     {
+        if(!this.mIsProjectInitialised)
+        {
+            // only activate Language-Server once
+            vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate");
+        }
+
         //set flag for intialized hdl-project to true
         this.mIsProjectInitialised = true;
-        // only activate Language-Server at extension-start, if file-information is available
-        vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate");
 
         this.mVhdlFinder = this.mVhdlFinderFactory.CreateVhdlFinder();
         this.Update();
@@ -161,6 +165,9 @@ export class ProjectManager {
     private RegisterCommands() : void
     {
         let disposable : vscode.Disposable;
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.Setup", () => this.Setup());
+        this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.Update", () => this.Update());
         this.mContext.subscriptions.push(disposable);
