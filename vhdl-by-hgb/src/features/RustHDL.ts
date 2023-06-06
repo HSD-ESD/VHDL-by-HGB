@@ -86,7 +86,7 @@ export class RustHDL {
         let workspace = vscode.workspace;
         let languageServerBinary = workspace
             .getConfiguration()
-            .get('vhdlls.languageServer');
+            .get('vhdl-by-hgb.vhdlls.languageServer');
         let lsBinary = languageServerBinary as keyof typeof LanguageServerBinary;
         let serverOptions: ServerOptions;
         switch (lsBinary) {
@@ -293,7 +293,7 @@ function getServerOptionsUser(context: ExtensionContext) {
 
     let serverCommand: string = vscode.workspace
         .getConfiguration()
-        .get('vhdlls.languageServerUserPath')!;
+        .get('vhdl-by-hgb.vhdlls.languageServerUserPath')!;
     
     let serverOptions: ServerOptions = {
         run: {
