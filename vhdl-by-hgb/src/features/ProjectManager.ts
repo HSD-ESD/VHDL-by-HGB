@@ -6,7 +6,7 @@ import { FileHolder } from "./FileTools/FileHolder";
 import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
 import { Quartus } from "./VHDLtools/Synthesis/Quartus/Quartus";
 
-import { LsOutput } from "./VhdlLsOutput";
+import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 
 // General Imports
 import * as vscode from 'vscode';
@@ -31,7 +31,7 @@ export class ProjectManager {
     private mFileHolder : FileHolder;
     private mSynthesisManager : SynthesisManager;
     
-    private mOutputFromLs : LsOutput;
+    private mDynamicSnip : DynamicSnippets;
 
     // --------------------------------------------
     // Public methods
@@ -58,7 +58,7 @@ export class ProjectManager {
         this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath, this.mFileHolder);
         this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
 
-        this.mOutputFromLs = new LsOutput(this.mContext);
+        this.mDynamicSnip = new DynamicSnippets(this.mContext);
         this.RegisterCommands();
     }
 
@@ -72,12 +72,7 @@ export class ProjectManager {
                 )
                 .then(
                     () => { vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate"); }
-                )/*
-                .then(
-                    () => {
-                        this.mOutputFromLs.GetOutput(this.mWorkSpacePath);
-                    }
-                )*/;
+                );
         });
     }
 
