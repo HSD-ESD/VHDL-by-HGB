@@ -12,6 +12,7 @@ import { ChildProcess, spawn } from 'child_process';
 import kill = require('tree-kill');
 import readline = require('readline');
 import uuid = require('uuid-random');
+import * as child_process from 'child_process';
 
 //--------------------------------------------
 //module-internal Constants
@@ -168,6 +169,53 @@ export class VUnit {
         return wsRoot;
     }
 
+    public InstallVUnitHdl(IsUpdate: boolean = false): boolean {
+        const command = IsUpdate ? ['install', '-U', 'vunit_hdl'] : ['install', 'vunit_hdl'];
+        const result = child_process.spawnSync('pip', command);
+        if (result.status === 0) {
+            if(IsUpdate)
+            {
+                this.mOutputChannel.appendLine('VUnit was updated!');
+            }
+            else
+            {
+                this.mOutputChannel.appendLine('VUnit was installed!');
+            }
+            return true;
+        } else {
+            this.mOutputChannel.appendLine('Failed to install VUnit!');
+            return false;
+        }
+    }
+
+    public IsVUnitHdlInstalled(): boolean {
+        const result = child_process.spawnSync('pip', ['show', 'vunit_hdl']);
+        if (result.status === 0) {
+            const output = result.stdout.toString().trim();
+            const infoLines = output.split('\n');
+            this.mOutputChannel.appendLine(`VUnit-${infoLines[1]}`);
+            return true;
+        }
+        else
+        {
+            this.mOutputChannel.appendLine('VUnit is not installed');
+            return false;
+        }
+    }
+
+    private IsPythonInstalled(): boolean
+    {
+        //result.error === null && 
+        const result = child_process.spawnSync('python', ['--version']);
+        if (result.status === 0) {
+            const output = result.stdout.toString().trim();
+            this.mOutputChannel.appendLine(`Python version: ${output}`);
+            return true;
+        } else {
+            this.mOutputChannel.appendLine('Python is not installed.');
+            return false;
+        }
+    }
 
 }
 
