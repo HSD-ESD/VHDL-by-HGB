@@ -78,10 +78,7 @@ export class SimulationManager {
                     };
                     this.mContext.workspaceState.update(ACTIVE_SIMULATION_PROJECT, simulationProject);
                     vscode.window.showInformationMessage(`VUnit-Project: ${path.relative(this.mWorkSpacePath, selectedProject)} -> Active!`);
-                    vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder")
-                    .then(
-                        () => {vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Update");}
-                    );
+                    vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Setup");
                     
                     return true;
                 }
@@ -90,10 +87,8 @@ export class SimulationManager {
                 //no active project
                 this.mContext.workspaceState.update(ACTIVE_SIMULATION_PROJECT, "");
                 vscode.window.showInformationMessage("No active Simulation-Project!");
-                vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder")
-                .then(
-                    () => {vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Update");}
-                );
+                vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Setup");
+                
                 return true;
             }
             

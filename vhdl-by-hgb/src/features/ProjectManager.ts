@@ -171,9 +171,6 @@ export class ProjectManager {
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.Update", () => this.Update());
         this.mContext.subscriptions.push(disposable);
-
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder", () => this.RefreshVhdlFinder());
-        this.mContext.subscriptions.push(disposable);
     }
 
     
