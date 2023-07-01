@@ -1,6 +1,6 @@
 //specific imports
 import { VUnit } from "../../VHDLtools/Simulation/VUnit/VUnit";
-import { VunitExportData } from "../../VHDLtools/Simulation/VUnit/VUnitPackage";
+import { VUnitExportData } from "../../VHDLtools/Simulation/VUnit/VUnitPackage";
 import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../VHDLtools/VhdlPackage";
 
 //general imports
@@ -9,7 +9,7 @@ import * as path from 'path';
 import { PythonGenerator } from "../FileGenerator/PythonGenerator";
 import { FileUtils } from "../FileUtils";
 
-export class VunitVhdlFinder {
+export class VUnitVhdlFinder {
 
     // --------------------------------------------
     // Private members
@@ -40,7 +40,7 @@ export class VunitVhdlFinder {
             return projectFiles;
         }
 
-        const data : VunitExportData = await this.mVUnit.GetVunitData(workSpacePath, this.mRunPyPath);
+        const data : VUnitExportData = await this.mVUnit.GetData(workSpacePath, this.mRunPyPath);
 
         for (const file of data.files)
         {

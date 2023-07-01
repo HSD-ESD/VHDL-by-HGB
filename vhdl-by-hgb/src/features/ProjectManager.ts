@@ -1,4 +1,4 @@
-// Specific Imports
+// specific imports
 import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { VhdlFinderFactory } from "./FileTools/VhdlFinder/VhdlFinderFactory";
 import { FileHolder } from "./FileTools/FileHolder";
@@ -6,14 +6,12 @@ import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
 import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
 import { SimulationManager } from "./VHDLtools/Simulation/SimulationManager";
 
-import { ACTIVE_SIMULATION_PROJECT } from "./VHDLtools/Simulation/SimulationPackage";
-
-import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
-
-// General Imports
+// general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { cVhdlFileTypes } from "./VHDLtools/VhdlPackage";
+
 export class ProjectManager {
 
     // --------------------------------------------
@@ -30,7 +28,6 @@ export class ProjectManager {
 
     private mVhdlFinderFactory : VhdlFinderFactory;
     private mVhdlFinder! : IVhdlFinder;
-    private mTomlGenerator : TomlGenerator;
 
     private mFileHolder : FileHolder;
     private mSynthesisManager : SynthesisManager;
@@ -61,7 +58,6 @@ export class ProjectManager {
         this.mVhdlFinderFactory = new VhdlFinderFactory(this.mContext, this.mOutputChannel);
         this.mFileHolder = new FileHolder();
 
-        this.mTomlGenerator = new TomlGenerator();
         this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
         this.mSimulationManager = new SimulationManager(this.mContext);
 
@@ -99,11 +95,6 @@ export class ProjectManager {
 
     }
 
-    private RefreshVhdlFinder() : void
-    {
-        this.mVhdlFinder = this.mVhdlFinderFactory.CreateVhdlFinder();
-    }
-
     private async Update() : Promise<void> 
     {
         if(this.mIsProjectInitialised)
@@ -113,7 +104,7 @@ export class ProjectManager {
                 if(projectFiles.size !== 0)
                 {
                     this.mFileHolder.SetProjectFiles(projectFiles);
-                    this.mTomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
+                    TomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
                 }
             });
         }
@@ -125,7 +116,7 @@ export class ProjectManager {
         {
             const containsVhdlFile : boolean = event.files.some((file) => {
                 const filePath = file.fsPath.toLowerCase();
-                return filePath.endsWith('.vhd') || filePath.endsWith('.vhdl');
+                return this.IsVhdlFile(filePath);
             });
             if(containsVhdlFile)
             {
@@ -137,7 +128,7 @@ export class ProjectManager {
         {
             const containsVhdlFile : boolean = event.files.some((file) => {
                 const filePath = file.fsPath.toLowerCase();
-                return filePath.endsWith('.vhd') || filePath.endsWith('.vhdl');
+                return this.IsVhdlFile(filePath);
             });
             if(containsVhdlFile)
             {
@@ -150,16 +141,27 @@ export class ProjectManager {
             const containsVhdlFile : boolean = event.files.some((file) => {
                 const oldFilePath = file.oldUri.fsPath.toLowerCase();
                 const newFilePath = file.newUri.fsPath.toLowerCase();
-                return  oldFilePath.endsWith('.vhd')   || 
-                        oldFilePath.endsWith('.vhdl')  ||
-                        newFilePath.endsWith('.vhd')   || 
-                        newFilePath.endsWith('.vhdl');
+                return  this.IsVhdlFile(oldFilePath) ||
+                        this.IsVhdlFile(newFilePath);
             });
             if(containsVhdlFile)
             {
                 this.Update();
             }
         });
+    }
+
+    private IsVhdlFile(filePath : string)
+    {
+        let isVhdl : boolean = false;
+
+        cVhdlFileTypes.forEach(
+            (fileType) => {
+                if(filePath.endsWith(fileType)) {isVhdl = true;}
+            }
+        );
+        
+        return isVhdl;
     }
 
     private RegisterCommands() : void
@@ -172,9 +174,5 @@ export class ProjectManager {
         disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.Update", () => this.Update());
         this.mContext.subscriptions.push(disposable);
     }
-
-    
-
-    
 
 }

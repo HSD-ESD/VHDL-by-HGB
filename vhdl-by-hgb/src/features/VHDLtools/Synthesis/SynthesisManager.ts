@@ -2,11 +2,12 @@
 import { FileHolder } from "../../FileTools/FileHolder";
 import { SynthesisWizard } from "./SynthesisWizard";
 import { ISynthesisProject, TSynthesisProjectConfig } from "./SynthesisProject";
+import { SynthesisFileMap, SynthesisToolMap, eSynthesisFile } from "./SynthesisPackage";
 
 //general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { VhdlEntity } from "../../VhdlDefinitions";
+import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 
 export class SynthesisManager 
 {
@@ -41,6 +42,11 @@ export class SynthesisManager
         this.RegisterCommands();
     }
 
+    public async Initialize() : Promise<void>
+    {
+        this.LoadSynthesisProjects();
+    }
+
     public async AddNewProject() : Promise<boolean>
     {
         // ask user to set configuration for new synthesis-project
@@ -64,8 +70,23 @@ export class SynthesisManager
         return true;
     }
 
-    public async AddExistingProject() : Promise<boolean>
+    public async AddExistingProject(projectFile : string) : Promise<boolean>
     {
+        const fileName = path.basename(projectFile);
+        const projectName = fileName.split('.')[0];
+        const projectPath = path.dirname(projectFile);
+        const synthesisFile = fileName.split('.')[1] as eSynthesisFile;
+        const synthesisTool = SynthesisFileMap.get(synthesisFile);
+
+        let synthesisFactory : ISynthesisFactory | undefined;
+        if(synthesisTool)
+        {   
+            synthesisFactory = SynthesisToolMap.get(synthesisTool);
+        }
+        if(synthesisFactory)
+        {
+            synthesisFactory.CreateProject(projectName, projectPath, this.mOutputChannel, this.mContext, this.mFileHolder);
+        }
 
         return true;
     }
@@ -240,17 +261,39 @@ export class SynthesisManager
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
+
+    private async LoadSynthesisProjects() : Promise<void>
+    {
+        const synthesisProjects : string[] = await this.FindSynthesisProjects();
+
+        synthesisProjects.forEach((project) => 
+        {
+            this.AddExistingProject(project);
+        });
+    }
+
+    private async FindSynthesisProjects() : Promise<string[]>
+    {
+        const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
+        const fileExtensions = Object.values(eSynthesisFile);
+        const filePattern = `**/*{${fileExtensions.join(",")}}`;
+
+        const results = await vscode.workspace.findFiles(
+        new vscode.RelativePattern(workspaceFolder, filePattern)
+        );
+
+        let synthesisProjects : string[] = results.map((file) => {
+            return file.fsPath;
+        });
+
+        return synthesisProjects;
+    }
+
     private RegisterCommands(): void {
 
         let disposable: vscode.Disposable;
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.AddNewProject", () => { this.AddNewProject(); });
-        this.mContext.subscriptions.push(disposable);
-
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.AddExistingProject", () => { this.AddExistingProject(); });
-        this.mContext.subscriptions.push(disposable);
-
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.SetActiveProject", () => { this.SetActiveProject(); });
         this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.UpdateFiles", () => { this.UpdateFiles(); });

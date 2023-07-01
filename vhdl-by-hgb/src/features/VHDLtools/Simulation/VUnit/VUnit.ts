@@ -2,7 +2,7 @@
 'use strict';
 
 //specific imports
-import {VunitExportData} from './VUnitPackage';
+import {VUnitExportData} from './VUnitPackage';
 
 //general imports
 import * as vscode from 'vscode';
@@ -17,7 +17,7 @@ import * as child_process from 'child_process';
 //--------------------------------------------
 //module-internal Constants
 //--------------------------------------------
-const cEmptyVunitExportData : VunitExportData = {
+const cEmptyVunitExportData : VUnitExportData = {
     export_format_version: {
         major: 1,
         minor: 0,
@@ -41,10 +41,10 @@ export class VUnit {
         this.mOutputChannel = vscode.window.createOutputChannel("VHDLbyHGB.VUnit");
     }
 
-    public async GetVunitVersion(runPy : string): Promise<string> {
+    public async GetVersion(vunitScript : string): Promise<string> {
         return new Promise((resolve, reject) => {
             let version: string | undefined;
-            this.RunVunit(runPy, ['--version'], (vunit: ChildProcess): void => {
+            this.Run(vunitScript, ['--version'], (vunit: ChildProcess): void => {
                 let proc: any = vunit;
                 readline
                     .createInterface({
@@ -67,21 +67,31 @@ export class VUnit {
         });
     }
 
-    public async FindRunPy(
-        workspaceFolder: vscode.WorkspaceFolder
+    public async FindVUnitScripts(
+        workspaceFolder : vscode.WorkspaceFolder,
+        makeRelativePaths : boolean = false
     ): Promise<string[]> {
+        const scriptName = vscode.workspace.getConfiguration().get("vhdl-by-hgb.vunitScriptName") as string;
         let results = await vscode.workspace.findFiles(
-            new vscode.RelativePattern(workspaceFolder, '**/run.py'),
+            new vscode.RelativePattern(workspaceFolder, `**/${scriptName}`),
             '**/{vunit,examples,acceptance/artificial}/{vhdl,verilog}'
         );
-        let runPy: string[] = results.map((file) => {
-            return file.fsPath;
+        const workspacePath = this.GetWorkspaceRoot();
+        let vunitScript: string[] = results.map((file) => {
+            if(makeRelativePaths && workspacePath) 
+            {
+                return path.relative(workspacePath, file.fsPath);
+            }
+            else
+            {
+                return file.fsPath;
+            }
         });
-        return runPy;
+        return vunitScript;
     }
 
-    public async RunVunit(
-        runPy: string,
+    public async Run(
+        vunitScript: string,
         vunitArgs: string[],
         vunitProcess: (vunit: ChildProcess) => void = () => {}
     ): Promise<string> {
@@ -90,22 +100,22 @@ export class VUnit {
             return new Promise((resolve, reject) => {
                 if (!this.GetWorkspaceRoot()) {
                     return reject(new Error('Workspace root not defined.'));
-                } else if (!runPy) {
+                } else if (!vunitScript) {
                     return reject(
                         new Error('Unable to determine path of VUnit run script.')
                     );
-                } else if (!fs.existsSync(runPy)) {
-                    return reject(Error(`VUnit run script ${runPy} does not exist.`));
+                } else if (!fs.existsSync(vunitScript)) {
+                    return reject(Error(`VUnit run script ${vunitScript} does not exist.`));
                 }
                 const python = vscode.workspace
                     .getConfiguration()
                     .get('vhdl-by-hgb.python') as string;
-                const args = ['"' + runPy + '"'].concat(vunitArgs);
+                const args = ['"' + vunitScript + '"'].concat(vunitArgs);
                 this.mOutputChannel.appendLine('');
                 this.mOutputChannel.appendLine('===========================================');
                 this.mOutputChannel.appendLine('Running VUnit: ' + python + ' ' + args.join(' '));
                 let vunit = spawn(python, args, {
-                    cwd: path.dirname(runPy),
+                    cwd: path.dirname(vunitScript),
                     shell: true,
                 });
                 vunit.on('close', (code) => {
@@ -136,15 +146,15 @@ export class VUnit {
         return "";
     }
 
-    public async GetVunitData(workDir: string, runPy:string): Promise<VunitExportData> {
+    public async GetData(workDir: string, vunitScript:string): Promise<VUnitExportData> {
         
         const vunitJson = path.join(workDir, `${uuid()}.json`);
         fs.mkdirSync(path.dirname(vunitJson), { recursive: true });
     
-        let vunitData: VunitExportData = cEmptyVunitExportData;
+        let vunitData: VUnitExportData = cEmptyVunitExportData;
         let options = ['--list', `--export-json ${vunitJson}`];
         
-        await this.RunVunit(runPy,options)
+        await this.Run(vunitScript,options)
             .then(() => {
                 vunitData = JSON.parse(fs.readFileSync(vunitJson, 'utf-8'));
                 fs.unlinkSync(vunitJson);
@@ -206,7 +216,7 @@ export class VUnit {
     private IsPythonInstalled(): boolean
     {
         //result.error === null && 
-        const result = child_process.spawnSync('python', ['--version']);
+        const result = child_process.spawnSync(vscode.workspace.getConfiguration().get("vhdl-by-hgb.python") as string, ['--version']);
         if (result.status === 0) {
             const output = result.stdout.toString().trim();
             this.mOutputChannel.appendLine(`Python version: ${output}`);

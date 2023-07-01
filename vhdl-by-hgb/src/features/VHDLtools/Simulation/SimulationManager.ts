@@ -22,9 +22,11 @@ export class SimulationManager {
     private mWorkSpacePath : string = "";
     private mWizard : SimulationWizard;
 
-    //VUnit
+    //SimulationTools
     private mVUnit : VUnit;
-    private mVUnitProjects : Array<string>;
+
+    //SimulationProjects
+    private mSimulationProjects : Map<eSimulationTool,string[]>;
 
     // --------------------------------------------
     // Public methods
@@ -33,13 +35,13 @@ export class SimulationManager {
     {
         //init vs-code members
         this.mContext = context;
-        this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB:Simulation');
+        this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB.Simulation');
 
         //init specific members
         this.mVUnit = new VUnit();
-        this.mVUnitProjects = new Array<string>();
+
+        this.mSimulationProjects = new Map<eSimulationTool, string[]>();
         this.mWizard = new SimulationWizard(this.mContext);
-        //this.mWizard.Run();
 
         //get workspace path
         const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
@@ -63,39 +65,24 @@ export class SimulationManager {
         const toolOptions = [...Object.values(eSimulationTool), 'None'];
         let selectedTool = await vscode.window.showQuickPick(toolOptions);
 
-        if(selectedTool)
+        if(!selectedTool)
         {
-            let selectedProject : string | undefined;
-
-            if(selectedTool === eSimulationTool.VUnit)
-            {
-                selectedProject = await vscode.window.showQuickPick(this.mVUnitProjects);
-                if(selectedProject)
-                {
-                    const simulationProject : TSimulationProject = {
-                        tool: selectedTool,
-                        file: selectedProject
-                    };
-                    this.mContext.workspaceState.update(ACTIVE_SIMULATION_PROJECT, simulationProject);
-                    vscode.window.showInformationMessage(`VUnit-Project: ${path.relative(this.mWorkSpacePath, selectedProject)} -> Active!`);
-                    vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Setup");
-                    
-                    return true;
-                }
-            }   
-            else if (selectedTool === 'None') {
-                //no active project
-                this.mContext.workspaceState.update(ACTIVE_SIMULATION_PROJECT, "");
-                vscode.window.showInformationMessage("No active Simulation-Project!");
-                vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Setup");
-                
-                return true;
-            }
-            
+            vscode.window.showErrorMessage("No Simulation-Project was set!");
+            return false;
         }
 
-        vscode.window.showErrorMessage("No Simulation-Project was set!");
-        return false;
+        if (selectedTool === 'None') {
+            //no active project
+            this.mContext.workspaceState.update(ACTIVE_SIMULATION_PROJECT, "");
+            vscode.window.showInformationMessage("No active Simulation-Project!");
+        }
+        else
+        {    
+            this.ChooseSimulationProject(selectedTool as eSimulationTool);
+        }
+
+        vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Setup");
+        return true;
     }
 
     // --------------------------------------------
@@ -104,21 +91,56 @@ export class SimulationManager {
     private async Update() : Promise<void> 
     {
         
-        const files = await this.mVUnit.FindRunPy((vscode.workspace.workspaceFolders || [])[0]);
-        
-        if(files)
+        const vunitProjects = await this.mVUnit.FindVUnitScripts((vscode.workspace.workspaceFolders || [])[0], true);
+        this.mSimulationProjects.set(eSimulationTool.VUnit, vunitProjects);
+
+        //if active SimulationProject does not exist anymore -> VhdlFinder must be changed
+        const activeSimulationProject : TSimulationProject | undefined = this.mContext.workspaceState.get(ACTIVE_SIMULATION_PROJECT);
+        if (activeSimulationProject)
         {
-            this.mVUnitProjects = files;
-            //if active SimulationProject does not exist anymore -> VhdlFinder must be changed
-            const activeSimulationProject : TSimulationProject | undefined = this.mContext.workspaceState.get(ACTIVE_SIMULATION_PROJECT);
-            if (activeSimulationProject)
+            let isValidSimulationProject : boolean = false;
+
+            for(const [tool,projects] of this.mSimulationProjects)
             {
-                if (!this.mVUnitProjects.includes(activeSimulationProject.file))
-                {
-                    vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.RefreshVhdlFinder");
-                }
+                if(projects.includes(activeSimulationProject.file)) { isValidSimulationProject = true; }
+            }
+
+            if (!isValidSimulationProject)
+            {
+                vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Setup");
             }
         }
+    }
+
+    private async ChooseSimulationProject(simulationTool : eSimulationTool)
+    {
+        let selectedProject : string | undefined;
+
+        const toolProjects = this.mSimulationProjects.get(simulationTool);
+        if(toolProjects)
+        {
+            selectedProject = await vscode.window.showQuickPick(toolProjects);
+        }
+
+        if(!selectedProject) 
+        {
+            vscode.window.showErrorMessage("No Simulation-Project was set!");
+            return false;
+        }
+
+        //always store absolute path -> executing script is easier
+        if(!path.isAbsolute(selectedProject))
+        {
+            selectedProject = path.resolve(this.mWorkSpacePath, selectedProject);
+        }
+
+        const simulationProject : TSimulationProject = {
+            tool: simulationTool,
+            file: selectedProject
+        };
+
+        this.mContext.workspaceState.update(ACTIVE_SIMULATION_PROJECT, simulationProject);
+        vscode.window.showInformationMessage(`${simulationTool}-Project: ${path.relative(this.mWorkSpacePath, selectedProject)} -> Active!`);
     }
 
     private async HandleFileEvents() : Promise<void>
@@ -127,7 +149,7 @@ export class SimulationManager {
         {
             const containsSimulationProject : boolean = event.files.some((file) => {
                 const filePath = file.fsPath.toLowerCase();
-                return filePath.endsWith('run.py');
+                return this.IsSimulationProject(filePath);
             });
             if(containsSimulationProject)
             {
@@ -139,7 +161,7 @@ export class SimulationManager {
         {
             const containsSimulationProject : boolean = event.files.some((file) => {
                 const filePath = file.fsPath.toLowerCase();
-                return filePath.endsWith('run.py');
+                return this.IsSimulationProject(filePath);
             });
             if(containsSimulationProject)
             {
@@ -152,13 +174,19 @@ export class SimulationManager {
             const containsSimulationProject : boolean = event.files.some((file) => {
                 const newFilePath = file.newUri.fsPath.toLowerCase();
                 const oldFilePath = file.oldUri.fsPath.toLowerCase();
-                return newFilePath.endsWith('run.py') || oldFilePath.endsWith('run.py');
+                return this.IsSimulationProject(newFilePath) || this.IsSimulationProject(oldFilePath);
             });
             if(containsSimulationProject)
             {
                 this.Update();
             }
         });
+    }
+
+    private IsSimulationProject(filePath : string) : boolean
+    {
+        return  filePath.endsWith(vscode.workspace.getConfiguration().get("vhdl-by-hgb.vunitScriptName") as string) ||
+                filePath.endsWith(vscode.workspace.getConfiguration().get("vhdl-by-hgb.hdlregressionScriptName") as string);
     }
 
     private RegisterCommands(): void {

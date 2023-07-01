@@ -1,17 +1,17 @@
 
 
-export interface VunitExportData {
+export interface VUnitExportData {
     export_format_version: {
         major: number;
         minor: number;
         patch: number;
     };
-    files: VunitFile[];
-    tests: VunitTest[];
+    files: VUnitFile[];
+    tests: VUnitTest[];
     [propName: string]: any;
 }
 
-interface VunitTest {
+interface VUnitTest {
     attributes: {};
     location: {
         file_name: string;
@@ -22,7 +22,7 @@ interface VunitTest {
     [propName: string]: any;
 }
 
-interface VunitFile {
+interface VUnitFile {
     file_name: string;
     library_name: string;
     [propName: string]: any;

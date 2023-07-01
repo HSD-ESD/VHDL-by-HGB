@@ -1,8 +1,8 @@
 // specific imports
 import { VhdlEntity } from "../../VhdlDefinitions";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
-import { SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
-import { ISynthesisProject, TSynthesisProjectConfig } from "./SynthesisProject";
+import { SynthesisFileMap, eSynthesisTool } from "./SynthesisPackage";
+import { TSynthesisProjectConfig } from "./SynthesisProject";
 
 import { Hdl_element } from "colibri2/out/parser/common";
 import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
@@ -16,16 +16,6 @@ export class SynthesisWizard {
     // --------------------------------------------
     // private members
     // --------------------------------------------
-    private mWorkSpacePath : string;
-
-    // --------------------------------------------
-    // public methods
-    // --------------------------------------------
-    public constructor(workSpacePath : string)
-    {
-        this.mWorkSpacePath = workSpacePath;
-    }
-
     public async Run() : Promise<TSynthesisProjectConfig>
     {
         let config : TSynthesisProjectConfig = new TSynthesisProjectConfig();
@@ -196,7 +186,7 @@ export class SynthesisWizard {
 
         if(selectedTool)
         {
-            let selectedFactory =  SynthesisToolMap.get(selectedTool);
+            let selectedFactory =  SynthesisFileMap.get(selectedTool);
             if(selectedFactory)
             {
                 return selectedFactory;

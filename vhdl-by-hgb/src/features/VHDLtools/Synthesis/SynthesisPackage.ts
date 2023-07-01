@@ -8,18 +8,19 @@ export enum eSynthesisTool {
     Vivado = "Vivado"
 }
 
-export enum eSynthesisProjectFile {
-    Diamond = "ldf",
-    Quartus = "qsf",
-    Vivado = "xpr"
+export enum eSynthesisFile {
+    Diamond = ".tcl",
+    Quartus = ".qsf",
+    Synopsis = ".sdc",
+    Vivado = ".xdc",
 }
 
 // mapping strings of eSynthesisTool-Enum to their factories
 export const SynthesisToolMap : Map<string,ISynthesisFactory> = new Map<string,ISynthesisFactory>([
-    [eSynthesisTool.Quartus, QuartusFactory.getInstance()],
+[eSynthesisTool.Quartus, QuartusFactory.getInstance()],
 ]);
 
-// mapping strings of eSynthesisProjectFile-Enum to their factories
-export const SynthesisProjectFileMap : Map<string,ISynthesisFactory> = new Map<string,ISynthesisFactory>([
-    [eSynthesisProjectFile.Quartus, QuartusFactory.getInstance()],
+// mapping strings of eSynthesisFile to eSynthesisTool-Enum
+export const SynthesisFileMap : Map<eSynthesisFile, eSynthesisTool> = new Map<eSynthesisFile, eSynthesisTool>([
+[eSynthesisFile.Quartus, eSynthesisTool.Quartus],
 ]);

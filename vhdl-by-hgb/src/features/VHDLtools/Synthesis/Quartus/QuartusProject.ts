@@ -8,9 +8,8 @@ import { Quartus} from "./Quartus";
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { VhdlEntity } from "../../../VhdlDefinitions";
-import { HDLUtils } from "../../../FileTools/HDLUtils";
-import { QuartusQsf, cEmptyQsf } from "./QuartusPackage";
+import { FileHolder } from "../../../FileTools/FileHolder";
+import { eSynthesisFile } from "../SynthesisPackage";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
 {
@@ -19,12 +18,8 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // --------------------------------------------
     private mQuartus : Quartus;
     private mTclScriptsFolder: string;
-    private mQSF : QuartusQsf;
-    private mQsfWatcher : vscode.FileSystemWatcher;
-
-    //vscode-members
-    private mOutputChannel : vscode.OutputChannel;
-    private mContext : vscode.ExtensionContext;
+    private mFileHolder : FileHolder;
+    private mFolderWatcher : vscode.FileSystemWatcher;
 
     // --------------------------------------------
     // public methods
@@ -48,8 +43,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
             fs.mkdirSync(this.mTclScriptsFolder);
         }
 
-        this.mQSF.path = path.join(this.mFolderPath, this.mName + ".qsf");
-        this.mQsfWatcher = vscode.workspace.createFileSystemWatcher(this.mQSF.path);
+        this.mFolderWatcher = vscode.workspace.createFileSystemWatcher(path.join(this.mPath, `${this.mName}${eSynthesisFile.Quartus}`));
         this.HandleFileEvents();
     }
 
@@ -75,16 +69,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     }
 
     public async UpdateFiles() : Promise<boolean>
-    {
-        if(!this.mQSF.TopLevelEntity.mPath || this.mQSF.TopLevelEntity.mPath.length === 0)
-        {
-            vscode.window.showErrorMessage(`TopLevelEntity required for updating files of Quartus-Project "${this.mName}"!`);
-            return false;
-        }
-
-        const files : Set<string> = await HDLUtils.GetDependencies(this.mQSF.TopLevelEntity.mPath);
-        this.mQSF.VhdlFiles = Array.from(files);
-        
+    {   
         //create tcl-script for updating files of a Quartus-Project
         QuartusScriptGenerator.GenerateUpdateFiles(this);
 
@@ -263,5 +248,22 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
             this.Update();
         });
     }
+
+    private HandleFileEvents() : void
+    {        
+        //handle events for FolderWatcher
+        this.mFolderWatcher.onDidCreate( (uri) => {
+            
+        });
+        this.mFolderWatcher.onDidChange( (uri) => {
+            
+        });
+
+        // Start watching the workspace-folder
+        const disposable = vscode.Disposable.from(this.mFolderWatcher);
+        // Dispose the watcher when extension is not active
+        this.mContext.subscriptions.push(disposable);
+    }
+
 
 }

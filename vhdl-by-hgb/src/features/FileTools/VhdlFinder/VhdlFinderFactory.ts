@@ -2,7 +2,7 @@
 //specific imports
 import { IVhdlFinder } from './VhdlFinder';
 import { SimpleVhdlFinder } from './SimpleVhdlFinder';
-import { VunitVhdlFinder } from './VunitVhdlFinder';
+import { VUnitVhdlFinder } from './VUnitVhdlFinder';
 import { ACTIVE_SIMULATION_PROJECT, TSimulationProject, eSimulationTool } from '../../VHDLtools/Simulation/SimulationPackage';
 
 //general imports
@@ -41,7 +41,7 @@ export class VhdlFinderFactory {
             {
                 if(activeSimulationProject.tool === eSimulationTool.VUnit)
                 {            
-                    vhdlFinder = new VunitVhdlFinder(activeSimulationProject.file);
+                    vhdlFinder = new VUnitVhdlFinder(activeSimulationProject.file);
                 }
             }
         }      
