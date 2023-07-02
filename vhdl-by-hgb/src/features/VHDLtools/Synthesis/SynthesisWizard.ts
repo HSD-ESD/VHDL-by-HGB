@@ -1,7 +1,7 @@
 // specific imports
 import { VhdlEntity } from "../../VhdlDefinitions";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
-import { SynthesisFileMap, eSynthesisTool } from "./SynthesisPackage";
+import { SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
 import { TSynthesisProjectConfig } from "./SynthesisProject";
 
 import { Hdl_element } from "colibri2/out/parser/common";
@@ -186,7 +186,7 @@ export class SynthesisWizard {
 
         if(selectedTool)
         {
-            let selectedFactory =  SynthesisFileMap.get(selectedTool);
+            let selectedFactory =  SynthesisToolMap.get(selectedTool);
             if(selectedFactory)
             {
                 return selectedFactory;

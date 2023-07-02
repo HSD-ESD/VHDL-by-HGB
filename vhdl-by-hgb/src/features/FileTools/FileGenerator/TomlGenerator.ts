@@ -21,7 +21,7 @@ const TOML_Point = ".";
 
 export class TomlGenerator {
 
-    public async Generate_VHDL_LS(fileHolder : FileHolder, workSpacePath : string, isRelativePaths: boolean = true) : Promise<void>
+    public static async Generate_VHDL_LS(fileHolder : FileHolder, workSpacePath : string, isRelativePaths: boolean = true) : Promise<void>
     {
         const FileName : string = path.join(workSpacePath, Constants.VHDL_LS_FILE);
 
