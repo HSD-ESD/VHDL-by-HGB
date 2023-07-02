@@ -11,13 +11,14 @@ import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 // General Imports
 import * as vscode from 'vscode';
 import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
+import { HDLUtils } from "./FileTools/HDLUtils";
 
 export class ProjectManager {
 
     // --------------------------------------------
     // Private members
     // --------------------------------------------
-
+    
     // vscode-members
     private mOutputChannel : vscode.OutputChannel;
     private mContext : vscode.ExtensionContext;
@@ -63,6 +64,7 @@ export class ProjectManager {
     }
 
     public async UpdateProjectFiles() : Promise<void> {
+
         this.mVhdlFinder.GetVhdlFilesFromProject(this.mWorkSpacePath).then((projectFiles) => 
         { 
             this.mFileHolder.SetProjectFiles(projectFiles);

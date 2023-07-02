@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { FileHolder } from "../../../FileTools/FileHolder";
 import { VhdlEntity } from "../../../VhdlDefinitions";
+import { HDLUtils } from "../../../FileTools/HDLUtils";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
 {
@@ -76,7 +77,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     public async UpdateFiles() : Promise<boolean>
     {
         //TODO: Remove!!!
-        let test = await this.GetDependencies(this.mTopLevelEntity.mPath);
+        let test = await HDLUtils.GetDependencies(this.mTopLevelEntity.mPath);
 
         //create tcl-script for updating files of a Quartus-Project
         QuartusScriptGenerator.GenerateUpdateFiles(this);
