@@ -3,16 +3,11 @@ import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 
 
 export enum eSynthesisTool {
-    Diamond = "Diamond",
     Quartus = "Quartus",
-    Vivado = "Vivado"
 }
 
 export enum eSynthesisFile {
-    Diamond = ".tcl",
     Quartus = ".qsf",
-    Synopsis = ".sdc",
-    Vivado = ".xdc",
 }
 
 // mapping strings of eSynthesisTool-Enum to their factories

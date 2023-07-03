@@ -6,7 +6,7 @@ import { get_os } from "colibri2/out/process/utils";
 import { FileHolder} from "../../../FileTools/FileHolder";
 import { QuartusScriptGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { FileUtils } from "../../../FileTools/FileUtils";
-import {QuartusQsf, cEmptyQsf} from "./QuartusPackage";
+import {QuartusQsf} from "./QuartusPackage";
 
 //General Imports
 import * as fs from 'fs';
@@ -187,7 +187,7 @@ export class Quartus {
     public async ParseQsf(qsfPath : string) : Promise<QuartusQsf>
     {
         //empty qsf
-        let qsf : QuartusQsf = cEmptyQsf;
+        let qsf : QuartusQsf = new QuartusQsf();
 
         //read complete qsf
         const qsfFile : string = fs.readFileSync(qsfPath, 'utf8');

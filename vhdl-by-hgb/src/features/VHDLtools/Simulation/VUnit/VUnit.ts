@@ -77,7 +77,7 @@ export class VUnit {
             '**/{vunit,examples,acceptance/artificial}/{vhdl,verilog}'
         );
         const workspacePath = this.GetWorkspaceRoot();
-        let vunitScript: string[] = results.map((file) => {
+        let vunitScripts: string[] = results.map((file) => {
             if(makeRelativePaths && workspacePath) 
             {
                 return path.relative(workspacePath, file.fsPath);
@@ -87,7 +87,10 @@ export class VUnit {
                 return file.fsPath;
             }
         });
-        return vunitScript;
+
+        vunitScripts.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        return vunitScripts;
     }
 
     public async Run(

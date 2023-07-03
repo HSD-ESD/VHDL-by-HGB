@@ -74,6 +74,7 @@ export class ProjectManager {
         }
 
         this.mSimulationManager.Initialize();
+        this.mSynthesisManager.Initialize();
 	}
 
     // --------------------------------------------

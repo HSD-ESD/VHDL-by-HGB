@@ -8,7 +8,9 @@ import { Quartus} from "./Quartus";
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { FileHolder } from "../../../FileTools/FileHolder";
+import { VhdlEntity } from "../../../VhdlDefinitions";
+import { HDLUtils } from "../../../FileTools/HDLUtils";
+import { QuartusQsf} from "./QuartusPackage";
 import { eSynthesisFile } from "../SynthesisPackage";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
@@ -35,7 +37,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
         //Quartus-Instance for using Quartus-Utility-Functions
         this.mQuartus = new Quartus(this.mOutputChannel, this.mContext);
-        this.mQSF = cEmptyQsf;
+        this.mQSF = new QuartusQsf();
 
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
         this.mTclScriptsFolder = path.join(this.mFolderPath, TclScripts.Folder);

@@ -75,18 +75,23 @@ export class SynthesisManager
         const fileName = path.basename(projectFile);
         const projectName = fileName.split('.')[0];
         const projectPath = path.dirname(projectFile);
-        const synthesisFile = fileName.split('.')[1] as eSynthesisFile;
+        const synthesisFile = path.extname(projectFile) as eSynthesisFile;
         const synthesisTool = SynthesisFileMap.get(synthesisFile);
 
         let synthesisFactory : ISynthesisFactory | undefined;
-        if(synthesisTool)
-        {   
-            synthesisFactory = SynthesisToolMap.get(synthesisTool);
-        }
-        if(synthesisFactory)
+        if(!synthesisTool)
         {
-            synthesisFactory.CreateProject(projectName, projectPath, this.mOutputChannel, this.mContext, this.mFileHolder);
+            return false;
         }
+            synthesisFactory = SynthesisToolMap.get(synthesisTool);
+        
+        if(!synthesisFactory)
+        {
+            return false;
+        }
+
+        const existingProject : ISynthesisProject = synthesisFactory.CreateProject(projectName, projectPath, this.mContext);
+        this.mSynthesisProjects.push(existingProject);
 
         return true;
     }
@@ -285,6 +290,8 @@ export class SynthesisManager
         let synthesisProjects : string[] = results.map((file) => {
             return file.fsPath;
         });
+
+        synthesisProjects.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
         return synthesisProjects;
     }

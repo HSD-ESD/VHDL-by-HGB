@@ -6,6 +6,7 @@ import * as Constants from "../../../Constants";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { FileUtils } from "../FileUtils";
 
 // module-internal constants
 const TOML_Files_Spec = "files = ";

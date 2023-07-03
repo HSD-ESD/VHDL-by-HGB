@@ -2,8 +2,8 @@
 //specific imports
 import { IVhdlFinder } from './VhdlFinder';
 import { SimpleVhdlFinder } from './SimpleVhdlFinder';
-import { VUnitVhdlFinder } from './VUnitVhdlFinder';
 import { ACTIVE_SIMULATION_PROJECT, TSimulationProject, eSimulationTool } from '../../VHDLtools/Simulation/SimulationPackage';
+import { VUnitVhdlFinder } from './VUnitVhdlFinder';
 
 //general imports
 import * as vscode from 'vscode';

@@ -78,7 +78,7 @@ export class SimulationManager {
         }
         else
         {    
-            this.ChooseSimulationProject(selectedTool as eSimulationTool);
+            await this.ChooseSimulationProject(selectedTool as eSimulationTool);
         }
 
         vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.Setup");

@@ -36,7 +36,9 @@ export class SynthesisWizard {
 
     public async SelectActiveProject(projects : ISynthesisProject[]) : Promise<ISynthesisProject | undefined>
     {
-        const projectPaths = projects.map(project => path.relative(this.mWorkSpacePath, project.GetPath()));
+        const projectPaths : string[] = projects.map((project) => {
+            return path.relative(this.mWorkSpacePath, project.GetPath());
+        });
 
         const selectedProjectPath = await vscode.window.showQuickPick(projectPaths, {
             placeHolder: 'Select Synthesis-Project',

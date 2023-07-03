@@ -1,17 +1,17 @@
 import { VhdlEntity } from "../../../VhdlDefinitions";
 
-export type QuartusQsf = {
-    path : string;
-    TopLevelEntity: VhdlEntity;
-    Family: string;
-    Device: string;
-    VhdlFiles: string[];
-};
-
-export const cEmptyQsf : QuartusQsf = {
-    path : "",
-    TopLevelEntity : {mName : "", mPath : ""},
-    Family : "",
-    Device : "",
-    VhdlFiles : []
-};
+export class QuartusQsf {
+    public path: string;
+    public TopLevelEntity: VhdlEntity;
+    public Family: string;
+    public Device: string;
+    public VhdlFiles: string[];
+  
+    public constructor() {
+      this.path = "";
+      this.TopLevelEntity = { mName: "", mPath: "" };
+      this.Family = "";
+      this.Device = "";
+      this.VhdlFiles = [];
+    }
+  }
