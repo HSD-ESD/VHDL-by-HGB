@@ -57,7 +57,7 @@ export class ProjectManager {
         this.mFileHolder = new FileHolder();
 
         this.mTomlGenerator = new TomlGenerator(this.mWorkSpacePath, this.mFileHolder);
-        this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
+        this.mSynthesisManager = new SynthesisManager(this.mWorkSpacePath, this.mContext);
 
         this.mDynamicSnip = new DynamicSnippets(this.mContext);
         this.RegisterCommands();

@@ -8,9 +8,9 @@ import { Quartus} from "./Quartus";
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { FileHolder } from "../../../FileTools/FileHolder";
 import { VhdlEntity } from "../../../VhdlDefinitions";
 import { HDLUtils } from "../../../FileTools/HDLUtils";
+import { QuartusQsf, cEmptyQsf } from "./QuartusPackage";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
 {
@@ -19,38 +19,38 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // --------------------------------------------
     private mQuartus : Quartus;
     private mTclScriptsFolder: string;
-    private mFileHolder : FileHolder;
+    private mQSF : QuartusQsf;
+    private mQsfWatcher : vscode.FileSystemWatcher;
+
+    //vscode-members
+    private mOutputChannel : vscode.OutputChannel;
+    private mContext : vscode.ExtensionContext;
 
     // --------------------------------------------
     // public methods
     // --------------------------------------------
-    public constructor(name : string, projectPath : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext, fileHolder : FileHolder)
+    public constructor(name : string, projectPath : string, context : vscode.ExtensionContext)
     {
         // call constructor of base-class
-        super(name, projectPath, outputChannel, context);
+        super(name, projectPath);
 
-        this.mFileHolder = fileHolder;
+        //init vscode-members
+        this.mContext = context;
+        this.mOutputChannel = vscode.window.createOutputChannel(`VHDLbyHGB.Quartus.${name}`);
 
         //Quartus-Instance for using Quartus-Utility-Functions
         this.mQuartus = new Quartus(this.mOutputChannel, this.mContext);
+        this.mQSF = cEmptyQsf;
 
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
-        this.mTclScriptsFolder = path.join(this.mPath, TclScripts.Folder);
+        this.mTclScriptsFolder = path.join(this.mFolderPath, TclScripts.Folder);
         if (!fs.existsSync(this.mTclScriptsFolder)) {
             fs.mkdirSync(this.mTclScriptsFolder);
         }
 
-        const qsfPath = path.join(this.mPath, this.mName + ".qsf");
-        const qsfWatcher : vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher(qsfPath);
-
-        qsfWatcher.onDidCreate((uri) => {
-            const qsfContents = this.mQuartus.ParseQsf(qsfPath);
-        });
-
-        qsfWatcher.onDidChange((uri) => {
-            const qsfContents = this.mQuartus.ParseQsf(qsfPath);
-        });
-
+        this.mQSF.path = path.join(this.mFolderPath, this.mName + ".qsf");
+        this.mQsfWatcher = vscode.workspace.createFileSystemWatcher(this.mQSF.path);
+        this.HandleFileEvents();
     }
 
     public async Generate() : Promise<boolean>
@@ -76,9 +76,15 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public async UpdateFiles() : Promise<boolean>
     {
-        //TODO: Remove!!!
-        let test = await HDLUtils.GetDependencies(this.mTopLevelEntity.mPath);
+        if(!this.mQSF.TopLevelEntity.mPath || this.mQSF.TopLevelEntity.mPath.length === 0)
+        {
+            vscode.window.showErrorMessage(`TopLevelEntity required for updating files of Quartus-Project "${this.mName}"!`);
+            return false;
+        }
 
+        const files : Set<string> = await HDLUtils.GetDependencies(this.mQSF.TopLevelEntity.mPath);
+        this.mQSF.VhdlFiles = Array.from(files);
+        
         //create tcl-script for updating files of a Quartus-Project
         QuartusScriptGenerator.GenerateUpdateFiles(this);
 
@@ -130,6 +136,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
         //inform user about compiling
         vscode.window.showInformationMessage(`Quartus-Project "${this.mName}" -> compiling started...`);
+        this.mOutputChannel.show();
 
         //Run Tcl-Script for generating Project
         const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
@@ -145,9 +152,9 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         return true;
     }
 
-    public async SetTopLevelEntity(entity : VhdlEntity) : Promise<boolean>
+    public async SetTopLevel(entity : VhdlEntity) : Promise<boolean>
     {
-        this.mTopLevelEntity = entity;
+        this.mQSF.TopLevelEntity = entity;
 
         //create tcl-script for setting TopLevelEntity of a Quartus-Project
         QuartusScriptGenerator.GenerateTopLevelEntity(this);
@@ -163,14 +170,14 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
             return false;
         }
 
-        vscode.window.showInformationMessage(`TopLevelEntity "${this.mTopLevelEntity.mName}" for Quartus-Project "${this.mName}" was set successfully!`);
+        vscode.window.showInformationMessage(`TopLevelEntity "${this.mQSF.TopLevelEntity.mName}" for Quartus-Project "${this.mName}" was set successfully!`);
 
         return true;
     }
 
     public async SetFamily(family : string) : Promise<boolean>
     {
-        this.mFamily = family;
+        this.mQSF.Family = family;
 
         //create tcl-script for setting Family of a Quartus-Project
         QuartusScriptGenerator.GenerateFamily(this);
@@ -186,14 +193,14 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
             return false;
         }
 
-        vscode.window.showInformationMessage(`Family "${this.mFamily}" for Quartus-Project "${this.mName}" was set successfully!`);
+        vscode.window.showInformationMessage(`Family "${this.mQSF.Family}" for Quartus-Project "${this.mName}" was set successfully!`);
 
         return true;
     }
 
     public async SetDevice(device : string) : Promise<boolean>
     {
-        this.mDevice = device;
+        this.mQSF.Device = device;
 
         //create tcl-script for setting Device of a Quartus-Project
         QuartusScriptGenerator.GenerateDevice(this);
@@ -209,27 +216,52 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
             return false;
         }
 
-        vscode.window.showInformationMessage(`Device "${this.mDevice}" for Quartus-Project "${this.mName}" was set successfully!`);
+        vscode.window.showInformationMessage(`Device "${this.mQSF.Device}" for Quartus-Project "${this.mName}" was set successfully!`);
 
         return true;
     }
 
     //Getter-Methods
+
     public GetName() : string { return this.mName; }
+
+    public GetTopLevel() : VhdlEntity { return this.mQSF.TopLevelEntity; }
+
+    public GetFamily() : string { return this.mQSF.Family; }
+
+    public GetDevice() : string { return this.mQSF.Device; }
+
+    public GetFiles() : string[] { return this.mQSF.VhdlFiles; }
 
     public GetTclScriptsFolder() : string { return this.mTclScriptsFolder; }
 
-    public GetPath() : string { return this.mPath; }
+    public GetPath() : string { return this.mQSF.path; }
+
+    public GetFolderPath() : string { return this.mFolderPath; }
 
     public GetQuartus() : Quartus { return this.mQuartus; }
 
-    public GetTopLevelEntity() : VhdlEntity { return this.mTopLevelEntity; }
+    public GetQsf() : QuartusQsf { return this.mQSF; }
 
-    public GetDevice() : string { return this.mDevice; }
+    // --------------------------------------------
+    // private methods
+    // --------------------------------------------
+    private async Update() : Promise<void>
+    {
+        this.mQSF = await this.mQuartus.ParseQsf(this.mQSF.path);
+    }
 
-    public GetFamily() : string { return this.mFamily; }
+    private async HandleFileEvents() : Promise<void>
+    {
+        this.mQsfWatcher.onDidCreate((qsfFile) => 
+        {
+            this.Update();
+        });
 
-    public GetFileHolder() : FileHolder { return this.mFileHolder; }
-
+        this.mQsfWatcher.onDidChange((qsfFile) => 
+        {
+            this.Update();
+        });
+    }
 
 }

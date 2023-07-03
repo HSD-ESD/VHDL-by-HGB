@@ -1,6 +1,4 @@
 
-//import { VhdlParser } from "../../FileTools/VhdlParser/VhdlParser";
-import { VhdlParser } from "../../FileTools/VhdlParser/VhdlParser";
 import { VhdlEntity } from "../../VhdlDefinitions";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import * as vscode from 'vscode';
@@ -21,11 +19,23 @@ export interface ISynthesisProject
 
     Compile() : Promise<boolean>;
 
-    SetTopLevelEntity(entity : VhdlEntity) : Promise<boolean>;
+    SetTopLevel(entity : VhdlEntity) : Promise<boolean>;
 
     SetFamily(family : string) : Promise<boolean>;
 
     SetDevice(device : string) : Promise<boolean>;
+
+    GetName() : string;
+
+    GetPath() : string;
+
+    GetTopLevel() : VhdlEntity;
+
+    GetFamily() : string;
+
+    GetDevice() : string;
+
+    GetFiles() : string[];
 }
 
 export abstract class SynthesisProject
@@ -36,27 +46,18 @@ export abstract class SynthesisProject
 
     //essential members
     protected mName : string;
-    protected mPath : string;
+    protected mFolderPath : string;
 
     //optional members
     protected mTopLevelEntity! : VhdlEntity;
-    protected mFamily! : string;
-    protected mDevice! : string;
-
-    //vscode-members
-    protected mOutputChannel : vscode.OutputChannel;
-    protected mContext : vscode.ExtensionContext;
 
     // --------------------------------------------
     // protected methods
     // --------------------------------------------
-    protected constructor(name : string, path : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext)
+    protected constructor(name : string, path : string)
     {
         this.mName = name;
-        this.mPath = path;
-
-        this.mOutputChannel = outputChannel;
-        this.mContext = context;
+        this.mFolderPath = path;
     }
         
 }

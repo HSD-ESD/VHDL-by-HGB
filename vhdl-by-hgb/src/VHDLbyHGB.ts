@@ -3,6 +3,8 @@ import * as vscode from 'vscode';
 import * as events from "events";
 import * as path from 'path';
 
+import * as fs from 'fs';
+
 //Specific Imports
 import { RustHDL } from './features/RustHDL';
 import { VhdlFormatter } from './features/VhdlFormatter';
@@ -31,6 +33,11 @@ export class VHDLbyHGB {
 		this.mFormatter = new VhdlFormatter(this.mContext);
 		this.mEventEmitter = new events.EventEmitter();
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
+    }
+
+	public Initialize() 
+	{
+		
 	}
 
 	public async Initialize() {

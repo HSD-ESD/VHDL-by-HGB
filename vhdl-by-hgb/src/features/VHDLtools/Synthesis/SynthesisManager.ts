@@ -5,6 +5,7 @@ import { ISynthesisProject, TSynthesisProjectConfig } from "./SynthesisProject";
 
 //general imports
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { VhdlEntity } from "../../VhdlDefinitions";
 
 export class SynthesisManager 
@@ -16,7 +17,7 @@ export class SynthesisManager
     private mWizard : SynthesisWizard;
     private mActiveProject! : ISynthesisProject;
 
-    private mFileHolder : FileHolder;
+    private mWorkSpacePath : string;
 
     //vscode-members
     private mOutputChannel : vscode.OutputChannel;
@@ -26,17 +27,16 @@ export class SynthesisManager
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    constructor(context : vscode.ExtensionContext, fileHolder : FileHolder)
+    constructor(workSpacePath : string ,context : vscode.ExtensionContext)
     {
         //vs-code members
-        this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB:Synthesis');
+        this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB.Synthesis');
         this.mContext = context;
 
         //custom-members
+        this.mWorkSpacePath = workSpacePath;
         this.mSynthesisProjects = new Array<ISynthesisProject>();
-        this.mWizard = new SynthesisWizard();
-        
-        this.mFileHolder = fileHolder;
+        this.mWizard = new SynthesisWizard(this.mWorkSpacePath);
 
         this.RegisterCommands();
     }
@@ -53,7 +53,7 @@ export class SynthesisManager
         }
 
         //use factory of selected synthesis-tool to create a synthesis-project
-        let newProject : ISynthesisProject = projectConfig.factory.CreateProject(projectConfig.name, projectConfig.folderPath, this.mOutputChannel, this.mContext, this.mFileHolder);
+        let newProject : ISynthesisProject = projectConfig.factory.CreateProject(projectConfig.name, projectConfig.folderPath, this.mContext);
         //Generate Project-Files
         newProject.Generate();
         //add generated project to container of all synthesis-projects
@@ -66,6 +66,22 @@ export class SynthesisManager
 
     public async AddExistingProjecct() : Promise<boolean>
     {
+
+        return true;
+    }
+
+    public async SetActiveProject() : Promise<boolean>
+    {
+        const selectedProject = await this.mWizard.SelectActiveProject(this.mSynthesisProjects);
+
+        if(!selectedProject)
+        {
+            vscode.window.showErrorMessage("No Synthesis-Project selected!");
+            return false;
+        }
+       
+        this.mActiveProject = selectedProject;
+        vscode.window.showInformationMessage(`Active Synthesis-Project: ${path.relative(this.mWorkSpacePath, this.mActiveProject.GetPath())}`);
 
         return true;
     }
@@ -151,7 +167,7 @@ export class SynthesisManager
         }
 
         // set TopLevelEntity for selected synthesis-project
-        const IsSuccess : boolean = await this.mActiveProject.SetTopLevelEntity(Entity);
+        const IsSuccess : boolean = await this.mActiveProject.SetTopLevel(Entity);
 
         if(!IsSuccess)
         {
@@ -232,6 +248,9 @@ export class SynthesisManager
         this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.AddExistingProject", () => { this.AddExistingProjecct(); });
+        this.mContext.subscriptions.push(disposable);
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.SetActiveProject", () => { this.SetActiveProject(); });
         this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.SynthesisManager.UpdateFiles", () => { this.UpdateFiles(); });

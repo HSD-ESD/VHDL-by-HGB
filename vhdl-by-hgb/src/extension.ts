@@ -6,14 +6,10 @@
 
 // General Imports
 'use strict';
-import * as path from 'path';
-import * as vscode from 'vscode';
-import { workspace, ExtensionContext } from 'vscode';
+import { workspace, ExtensionContext} from 'vscode';
 
 //Specific Imports
 import { VHDLbyHGB } from './VHDLbyHGB';
-
-let VhdlByHgb: VHDLbyHGB;
 
 export async function activate(ctx: ExtensionContext) {
     VhdlByHgb = new VHDLbyHGB(ctx);

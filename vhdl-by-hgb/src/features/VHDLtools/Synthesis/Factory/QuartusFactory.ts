@@ -29,9 +29,9 @@ export class QuartusFactory implements ISynthesisFactory
         return QuartusFactory.mInstance;
     }
 
-    public CreateProject(name : string, path : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext, fileHolder : FileHolder) : ISynthesisProject
+    public CreateProject(name : string, path : string, context : vscode.ExtensionContext) : ISynthesisProject
     {
-        return new QuartusProject(name, path, outputChannel, context, fileHolder);
+        return new QuartusProject(name, path, context);
     }
 
 }

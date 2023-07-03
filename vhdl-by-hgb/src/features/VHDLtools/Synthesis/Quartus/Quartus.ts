@@ -1,20 +1,12 @@
 //Specific Imports
-import * as Constants from "../../../../Constants";
-import * as TclScripts from "../TclScripts";
-import { OS } from "colibri2/out/process/common";
-import { get_os } from "colibri2/out/process/utils";
-import { FileHolder, VHDL_TOP_LEVEL_ENTITY } from "../../../FileTools/FileHolder";
-import { QuartusScriptGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { FileUtils } from "../../../FileTools/FileUtils";
-import {QuartusQsf} from "./QuartusPackage";
-
-import { Hdl_element } from "colibri2/out/parser/common";
-import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
+import {QuartusQsf, cEmptyQsf} from "./QuartusPackage";
 
 //General Imports
-import * as fs from "fs";
-import * as vscode from "vscode";
+import * as fs from 'fs';
+import * as vscode from 'vscode';
 import * as path from 'path';
+import * as process from 'process';
 import * as child_process from 'child_process';
 
 //--------------------------------------------------------------
@@ -29,7 +21,7 @@ const QUARTUS_EXE = "quartus";
 const cFamilyRegex   : RegExp = /^set_global_assignment\s+-name\s+FAMILY\s+"([^"]+)"/;
 const cDeviceRegex   : RegExp = /^set_global_assignment\s+-name\s+DEVICE\s+([^"\s]+)/;
 const cTopLevelRegex : RegExp = /^set_global_assignment\s+-name\s+TOP_LEVEL_ENTITY\s+([^"\s]+)/;
-const cVhdlFileRegex : RegExp = /^set_global_assignment\s+-name\s+VHDL_FILE\s+"([^"]+\.vhd)"/;
+const cVhdlFileRegex : RegExp = /^set_global_assignment\s+-name\s+VHDL_FILE\s+"([^"]+\.(vhd|vhdl))"/;
 
 
 //--------------------------------------------------------------
@@ -189,12 +181,7 @@ export class Quartus {
     public async ParseQsf(qsfPath : string) : Promise<QuartusQsf>
     {
         //empty qsf
-        let qsf : QuartusQsf = {
-            Device : "",
-            Family : "",
-            TopLevelEntity : "",
-            VhdlFiles : []
-        };
+        let qsf : QuartusQsf = cEmptyQsf;
 
         //read complete qsf
         const qsfFile : string = fs.readFileSync(qsfPath, 'utf8');
@@ -202,35 +189,7 @@ export class Quartus {
         
         for(const line of qsfFileLines)
         {
-            let match : RegExpMatchArray | null;
-    
-            // extract Family 
-            match = line.match(cFamilyRegex);
-            if (match) {
-                qsf.Family = match[1];
-                continue;
-            }
-            
-            // extract Device
-            match = line.match(cDeviceRegex);
-            if (match) {
-                qsf.Device = match[1];
-                continue;
-            }
-            
-            // extract Top-Level-Entity 
-            match = line.match(cTopLevelRegex);
-            if (match) {
-                qsf.TopLevelEntity = match[1];
-                continue;
-            }
-
-            match = line.match(cVhdlFileRegex);
-            if(match)
-            {
-                qsf.VhdlFiles.push(match[1]);
-                continue;
-            }
+            await this.ParseQsfLine(line, qsf); 
         }
 
         return qsf;
@@ -251,6 +210,42 @@ export class Quartus {
     // Private methods
     // --------------------------------------------
 
+    private async ParseQsfLine(line: string, qsf: QuartusQsf): Promise<void> {
+        let match: RegExpMatchArray | null;
+    
+        match = line.match(cVhdlFileRegex);
+        if (match) {
+            qsf.VhdlFiles.push(match[1]);
+            return;
+        }
+
+        // extract Top-Level-Entity 
+        match = line.match(cTopLevelRegex);
+        if (match) {
+            qsf.TopLevelEntity.mName = match[1];
+            const symbol = await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
+                'vscode.executeWorkspaceSymbolProvider',
+                match[1]
+            );
+            qsf.TopLevelEntity.mPath = symbol[0].location.uri.fsPath;
+            return;
+        }
+
+        // extract Device
+        match = line.match(cDeviceRegex);
+        if (match) {
+            qsf.Device = match[1];
+            return;
+        }
+
+        // extract Family 
+        match = line.match(cFamilyRegex);
+        if (match) {
+            qsf.Family = match[1];
+            return;
+        }
+    }
+
     private async SelectQuartusBinaryPath(): Promise<boolean> {
         try {
 
@@ -261,7 +256,8 @@ export class Quartus {
                 openLabel: 'Select Folder of Quartus-Binaries'
             });
 
-            if (uri && uri[0] && uri[0].fsPath && fs.existsSync(path.join(uri[0].fsPath, get_os() === OS.LINUX ? QUARTUS_SHELL : (QUARTUS_SHELL + ".exe")))) {
+            if (uri && uri[0] && uri[0].fsPath && fs.existsSync(path.join(uri[0].fsPath, process.platform === 'linux' ? QUARTUS_SHELL : (QUARTUS_SHELL + ".exe")))) 
+            {
                 console.log(uri[0].fsPath);
                 if (uri[0].fsPath.length === 0) { console.log("length == 0"); }
                 // Store quartus-path internally
@@ -282,13 +278,29 @@ export class Quartus {
 
 }
 
+function GetQuartusBinaryPathFromEnv(): string 
+{
+    const quartusRootDir = process.env.QUARTUS_ROOTDIR || '';
+
+    let quartusBinaryPath = "";
+
+    quartusBinaryPath = path.join(quartusRootDir, "bin64");
+
+    // check if path exists
+    if (!fs.existsSync(quartusBinaryPath)) {
+        return "";
+    }
+
+    return quartusBinaryPath;
+}
 
 //automatically get Quartus path with newest version -> if not found, path will be empty
-function SearchQuartusBinaryPath(): string {
-    const OperatingSystem: OS = get_os();
+function SearchQuartusBinaryPath(): string 
+{
+    const OperatingSystem = process.platform;
     let QuartusPath: string = "";
 
-    if (OperatingSystem === OS.WINDOWS) {
+    if (OperatingSystem === 'win32') {
         let QuartusVersion: string = GetNewestQuartusVersion(QUARTUS_PATH_WINDOWS);
 
         //check for empty string
@@ -299,7 +311,7 @@ function SearchQuartusBinaryPath(): string {
         QuartusPath = path.join(QUARTUS_PATH_WINDOWS, QuartusVersion.toString());
 
     }
-    else if (OperatingSystem === OS.LINUX) {
+    else if (OperatingSystem === 'linux') {
         let QuartusVersion: string = GetNewestQuartusVersion(QUARTUS_PATH_LINUX);
 
         //check for empty string

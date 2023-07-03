@@ -126,6 +126,10 @@
                 "title": "VHDLbyHGB.SynthesisManager.AddExistingProject"
             },
             {
+                "command": "VHDLbyHGB.SynthesisManager.SetActiveProject",
+                "title": "VHDLbyHGB.SynthesisManager.SetActiveProject"
+            },
+            {
                 "command": "VHDLbyHGB.SynthesisManager.UpdateFiles",
                 "title": "VHDLbyHGB.SynthesisManager.UpdateFiles"
             },
@@ -306,13 +310,14 @@
         "semver": "7.3.5",
         "shelljs": "^0.8.3",
         "temp": "^0.9.0",
-        "teroshdl2": "https://github.com/TerosTechnology/colibri.git#dev",
         "colibri2": "https://github.com/TerosTechnology/colibri.git#dev",
         "tmp": "0.2.1",
         "vscode-languageclient": "7.0.0-next.6",
         "walk-file-tree": "^1.0.38",
         "xml2js": "0.4.23",
-        "async-mutex": "^0.4.0"
+        "async-mutex": "^0.4.0",
+        "tree-kill": "1.2.2",
+        "uuid-random": "1.3.0"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",
@@ -326,7 +331,6 @@
         "js-yaml": "^3.13.1",
         "mocha": "^7.1.2",
         "shx": "^0.3.3",
-        "typescript": "4.5.5",
-        "vscode-test": "^1.3.0"
+        "typescript": "4.5.5"
     }
 }

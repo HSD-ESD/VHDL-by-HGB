@@ -6,5 +6,5 @@ import { FileHolder } from "../../../FileTools/FileHolder";
 import * as  vscode from 'vscode';
 export interface ISynthesisFactory
 {
-    CreateProject(name : string, path : string, outputChannel : vscode.OutputChannel, context : vscode.ExtensionContext, fileHolder : FileHolder) : ISynthesisProject;
+    CreateProject(name : string, path : string, context : vscode.ExtensionContext) : ISynthesisProject;
 }

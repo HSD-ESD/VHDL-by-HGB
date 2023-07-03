@@ -2,20 +2,30 @@
 import { VhdlEntity } from "../../VhdlDefinitions";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import { SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
-import { TSynthesisProjectConfig } from "./SynthesisProject";
+import { ISynthesisProject, TSynthesisProjectConfig } from "./SynthesisProject";
 
 import { Hdl_element } from "colibri2/out/parser/common";
 import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
 
 // general imports
 import * as vscode from 'vscode';
-
+import * as path from 'path';
 
 export class SynthesisWizard {
 
     // --------------------------------------------
-    // Public methods
+    // private members
     // --------------------------------------------
+    private mWorkSpacePath : string;
+
+    // --------------------------------------------
+    // public methods
+    // --------------------------------------------
+    public constructor(workSpacePath : string)
+    {
+        this.mWorkSpacePath = workSpacePath;
+    }
+
     public async Run() : Promise<TSynthesisProjectConfig>
     {
         let config : TSynthesisProjectConfig = new TSynthesisProjectConfig();
@@ -32,6 +42,24 @@ export class SynthesisWizard {
         config.folderPath = await this.SelectProjectPath();
 
         return config;
+    }
+
+    public async SelectActiveProject(projects : ISynthesisProject[]) : Promise<ISynthesisProject | undefined>
+    {
+        const projectPaths = projects.map(project => path.relative(this.mWorkSpacePath, project.GetPath()));
+
+        const selectedProjectPath = await vscode.window.showQuickPick(projectPaths, {
+            placeHolder: 'Select Synthesis-Project',
+        });
+        
+        if (!selectedProjectPath) 
+        {
+            return undefined;
+        }
+
+        const selectedProject : ISynthesisProject | undefined = projects.find(project => project.GetPath() === path.resolve(this.mWorkSpacePath, selectedProjectPath));
+
+        return selectedProject;
     }
 
     public async SelectTopLevelEntity() : Promise<VhdlEntity>

@@ -5,7 +5,7 @@ import * as Lexer from 'snapdragon-lexer';
 import * as vscode from 'vscode';
 
 //module-internal constants
-const cPackageRegex = /use\s+work\.(\w+(\.\w+)*(\.all)?);/g;
+const cPackageRegex = /use\s+work\.(\w+(\.\w+)*(\.all)?);/;
 const cEntityRegex = /entity\s+(\w+)/i;
 const cComponentRegex = /component\s+(\w+)/i;
 const cInstantiationRegex = /(?:entity|component)\s+(\w+(?:\.\w+)*)/i;
