@@ -1,5 +1,5 @@
 // specific imports
-import { VhdlEntity } from "../../VhdlDefinitions";
+import { VhdlEntity } from "../VhdlPackage";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import { SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
 import { TSynthesisProjectConfig } from "./SynthesisProject";
@@ -188,7 +188,7 @@ export class SynthesisWizard {
 
         if(selectedTool)
         {
-            let selectedFactory =  SynthesisToolMap.get(selectedTool);
+            let selectedFactory =  SynthesisToolMap.get(selectedTool as eSynthesisTool);
             if(selectedFactory)
             {
                 return selectedFactory;

@@ -37,8 +37,8 @@ export class VUnit {
     //--------------------------------------------
 	//Public Methods
 	//--------------------------------------------
-    public constructor() {
-        this.mOutputChannel = vscode.window.createOutputChannel("VHDLbyHGB.VUnit");
+    public constructor(outputChannel : vscode.OutputChannel) {
+        this.mOutputChannel = outputChannel;
     }
 
     public async GetVersion(vunitScript : string): Promise<string> {
@@ -67,7 +67,7 @@ export class VUnit {
         });
     }
 
-    public async FindVUnitScripts(
+    public async FindScripts(
         workspaceFolder : vscode.WorkspaceFolder,
         makeRelativePaths : boolean = false
     ): Promise<string[]> {

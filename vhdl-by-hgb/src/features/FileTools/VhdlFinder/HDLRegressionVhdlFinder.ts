@@ -1,28 +1,27 @@
 //specific imports
-import { VUnit } from "../../VHDLtools/Simulation/VUnit/VUnit";
-import { VUnitExportData } from "../../VHDLtools/Simulation/VUnit/VUnitPackage";
+import { HDLRegression } from "../../VHDLtools/Simulation/HDLRegression/HDLRegression";
+import { HDLRegressionFile } from "../../VHDLtools/Simulation/HDLRegression/HDLRegressionPackage";
 import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../VHDLtools/VhdlPackage";
 
 //general imports
-import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as path from 'path';
+import * as vscode from 'vscode';
 
-export class VUnitVhdlFinder {
+export class HDLRegressionVhdlFinder {
 
     // --------------------------------------------
     // Private members
     // --------------------------------------------
-    private mVUnit : VUnit;
-    private mRunPyPath : string;
+    private mHDLRegression : HDLRegression;
+    private mHDLRegressionScriptPath : string;
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public constructor(runPyPath : string, outputChannel : vscode.OutputChannel) 
+    public constructor(hdlregressionScriptPath : string, outputChannel : vscode.OutputChannel) 
     {
-        this.mVUnit = new VUnit(outputChannel);
-        this.mRunPyPath = runPyPath;
+        this.mHDLRegression = new HDLRegression(outputChannel);
+        this.mHDLRegressionScriptPath = hdlregressionScriptPath;
     }
 
     public async GetVhdlFiles(workSpacePath: string) : Promise<VHDL_ProjectFiles> 
@@ -32,17 +31,17 @@ export class VUnitVhdlFinder {
 
         if(!fs.existsSync(workSpacePath)) 
         {
-            return new Map();
+            return projectFiles;
         }
 
-        if(!fs.existsSync(this.mRunPyPath))
+        if(!fs.existsSync(this.mHDLRegressionScriptPath))
         {
             return projectFiles;
         }
 
-        const data : VUnitExportData = await this.mVUnit.GetData(workSpacePath, this.mRunPyPath);
+        const data : HDLRegressionFile[] = await this.mHDLRegression.GetFiles(this.mHDLRegressionScriptPath);
 
-        for (const file of data.files)
+        for (const file of data)
         {
             if (projectFiles.has(file.library_name))
             {

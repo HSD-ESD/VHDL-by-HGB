@@ -1,5 +1,5 @@
 
-import { VhdlEntity } from "../../VhdlDefinitions";
+import { VhdlEntity } from '../VhdlPackage';
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import * as vscode from 'vscode';
 

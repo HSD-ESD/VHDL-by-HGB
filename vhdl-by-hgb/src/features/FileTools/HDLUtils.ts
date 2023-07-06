@@ -4,6 +4,7 @@ import { VhdlParser } from './VhdlParser/VhdlParser';
 //general imports
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import { cVhdlFileTypes } from '../VHDLtools/VhdlPackage';
 
 export class HDLUtils {
 
@@ -80,6 +81,29 @@ export class HDLUtils {
         }
 
         return dependencies;
-  }
+    }
+
+    public static async GetSymbolInformation(symbol : string) : Promise<vscode.SymbolInformation[]>
+    {
+        const requestSymbol = await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
+            'vscode.executeWorkspaceSymbolProvider',
+            symbol
+        );
+
+        return requestSymbol;
+    }
+
+    public static IsVhdlFile(filePath : string)
+    {
+        let isVhdl : boolean = false;
+
+        cVhdlFileTypes.forEach(
+            (fileType) => {
+                if(filePath.endsWith(fileType)) {isVhdl = true;}
+            }
+        );
+        
+        return isVhdl;
+    }
 
 }

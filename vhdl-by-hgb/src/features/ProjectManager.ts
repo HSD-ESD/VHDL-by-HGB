@@ -1,16 +1,15 @@
 // specific imports
 import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
-import { VhdlFinderFactory } from "./FileTools/VhdlFinder/VhdlFinderFactory";
 import { FileHolder } from "./FileTools/FileHolder";
 import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
 import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
 import { SimulationManager } from "./VHDLtools/Simulation/SimulationManager";
+import { HDLUtils } from "./FileTools/HDLUtils";
 
 // general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { cVhdlFileTypes } from "./VHDLtools/VhdlPackage";
 
 export class ProjectManager {
 
@@ -24,9 +23,8 @@ export class ProjectManager {
 
     // project-specific members
     private mWorkSpacePath : string = "";
-    private mIsProjectInitialised : boolean = false;
+    private mProjectIsInitialised : boolean = false;
 
-    private mVhdlFinderFactory : VhdlFinderFactory;
     private mVhdlFinder! : IVhdlFinder;
 
     private mFileHolder : FileHolder;
@@ -54,8 +52,6 @@ export class ProjectManager {
         this.mContext = context;
         this.mOutputChannel = outputChannel;
 
-        //specific members
-        this.mVhdlFinderFactory = new VhdlFinderFactory(this.mContext, this.mOutputChannel);
         this.mFileHolder = new FileHolder();
 
         this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
@@ -82,23 +78,23 @@ export class ProjectManager {
     // --------------------------------------------
     private async Setup() : Promise<void>
     {
-        if(!this.mIsProjectInitialised)
+        if(!this.mProjectIsInitialised)
         {
             // only activate Language-Server once
             vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate");
         }
 
         //set flag for intialized hdl-project to true
-        this.mIsProjectInitialised = true;
+        this.mProjectIsInitialised = true;
 
-        this.mVhdlFinder = this.mVhdlFinderFactory.CreateVhdlFinder();
+        this.mVhdlFinder = this.mSimulationManager.GetVhdlFinder();
         this.Update();
 
     }
 
     private async Update() : Promise<void> 
     {
-        if(this.mIsProjectInitialised)
+        if(this.mProjectIsInitialised)
         {
             this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath).then((projectFiles) => 
             {
@@ -117,7 +113,7 @@ export class ProjectManager {
         {
             const containsVhdlFile : boolean = event.files.some((file) => {
                 const filePath = file.fsPath.toLowerCase();
-                return this.IsVhdlFile(filePath);
+                return HDLUtils.IsVhdlFile(filePath);
             });
             if(containsVhdlFile)
             {
@@ -129,7 +125,7 @@ export class ProjectManager {
         {
             const containsVhdlFile : boolean = event.files.some((file) => {
                 const filePath = file.fsPath.toLowerCase();
-                return this.IsVhdlFile(filePath);
+                return HDLUtils.IsVhdlFile(filePath);
             });
             if(containsVhdlFile)
             {
@@ -142,8 +138,8 @@ export class ProjectManager {
             const containsVhdlFile : boolean = event.files.some((file) => {
                 const oldFilePath = file.oldUri.fsPath.toLowerCase();
                 const newFilePath = file.newUri.fsPath.toLowerCase();
-                return  this.IsVhdlFile(oldFilePath) ||
-                        this.IsVhdlFile(newFilePath);
+                return  HDLUtils.IsVhdlFile(oldFilePath) ||
+                        HDLUtils.IsVhdlFile(newFilePath);
             });
             if(containsVhdlFile)
             {
@@ -152,18 +148,6 @@ export class ProjectManager {
         });
     }
 
-    private IsVhdlFile(filePath : string)
-    {
-        let isVhdl : boolean = false;
-
-        cVhdlFileTypes.forEach(
-            (fileType) => {
-                if(filePath.endsWith(fileType)) {isVhdl = true;}
-            }
-        );
-        
-        return isVhdl;
-    }
 
     private RegisterCommands() : void
     {

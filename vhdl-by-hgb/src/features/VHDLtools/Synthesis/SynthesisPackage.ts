@@ -11,7 +11,7 @@ export enum eSynthesisFile {
 }
 
 // mapping strings of eSynthesisTool-Enum to their factories
-export const SynthesisToolMap : Map<string,ISynthesisFactory> = new Map<string,ISynthesisFactory>([
+export const SynthesisToolMap : Map<eSynthesisTool,ISynthesisFactory> = new Map<eSynthesisTool,ISynthesisFactory>([
 [eSynthesisTool.Quartus, QuartusFactory.getInstance()],
 ]);
 

@@ -8,7 +8,7 @@ import { Quartus} from "./Quartus";
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { VhdlEntity } from "../../../VhdlDefinitions";
+import { VhdlEntity } from "../../VhdlPackage";
 import { HDLUtils } from "../../../FileTools/HDLUtils";
 import { QuartusQsf} from "./QuartusPackage";
 import { eSynthesisFile } from "../SynthesisPackage";
@@ -37,7 +37,8 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
         //Quartus-Instance for using Quartus-Utility-Functions
         this.mQuartus = new Quartus(this.mOutputChannel, this.mContext);
-        this.mQSF = new QuartusQsf();
+        const qsfPath = path.join(this.mFolderPath, this.mName + eSynthesisFile.Quartus);
+        this.mQSF = new QuartusQsf(qsfPath);
 
         //When new Quartus-Project is created -> make directory for all Tcl-Scripts
         this.mTclScriptsFolder = path.join(this.mFolderPath, TclScripts.Folder);
@@ -45,8 +46,13 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
             fs.mkdirSync(this.mTclScriptsFolder);
         }
 
-        this.mFolderWatcher = vscode.workspace.createFileSystemWatcher(path.join(this.mPath, `${this.mName}${eSynthesisFile.Quartus}`));
+        this.mQsfWatcher = vscode.workspace.createFileSystemWatcher(this.mQSF.Path);
         this.HandleFileEvents();
+
+        if(fs.existsSync(this.mQSF.Path))
+        {
+            this.Update();
+        }
     }
 
     public async Generate() : Promise<boolean>
@@ -71,7 +77,22 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     }
 
     public async UpdateFiles() : Promise<boolean>
-    {   
+    {
+        if(!this.mQSF.TopLevelEntity.mPath || this.mQSF.TopLevelEntity.mPath.length === 0)
+        {
+            const symbolInfo = await HDLUtils.GetSymbolInformation(this.mQSF.TopLevelEntity.mName);
+            if(!symbolInfo[0])
+            {
+                vscode.window.showErrorMessage(`TopLevelEntity required for updating files of Quartus-Project "${this.mName}"!`);
+                return false;
+            }
+
+            this.mQSF.TopLevelEntity.mPath = symbolInfo[0].location.uri.fsPath;
+        }
+
+        const files : Set<string> = await HDLUtils.GetDependencies(this.mQSF.TopLevelEntity.mPath);
+        this.mQSF.VhdlFiles = Array.from(files);
+        
         //create tcl-script for updating files of a Quartus-Project
         QuartusScriptGenerator.GenerateUpdateFiles(this);
 
@@ -222,7 +243,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public GetTclScriptsFolder() : string { return this.mTclScriptsFolder; }
 
-    public GetPath() : string { return this.mQSF.path; }
+    public GetPath() : string { return this.mQSF.Path; }
 
     public GetFolderPath() : string { return this.mFolderPath; }
 
@@ -235,7 +256,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // --------------------------------------------
     private async Update() : Promise<void>
     {
-        this.mQSF = await this.mQuartus.ParseQsf(this.mQSF.path);
+        this.mQSF = await this.mQuartus.ParseQsf(this.mQSF.Path);
     }
 
     private async HandleFileEvents() : Promise<void>

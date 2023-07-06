@@ -7,6 +7,7 @@ import { SynthesisFileMap, SynthesisToolMap, eSynthesisFile } from "./SynthesisP
 //general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { VhdlEntity } from "../VhdlPackage";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 
 export class SynthesisManager 

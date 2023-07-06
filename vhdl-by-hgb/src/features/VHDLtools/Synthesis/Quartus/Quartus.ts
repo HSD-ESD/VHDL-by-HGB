@@ -187,7 +187,7 @@ export class Quartus {
     public async ParseQsf(qsfPath : string) : Promise<QuartusQsf>
     {
         //empty qsf
-        let qsf : QuartusQsf = new QuartusQsf();
+        let qsf : QuartusQsf = new QuartusQsf(qsfPath);
 
         //read complete qsf
         const qsfFile : string = fs.readFileSync(qsfPath, 'utf8');
@@ -233,7 +233,10 @@ export class Quartus {
                 'vscode.executeWorkspaceSymbolProvider',
                 match[1]
             );
-            qsf.TopLevelEntity.mPath = symbol[0].location.uri.fsPath;
+            if(symbol[0])
+            {
+                qsf.TopLevelEntity.mPath = symbol[0].location.uri.fsPath;
+            }
             return;
         }
 
