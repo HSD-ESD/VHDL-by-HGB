@@ -2,12 +2,13 @@
 import { HDLRegression } from "../../VHDLtools/Simulation/HDLRegression/HDLRegression";
 import { HDLRegressionFile } from "../../VHDLtools/Simulation/HDLRegression/HDLRegressionPackage";
 import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../VHDLtools/VhdlPackage";
+import { IVhdlFinder } from "./VhdlFinder";
 
 //general imports
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 
-export class HDLRegressionVhdlFinder {
+export class HDLRegressionVhdlFinder implements IVhdlFinder {
 
     // --------------------------------------------
     // Private members

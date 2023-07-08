@@ -2,13 +2,14 @@
 import { VUnit } from "../../VHDLtools/Simulation/VUnit/VUnit";
 import { VUnitExportData } from "../../VHDLtools/Simulation/VUnit/VUnitPackage";
 import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../VHDLtools/VhdlPackage";
+import { IVhdlFinder } from "./VhdlFinder";
 
 //general imports
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export class VUnitVhdlFinder {
+export class VUnitVhdlFinder implements IVhdlFinder {
 
     // --------------------------------------------
     // Private members
