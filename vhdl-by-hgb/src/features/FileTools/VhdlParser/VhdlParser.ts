@@ -33,7 +33,10 @@ export class VhdlParser {
                 new vscode.Position(i, line.indexOf(packageName)),
                 );
 
-                packages.push(packageFile[0].uri.fsPath);
+                if(packageFile[0])
+                {
+                    packages.push(packageFile[0].uri.fsPath);
+                }
             }
         }
 

@@ -6,6 +6,7 @@ import { walk } from 'walk-file-tree';
 //General Imports
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import { HDLUtils } from "../HDLUtils";
 
 //--------------------------------------------
 //module-internal constants
@@ -15,14 +16,15 @@ const DEFAULT_LIBRARY_NAME = "lib";
 
 export class SimpleVhdlFinder implements IVhdlFinder
 {
-    public async GetVhdlFiles(workSpacePath: string) : Promise<VHDL_ProjectFiles> {
+    public async GetVhdlFiles(workSpacePath: string) : Promise<VHDL_ProjectFiles> 
+	{
+
+        let projectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
 
         if(!fs.existsSync(workSpacePath)) 
         {
-            return new Map();
+            return projectFiles;
         }
-
-        let projectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
 
 		let files : VHDL_Files = await GetLibFiles(workSpacePath);
     	projectFiles.set(DEFAULT_LIBRARY_NAME, files);
@@ -45,7 +47,7 @@ async function GetLibFiles(libPath: string) : Promise<VHDL_Files> {
 	for await (const entry of walk({
 		directory: libPath,
 		matches (entry) {
-			return IsVhdlFile(entry);
+			return HDLUtils.IsVhdlFile(entry);
 		},
 		ignores (entry) {
 			return IsBlackListed(entry);
@@ -56,10 +58,6 @@ async function GetLibFiles(libPath: string) : Promise<VHDL_Files> {
 		}
 	
 	return files;
-}
-
-function IsVhdlFile(file: string) : boolean {
-    return file.endsWith('.vhd');
 }
 
 function IsBlackListed(file: string) : boolean {

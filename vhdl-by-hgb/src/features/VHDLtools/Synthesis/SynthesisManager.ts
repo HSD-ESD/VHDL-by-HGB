@@ -267,6 +267,84 @@ export class SynthesisManager
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
+    private async HandleFileEvents() : Promise<void>
+    {
+        vscode.workspace.onDidCreateFiles((event) => 
+        {
+            const synthesisProjects = event.files.filter((file) => {
+                const filePath = file.fsPath.toLowerCase();
+                if (this.IsSynthesisProject(filePath))
+                {
+                    return file.fsPath;
+                }
+            }).map((file) => file.fsPath);
+
+            synthesisProjects.forEach((projectPath) => {
+                if(!this.mSynthesisProjects.find((synthesisProject) => {synthesisProject.GetPath() === projectPath;}))
+                {
+                    this.AddExistingProject(projectPath);
+                }
+            });
+        });
+
+        vscode.workspace.onDidDeleteFiles((event) => 
+        {
+            const synthesisProjects = event.files.filter((file) => {
+                const filePath = file.fsPath.toLowerCase();
+                if (this.IsSynthesisProject(filePath))
+                {
+                    return file.fsPath;
+                }
+            }).map((file) => file.fsPath);
+
+            synthesisProjects.forEach((projectPath) => {
+                const findIndex : number = this.mSynthesisProjects.findIndex((synthesisProject) => {synthesisProject.GetPath() === projectPath;});
+                
+                if(findIndex !== -1) { this.mSynthesisProjects.splice(findIndex, 1); }
+            });
+        });
+
+        vscode.workspace.onDidRenameFiles((event) => 
+        {
+            const synthesisProjects = event.files.filter((file) => {
+                const newFilePath = file.newUri.fsPath.toLowerCase();
+                const oldFilePath = file.oldUri.fsPath.toLowerCase();
+                
+                if(this.IsSynthesisProject(oldFilePath))
+                {
+                    return file;
+                }
+            })
+            .map((file) => {
+                return {
+                  oldPath: file.oldUri.fsPath,
+                  newPath: file.newUri.fsPath
+                };
+            });
+
+            synthesisProjects.forEach((projectPath) => {
+                const findIndex : number = this.mSynthesisProjects.findIndex((synthesisProject) => {synthesisProject.GetPath() === projectPath.oldPath;});
+                
+                if(findIndex !== -1) {
+                    this.mSynthesisProjects.splice(findIndex, 1);
+                    this.AddExistingProject(projectPath.newPath);
+                }
+            });
+        });
+    }
+
+    private IsSynthesisProject(filePath : string) : boolean
+    {
+        const synthesisFileEndings = Object.values(eSynthesisFile);
+        synthesisFileEndings.forEach((fileEnding) => {
+            if(path.extname(filePath) === fileEnding)
+            {
+                return true;
+            }
+        });
+
+        return false;
+    }
 
     private async LoadSynthesisProjects() : Promise<void>
     {

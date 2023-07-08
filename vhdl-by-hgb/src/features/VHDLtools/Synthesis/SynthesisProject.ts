@@ -48,9 +48,6 @@ export abstract class SynthesisProject
     protected mName : string;
     protected mFolderPath : string;
 
-    //optional members
-    protected mTopLevelEntity! : VhdlEntity;
-
     // --------------------------------------------
     // protected methods
     // --------------------------------------------
