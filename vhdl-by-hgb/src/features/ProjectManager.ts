@@ -5,6 +5,7 @@ import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
 import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
 import { SimulationManager } from "./VHDLtools/Simulation/SimulationManager";
 import { HDLUtils } from "./FileTools/HDLUtils";
+import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 
 // general imports
 import * as vscode from 'vscode';
@@ -30,7 +31,6 @@ export class ProjectManager {
     private mFileHolder : FileHolder;
     private mSynthesisManager : SynthesisManager;
     private mSimulationManager : SimulationManager;
-    
     private mDynamicSnip : DynamicSnippets;
 
     // --------------------------------------------
@@ -57,8 +57,11 @@ export class ProjectManager {
         this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
         this.mSimulationManager = new SimulationManager(this.mContext);
 
+        this.mDynamicSnip = new DynamicSnippets(this.mContext);
+
         this.HandleFileEvents();
         this.RegisterCommands();
+
     }
 
     public async Initialize() : Promise<void>

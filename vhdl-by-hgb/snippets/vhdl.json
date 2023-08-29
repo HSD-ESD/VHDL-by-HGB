@@ -182,6 +182,77 @@
         ],
         "description": "context clause for IEEE standard contexts (ieee_bit_context,ieee_std_context) (vhdl 2008)"
     },
+
+
+
+    "Conv To Integer": {
+        "prefix": "to_int",
+        "body": "to_integer(${1:input})",
+        "description": "conv numeric to integer"
+    },
+    "Conv To Std_Logic_Vector": {
+        "prefix": "to_stdlv",
+        "body": "std_logic_vector(${1:input})",
+        "description": "conv logic arith to std_logic_vector"
+    },
+    "Conv Int To Signed": {
+        "prefix": "int_to_sign",
+        "body": "to_signed(${1:input}, ${2:output}'length)",
+        "description": "conv from int to sign"
+    },
+    "Conv Int To Std_Logic_Vector Signed": {
+        "prefix": "int_to_stdlv",
+        "body": "std_logic_vector(to_signed(${1:input}, ${2:output}'length));",
+        "description": "conv sign numeric to std_logic_vector"
+    },
+    "Conv Int To Std_Logic_Vector Unsigned": {
+        "prefix": "int_to_stdlv",
+        "body": "std_logic_vector(to_unsigned(${1:input}, ${2:output}'length));",
+        "description": "conv unsign numeric to std_logic_vector"
+    },
+    "Conv Int To Unsigned": {
+        "prefix": "int_to_unsign",
+        "body": "to_unsigned(${1:input}, ${2:output}'length)",
+        "description": "conv from int to unsign"
+    },
+    "Conv Std_Logic_Vector Signed To Integer": {
+        "prefix": "stdlv_to_int",
+        "body": "conv_integer(signed(${1:input}));",
+        "description": "conv std_logic_vector sign to int"
+    },
+    "Conv Std_Logic_Vector Unsigned To Integer": {
+        "prefix": "stdlv_to_int",
+        "body": "conv_integer(unsigned(${1:input}));",
+        "description": "conv std_logic_vector unsign to int"
+    },
+    "Conv Std_Logic_Vector To Signed": {
+        "prefix": "stdlv_to_sign",
+        "body": "to_signed(${1:input})",
+        "description": "conv std_logic_vector to sign"
+    },
+    "Conv Std_Logic_Vector To Unsigned": {
+        "prefix": "stdlv_to_unsign",
+        "body": "to_unsigned(${1:input})",
+        "description": "conv std_logic_vector to unsign"
+    },
+    "Conv Signed To Integer": {
+        "prefix": "sign_to_int",
+        "body": "conv_integer(${1:input})",
+        "description": "conv sign to int"
+    },
+    "Conv Signed To Unsigned": {
+        "prefix": "sign_to_unsign",
+        "body": "unsigned(${1:input})",
+        "description": "conv sign to unsign"
+    },
+    "Conv Unsigned To Signed": {
+        "prefix": "sign_to_unsign",
+        "body": "signed(${1:input})",
+        "description": "conv unsign to sign"
+    },
+
+
+
     "Decrement": {
         "prefix": "dec",
         "body": [
@@ -822,7 +893,10 @@
         "description": "VHDL testbench template"
     },
     "VHDL Testbench with VUnit": {
-        "prefix": "tbvunit",
+        "prefix": [
+            "tbvunit",
+            "vunit_tb"
+        ],
         "body": [
             "library ieee;",
             "use ieee.std_logic_1164.all;",
@@ -853,6 +927,8 @@
             "",
             "\t--------------------------------------------------------------------",
             "\t-- entity instantiation with components",
+            "\t-- -> search for \"ei_\"",
+            "\t-- -> if right entity not found use the shortcut \"Strg + Alt + S\"",
             "\t--------------------------------------------------------------------",
             "\t",
             "\t",
@@ -868,6 +944,7 @@
             "\tbegin",
             "\t\t-- VUnit setup",
             "\t\ttest_runner_setup(runner, runner_cfg);",
+            "",
             "\t\t-- loop used to run several VUnit testcases",
             "\t\twhile test_suite loop",
             "\t\t\t-- define one VUnit testcase",
@@ -882,13 +959,45 @@
             "\t\t\t\t",
             "\t\t\tend if;",
             "\t\tend loop;",
+            "",
             "\t\ttest_runner_cleanup(runner);",
+            "",
             "\tend process WaveGen_Proc;",
             "",
             "end architecture;"
         ],
         "description": "VHDL testbench VUnit template"
     },
+
+
+
+    "Wait for": {
+        "prefix": "wait_for",
+        "body": [
+            "wait for ${1:10ns};",
+            "$0"
+        ],
+        "description": "wait for"
+    },
+    "Wait on": {
+        "prefix": "wait_on",
+        "body": [
+            "wait on ${1:clk};",
+            "$0"
+        ],
+        "description": "wait on"
+    },
+    "Wait until": {
+        "prefix": "wait_until",
+        "body": [
+            "wait until ${1:clk = '1'};",
+            "$0"
+        ],
+        "description": "wait until"
+    },
+
+
+    
     "When": {
         "prefix": "when",
         "body": [
