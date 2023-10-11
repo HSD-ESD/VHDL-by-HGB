@@ -1,5 +1,3 @@
-//const Lexer = require('snapdragon-lexer');
-import * as Lexer from 'snapdragon-lexer';
 
 // general imports
 import * as vscode from 'vscode';
@@ -35,6 +33,7 @@ export class VhdlParser {
 
                 if(packageFile[0])
                 {
+                    console.log(packageFile[0].uri.fsPath);
                     packages.push(packageFile[0].uri.fsPath);
                 }
             }

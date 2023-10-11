@@ -1,15 +1,18 @@
+
 // specific imports
 import { VhdlEntity } from "../VhdlPackage";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import { SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
 import { TSynthesisProjectConfig } from "./SynthesisProject";
 
-import { Hdl_element } from "colibri2/out/parser/common";
-import { Vhdl_parser } from "colibri2/out/parser/ts_vhdl/parser";
+import { HDLUtils } from "../../FileTools/HDLUtils";
 
 // general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
+
+// module-internal constants
+const cEntityNameExtractor : RegExp = /\'([^\']+)\'/;
 
 export class SynthesisWizard {
 
@@ -69,29 +72,30 @@ export class SynthesisWizard {
         // only parse file, if valid file was selected
         if (TopLevelEntity && TopLevelEntity[0] && TopLevelEntity[0].fsPath && TopLevelEntity[0].fsPath.endsWith(".vhd")) {
 
-            //initialize VHDLparser
-            let parser : Vhdl_parser = new Vhdl_parser();
-            await parser.init();
+            // get all document-symbols from a file
+            const docSymbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+                'vscode.executeDocumentSymbolProvider',
+                vscode.Uri.file(TopLevelEntity[0].fsPath)
+            );
 
-            //open specified entity as vs-code-document
-            let doc = await vscode.workspace.openTextDocument(TopLevelEntity[0].fsPath);
-            let text : string = await doc.getText();
-
-            let VhdlFileInfo : Hdl_element;
-
-            // return empty string, if parsed file is invalid
-            if(!text)
-            {
-                return entity;
-            }
+            // find entity-definition in file
+            const entitySymbol = docSymbols.find(symbol =>
+                symbol.kind === vscode.SymbolKind.Module 
+            );
 
             //set filepath for entity
             entity.mPath = TopLevelEntity[0].fsPath;
 
-            //parse name of entity
-            VhdlFileInfo =  await parser.get_all(text,'--');
-            //set name for returned entity
-            entity.mName = VhdlFileInfo.name;
+            if(entitySymbol)
+            {
+                let entityString : string = entitySymbol.name;
+                let entityMatch = cEntityNameExtractor.exec(entityString);
+                
+                if (entityMatch)
+                {   
+                    entity.mName = entityMatch[1];
+                }
+            }
         }
 
         // return filled entity

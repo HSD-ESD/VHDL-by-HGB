@@ -1,14 +1,26 @@
 
 // Specific Imports
-import {Standalone_vhdl} from "colibri2/out/formatter/standalone_vhdl"; 
-import {e_formatter_standalone, 
-        e_formatter_standalone_keyword_case,
-        e_formatter_standalone_name_case,
-        e_formatter_standalone_new_line_after_else,
-        e_formatter_standalone_new_line_after_generic,
-        e_formatter_standalone_new_line_after_port,
-        e_formatter_standalone_new_line_after_semicolon,
-        e_formatter_standalone_new_line_after_then} from "colibri2/out/config/config_declaration";
+// import {Standalone_vhdl} from "colibri2/out/formatter/standalone_vhdl";
+import { Standalone_vhdl } from "./FileTools/VhdlFormatter/standalone_vhdl";
+
+// import {e_formatter_standalone, 
+//         e_formatter_standalone_keyword_case,
+//         e_formatter_standalone_name_case,
+//         e_formatter_standalone_new_line_after_else,
+//         e_formatter_standalone_new_line_after_generic,
+//         e_formatter_standalone_new_line_after_port,
+//         e_formatter_standalone_new_line_after_semicolon,
+//         e_formatter_standalone_new_line_after_then} from "colibri2/out/config/config_declaration";
+
+import {
+    e_formatter_standalone, 
+    e_formatter_standalone_keyword_case,
+    e_formatter_standalone_name_case,
+    e_formatter_standalone_new_line_after_else,
+    e_formatter_standalone_new_line_after_generic,
+    e_formatter_standalone_new_line_after_port,
+    e_formatter_standalone_new_line_after_semicolon,
+    e_formatter_standalone_new_line_after_then} from "./FileTools/VhdlFormatter/config/config_declaration";
 
 //General Imports
 import * as vscode from "vscode";
@@ -108,7 +120,8 @@ async function provideDocumentFormattingEdits(document: vscode.TextDocument, opt
 
     let code_format: string = "";
     if (document.languageId === "vhdl") {
-        code_format = (await formatter.format_from_code(code_to_format, formattingOptions)).code_formatted;
+        code_format = (
+            await formatter.format_from_code(code_to_format, formattingOptions)).code_formatted;
     }
     
     //Error
