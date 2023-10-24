@@ -6,16 +6,17 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Run Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"sourceMaps": true,
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
-			"name": "Run Extension",
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
 			],
-			"preLaunchTask": "npm: watch",
-			"request": "launch",
-			"type": "extensionHost"
-		},
+			"preLaunchTask": "npm: watch"
+		}
 	]
 }

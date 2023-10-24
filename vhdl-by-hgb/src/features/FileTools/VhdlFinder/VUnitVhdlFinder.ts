@@ -42,7 +42,7 @@ export class VUnitVhdlFinder implements IVhdlFinder {
         }
 
         const data : VUnitExportData = await this.mVUnit.GetData(workSpacePath, this.mRunPyPath);
-
+        
         for (const file of data.files)
         {
             if (projectFiles.has(file.library_name))

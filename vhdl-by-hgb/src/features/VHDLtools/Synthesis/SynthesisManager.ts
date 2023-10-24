@@ -2,7 +2,7 @@
 import { FileHolder } from "../../FileTools/FileHolder";
 import { SynthesisWizard } from "./SynthesisWizard";
 import { ISynthesisProject, TSynthesisProjectConfig } from "./SynthesisProject";
-import { SynthesisFileMap, SynthesisToolMap, eSynthesisFile } from "./SynthesisPackage";
+import { SynthesisFileMap, SynthesisToolMap, eSynthesisFile, eSynthesisTool } from "./SynthesisPackage";
 
 //general imports
 import * as vscode from 'vscode';
@@ -16,6 +16,7 @@ export class SynthesisManager
     // Private members
     // --------------------------------------------
     private mSynthesisProjects : Array<ISynthesisProject>;
+
     private mWizard : SynthesisWizard;
     private mActiveProject! : ISynthesisProject;
 

@@ -169,7 +169,7 @@ export class SynthesisWizard {
             canSelectFiles: false,
             canSelectFolders: true,
             canSelectMany: false,
-            openLabel: 'Select Quartus-Project-Folder'
+            openLabel: 'Select Project-Folder'
         });
 
         if (projectPath && projectPath[0] && projectPath[0].fsPath)
