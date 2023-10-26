@@ -29,7 +29,7 @@ export class ProjectManager {
     private mVhdlFinder! : IVhdlFinder;
 
     private mFileHolder : FileHolder;
-    private mSynthesisManager : SynthesisManager;
+    private mSynthesisManager : SynthesisManager;   
     private mSimulationManager : SimulationManager;
     private mDynamicSnip : DynamicSnippets;
 
@@ -61,7 +61,6 @@ export class ProjectManager {
 
         this.HandleFileEvents();
         this.RegisterCommands();
-
     }
 
     public async Initialize() : Promise<void>

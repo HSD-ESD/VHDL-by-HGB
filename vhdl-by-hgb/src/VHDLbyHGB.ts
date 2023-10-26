@@ -7,7 +7,8 @@ import * as fs from 'fs';
 //Specific Imports
 import { RustHDL } from './features/RustHDL';
 import { VhdlFormatter } from './features/VhdlFormatter';
-import { ProjectManager } from './features/ProjectManager';
+import {ProjectManager} from './features/ProjectManager';
+import { EntityConverter } from './features/entity_converter';
 
 export class VHDLbyHGB {
 
@@ -19,6 +20,7 @@ export class VHDLbyHGB {
 	private mRustHDL : RustHDL;
 	private mProjectManager : ProjectManager;
 	private mFormatter : VhdlFormatter;
+	private mEntityConverter : EntityConverter;
 
 	//--------------------------------------------
 	//Public Methods
@@ -28,6 +30,7 @@ export class VHDLbyHGB {
 		this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB');
 		this.mRustHDL = new RustHDL(this.mContext);
 		this.mFormatter = new VhdlFormatter(this.mContext);
+		this.mEntityConverter = new EntityConverter(this.mContext);
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
     }
 

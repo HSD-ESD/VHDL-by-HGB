@@ -86,3 +86,4 @@ export enum e_formatter_standalone_new_line_after_generic {
     no_new_line = "no_new_line",
     none = "none",
 }
+
