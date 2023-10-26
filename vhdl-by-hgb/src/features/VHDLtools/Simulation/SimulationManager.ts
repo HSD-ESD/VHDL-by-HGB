@@ -233,7 +233,7 @@ export class SimulationManager {
 
         let disposable: vscode.Disposable;
 
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.SimulationManager.SetActiveProject", () => { this.SetActiveProject(); });
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Simulation.SetActiveProject", () => { this.SetActiveProject(); });
         this.mContext.subscriptions.push(disposable);
     }
 

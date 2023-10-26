@@ -19,20 +19,51 @@ export class SynthesisWizard {
     // --------------------------------------------
     // private members
     // --------------------------------------------
-    public async Run() : Promise<TSynthesisProjectConfig>
+    private mWorkSpacePath : string;
+
+    // --------------------------------------------
+    // public methods
+    // --------------------------------------------
+    public constructor(workSpacePath : string)
+    {
+        this.mWorkSpacePath = workSpacePath;
+    }
+
+    public async Run() : Promise<TSynthesisProjectConfig | undefined>
     {
         let config : TSynthesisProjectConfig = new TSynthesisProjectConfig();
 
         //select synthesis-Tool
         let synthesisTool = await this.SelectSynthesisTool();
-        if (synthesisTool) {config.factory = synthesisTool;}
-        else { vscode.window.showWarningMessage("No Synthesis-Tool selected!"); return config;}
+        if(!synthesisTool)
+        {
+            return undefined;
+        }
+        config.tool = synthesisTool;
+
+        // select factory corresponding to synthesis-tool
+        let selectedFactory =  SynthesisToolMap.get(synthesisTool);
+        if(!selectedFactory)
+        {
+            return undefined;
+        }
+        config.factory = selectedFactory;
 
         //select project-name
-        config.name = await this.SelectProjectName();
+        let projectName = await this.SelectProjectName();
+        if(!projectName)
+        {
+            return undefined;
+        }
+        config.name = projectName;
 
         //select project-folder
-        config.folderPath = await this.SelectProjectPath();
+        let projectPath = await this.SelectProjectPath();
+        if(!projectPath)
+        {
+            return undefined;
+        }
+        config.folderPath = projectPath;
 
         return config;
     }
@@ -57,7 +88,7 @@ export class SynthesisWizard {
         return selectedProject;
     }
 
-    public async SelectTopLevelEntity() : Promise<VhdlEntity>
+    public async SelectTopLevel() : Promise<VhdlEntity>
     {
         let entity : VhdlEntity = new VhdlEntity();
 
@@ -103,7 +134,7 @@ export class SynthesisWizard {
     }
 
 
-    public async SelectFamily() : Promise<string>
+    public async SelectFamily() : Promise<string | undefined>
     {
         // enter project name
         let familyName : string | undefined =   await vscode.window.showInputBox({
@@ -111,17 +142,10 @@ export class SynthesisWizard {
                                                     placeHolder: "Family",
                                                 });
 
-        if(familyName) 
-        {
-            return familyName;
-        }
-        else
-        {
-            return "";
-        }
+        return familyName;
     }
 
-    public async SelectDevice() : Promise<string>
+    public async SelectDevice() : Promise<string | undefined>
     {
         // enter project name
         let deviceName : string | undefined =   await vscode.window.showInputBox({
@@ -129,21 +153,27 @@ export class SynthesisWizard {
                                                     placeHolder: "Device",
                                                 });
 
-        if(deviceName) 
-        {
-            return deviceName;
-        }
-        else
-        {
-            return "";
-        }
+        return deviceName;
     }
 
+    public async SelectSynthesisTool() : Promise<eSynthesisTool | undefined>
+    {
+        // quick pick menu with available tools
+        let selectedTool = await vscode.window.showQuickPick(Object.values(eSynthesisTool));
+
+        if (!selectedTool)
+        {
+            vscode.window.showErrorMessage("Selected Synthesis-Tool is not available!");
+            return undefined;
+        }
+
+        return selectedTool as eSynthesisTool;
+    }
 
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
-    private async SelectProjectName() : Promise<string>
+    private async SelectProjectName() : Promise<string | undefined>
     {
         // enter project name
         let projectName : string | undefined =  await vscode.window.showInputBox({
@@ -151,18 +181,16 @@ export class SynthesisWizard {
                                                     placeHolder: "MyProject",
                                                 });
 
-        if(projectName) 
-        {
-            return projectName;
-        }
-        else
+        if(!projectName) 
         {
             vscode.window.showInformationMessage('No valid Project-Name!');
-            return "";
+            return undefined;
         }
+
+        return projectName;
     }
 
-    private async SelectProjectPath() : Promise<string>
+    private async SelectProjectPath() : Promise<string | undefined>
     {
         //Enter project location
         const projectPath = await vscode.window.showOpenDialog({
@@ -172,35 +200,13 @@ export class SynthesisWizard {
             openLabel: 'Select Project-Folder'
         });
 
-        if (projectPath && projectPath[0] && projectPath[0].fsPath)
-        {
-            //chosen path is valid
-            vscode.window.showInformationMessage('Project-Location was set successfully!');
-            return projectPath[0].fsPath;
-        }
-        else
+        if (!(projectPath && projectPath[0] && projectPath[0].fsPath))
         {
             vscode.window.showInformationMessage('No valid Project-Location!');
-            return "";
+            return undefined;
         }
-    }
-
-    private async SelectSynthesisTool() : Promise<ISynthesisFactory | undefined>
-    {
-        // quick pick menu with available tools
-        let selectedTool = await vscode.window.showQuickPick(Object.values(eSynthesisTool));
-
-        if(selectedTool)
-        {
-            let selectedFactory =  SynthesisToolMap.get(selectedTool as eSynthesisTool);
-            if(selectedFactory)
-            {
-                return selectedFactory;
-            }
-        }
-
-        vscode.window.showErrorMessage("Selected Synthesis-Tool is not available!");
-        return undefined;
+        
+        return projectPath[0].fsPath;
     }
 
 }

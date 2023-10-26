@@ -2,9 +2,17 @@
 import { VhdlEntity } from '../VhdlPackage';
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import * as vscode from 'vscode';
+import { eSynthesisTool } from './SynthesisPackage';
+
+
+export interface TSynthesisProject {
+    tool: eSynthesisTool;
+    file: string;
+}
 
 export class TSynthesisProjectConfig {
     factory!     : ISynthesisFactory;
+    tool!        : eSynthesisTool;
     name!        : string;
     folderPath!  : string;
 };
@@ -36,6 +44,8 @@ export interface ISynthesisProject
     GetDevice() : string;
 
     GetFiles() : string[];
+
+    GetTool() : eSynthesisTool;
 }
 
 export abstract class SynthesisProject

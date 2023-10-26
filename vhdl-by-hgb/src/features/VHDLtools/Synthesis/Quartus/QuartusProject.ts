@@ -11,7 +11,7 @@ import * as vscode from 'vscode';
 import { VhdlEntity } from "../../VhdlPackage";
 import { HDLUtils } from "../../../FileTools/HDLUtils";
 import { QuartusQsf} from "./QuartusPackage";
-import { eSynthesisFile } from "../SynthesisPackage";
+import { eSynthesisFile, eSynthesisTool } from "../SynthesisPackage";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
 {
@@ -250,6 +250,8 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     public GetQuartus() : Quartus { return this.mQuartus; }
 
     public GetQsf() : QuartusQsf { return this.mQSF; }
+
+    public GetTool() : eSynthesisTool { return eSynthesisTool.Quartus; }
 
     // --------------------------------------------
     // private methods
