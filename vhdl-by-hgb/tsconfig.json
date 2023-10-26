@@ -16,7 +16,8 @@
 		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
 	},
 	"exclude": [
+		"src/features/formatter/vhdl_formatter/VHDLFormatter",
 		"node_modules",
-		".vscode-test"
+		".vscode-test",
 	]
 }

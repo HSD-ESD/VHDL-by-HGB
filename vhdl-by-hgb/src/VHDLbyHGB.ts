@@ -5,10 +5,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 //Specific Imports
-import { RustHDL } from './features/RustHDL';
-import { VhdlFormatter } from './features/VhdlFormatter';
+import {RustHDL} from './features/RustHDL';
 import {ProjectManager} from './features/ProjectManager';
 import { EntityConverter } from './features/entity_converter';
+import { VHDLFormatterHGB } from './features/formatter/vhdl_formatter_hgb';
 
 export class VHDLbyHGB {
 
@@ -22,9 +22,7 @@ export class VHDLbyHGB {
 
 	// project-dependent tools
 	private mProjectManager : ProjectManager;
-
-	// project-independent tools
-	private mFormatter : VhdlFormatter;
+	private mFormatter : VHDLFormatterHGB;
 	private mEntityConverter : EntityConverter;
 
 	//--------------------------------------------
@@ -33,7 +31,7 @@ export class VHDLbyHGB {
 	constructor(context: vscode.ExtensionContext) {
 		this.mContext = context;
 		this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB');
-		this.mFormatter = new VhdlFormatter(this.mContext);
+		this.mFormatter = new VHDLFormatterHGB(context);
 		this.mEntityConverter = new EntityConverter(this.mContext);
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
     }

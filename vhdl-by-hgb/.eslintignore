@@ -1,1 +1,2 @@
-src/features/FileTools/VhdlFormatter
+src/features/formatter/vhdl_formatter/VHDLFormatter
+out

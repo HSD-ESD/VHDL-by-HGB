@@ -1,0 +1,3 @@
+[submodule "vhdl-by-hgb/src/features/formatter/vhdl_formatter/VHDLFormatter"]
+	path = vhdl-by-hgb/src/features/formatter/vhdl_formatter/VHDLFormatter
+	url = https://github.com/HaarigerHarald/VHDLFormatter
