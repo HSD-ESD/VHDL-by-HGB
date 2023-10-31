@@ -1,5 +1,4 @@
 //specific imports
-import { FileHolder } from "../../FileTools/FileHolder";
 import { SynthesisWizard } from "./SynthesisWizard";
 import { ISynthesisProject, TSynthesisProjectConfig, TSynthesisProject } from "./SynthesisProject";
 import { ACTIVE_SYNTHESIS_PROJECT, SynthesisFileMap, SynthesisToolMap, eSynthesisFile, eSynthesisTool } from "./SynthesisPackage";
@@ -18,7 +17,7 @@ export class SynthesisManager
     private mSynthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>;
 
     private mWizard : SynthesisWizard;
-    private mActiveProject! : ISynthesisProject;
+    private mActiveProject : ISynthesisProject | undefined;
 
     private mWorkSpacePath : string;
 
@@ -38,7 +37,7 @@ export class SynthesisManager
         this.mStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         this.mStatusBarItem.name = "Active Synthesis-Project";
         this.mStatusBarItem.command = "VHDLbyHGB.Synthesis.SetActiveProject";
-        this.mStatusBarItem.tooltip = "Select HDL Synthesis-Project";
+        this.mStatusBarItem.tooltip = "VHDLbyHGB: Select HDL Synthesis-Project";
         this.mStatusBarItem.show();
 
         //custom-members
@@ -47,6 +46,7 @@ export class SynthesisManager
         this.mWizard = new SynthesisWizard(this.mWorkSpacePath);
 
         this.RegisterCommands();
+        this.HandleFileEvents();
     }
 
     public async Initialize() : Promise<void>
@@ -79,9 +79,7 @@ export class SynthesisManager
         //add generated project to container of all synthesis-projects
         this.mSynthesisProjects.get(projectConfig.tool)?.push(newProject);
         //set new Project as active project
-        this.mActiveProject = newProject;
-        this.saveActiveSynthesisProject();
-        this.updateStatusBar();
+        this.updateActiveSynthesisProject(newProject);
 
         return true;
     }
@@ -126,6 +124,12 @@ export class SynthesisManager
             return false;
         }
 
+        if(selectedTool === eSynthesisTool.None)
+        {
+            this.updateActiveSynthesisProject(undefined);
+            return true;
+        }
+
         const synthesisProjects : ISynthesisProject[] | undefined = this.mSynthesisProjects.get(selectedTool);
         if(!synthesisProjects)
         {
@@ -139,10 +143,12 @@ export class SynthesisManager
             return false;
         }
        
-        this.mActiveProject = selectedProject;
-        this.saveActiveSynthesisProject();
-        this.updateStatusBar();
-        vscode.window.showInformationMessage(`Active Synthesis-Project: ${path.relative(this.mWorkSpacePath, this.mActiveProject.GetPath())}`);
+        this.updateActiveSynthesisProject(selectedProject);
+        
+        if(this.mActiveProject)
+        {
+            vscode.window.showInformationMessage(`Active Synthesis-Project: ${path.relative(this.mWorkSpacePath, this.mActiveProject.GetPath())}`);
+        }
 
         return true;
     }
@@ -150,6 +156,7 @@ export class SynthesisManager
     public async UpdateFiles() : Promise<boolean>
     {
         // check, if a synthesis-project is selected
+
         if(!this.mActiveProject)
         {
             vscode.window.showErrorMessage("No Synthesis-Project selected for updating files!");
@@ -438,13 +445,13 @@ export class SynthesisManager
         return synthesisProjects;
     }
 
-    private updateStatusBar(): void {
-        this.mStatusBarItem.text = this.mActiveProject.GetName();
-    }
-
     private saveActiveSynthesisProject(): void {
 
-        if(!this.mActiveProject) { return; }
+        if(!this.mActiveProject) 
+        { 
+            this.mContext.workspaceState.update(ACTIVE_SYNTHESIS_PROJECT, undefined);
+            return;
+        }
 
         const activeSynthesisProject : TSynthesisProject = {
             tool : this.mActiveProject.GetTool(),
@@ -471,6 +478,22 @@ export class SynthesisManager
         if(!activeProject) { return; }
 
         this.mActiveProject = activeProject;
+    }
+
+    private updateActiveSynthesisProject(project : ISynthesisProject | undefined) : void 
+    {
+        this.mActiveProject = project;
+        this.saveActiveSynthesisProject();
+        this.updateStatusBar();
+    }
+
+    private updateStatusBar(): void {
+        if(!this.mActiveProject) { 
+            this.mStatusBarItem.text = eSynthesisTool.None;
+            return;
+        }
+
+        this.mStatusBarItem.text = this.mActiveProject.GetName();
     }
 
     private RegisterCommands(): void {

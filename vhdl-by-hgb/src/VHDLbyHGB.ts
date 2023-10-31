@@ -15,10 +15,15 @@ export class VHDLbyHGB {
 	//--------------------------------------------
 	//Private Members
 	//--------------------------------------------
-	private mContext: vscode.ExtensionContext;
+
+	// vscode-members
+    private mContext : vscode.ExtensionContext;
 	private mOutputChannel: vscode.OutputChannel;
-	private mRustHDL : RustHDL;
+
+	// project-dependent tools
 	private mProjectManager : ProjectManager;
+
+	// project-independent tools
 	private mFormatter : VhdlFormatter;
 	private mEntityConverter : EntityConverter;
 
@@ -28,7 +33,6 @@ export class VHDLbyHGB {
 	constructor(context: vscode.ExtensionContext) {
 		this.mContext = context;
 		this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB');
-		this.mRustHDL = new RustHDL(this.mContext);
 		this.mFormatter = new VhdlFormatter(this.mContext);
 		this.mEntityConverter = new EntityConverter(this.mContext);
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
@@ -39,12 +43,9 @@ export class VHDLbyHGB {
 		this.mProjectManager.Initialize();
 	}
 
-	public async Initialize() {
-		//await this.mOutputFromLs.GetOutput();
-	}
-
-	public Deactivate(): Thenable<void> | undefined {
-		return this.mRustHDL.Deactivate();
+	public Deactivate() : Thenable<void> | undefined
+	{
+		return this.mProjectManager.Deactivate();
 	}
 
 	//--------------------------------------------

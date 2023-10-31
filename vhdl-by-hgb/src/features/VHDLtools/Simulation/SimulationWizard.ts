@@ -1,157 +1,71 @@
-//specific imports
-import { eSimulationTool } from './SimulationPackage'; 
 
-import {    UPDATE_TITLE, 
-            BUTTONS, 
-            SEVERITY, 
-            ValidatorResponseItem, 
-            WebviewWizard, 
-            WizardDefinition,
-            IWizardPage, 
-            PerformFinishResponse } from '@redhat-developer/vscode-wizard';
-import { FieldDefinitionState } from '@redhat-developer/vscode-wizard/lib/WebviewWizard';
-
-//general imports
+// general imports
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as path from 'path';
 
+// specific imports
+import { eSimulationTool } from './SimulationPackage';
 
 export class SimulationWizard 
 {
-
     // --------------------------------------------
     // Private members
     // --------------------------------------------
+
+    // vs-code members
     private mContext : vscode.ExtensionContext;
-    private mWizard : WebviewWizard;
+
+    // specific members
+    private mWorkSpacePath : string;
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public constructor(context : vscode.ExtensionContext) {
-        this.mContext = context;
-        const def : WizardDefinition = getSimulationWizardDefinition(this.mContext);
-        this.mWizard = new WebviewWizard("Simulation-Wizard", "Simulation Wizard", this.mContext, def, new Map<string,string>());
-    }
-
-    public async Run() : Promise<any> 
+    public constructor(context : vscode.ExtensionContext, workSpacePath : string)
     {
-        this.mWizard.open();
+        this.mContext = context;
+        this.mWorkSpacePath = workSpacePath;
     }
 
-}
+    public async SelectActiveProject(projects : string[]) : Promise<string | undefined>
+    {
+        const relativeProjects : string[] = projects.map((projectPath) => {return path.relative(this.mWorkSpacePath, projectPath);});
 
+        let selectedProject = await vscode.window.showQuickPick(relativeProjects);   
 
-export function getSimulationWizardDefinition(context: vscode.ExtensionContext) : WizardDefinition {
-    let def : WizardDefinition = {
-        title: "Simulation Wizard", 
-        description: "Generate HDL-Simulation-Project",
-        workflowManager: {
-        canFinish(wizard:WebviewWizard, data: any): boolean {
-            return true;
-        },
-        performFinish(wizard:WebviewWizard, data: any): Promise<PerformFinishResponse | null> {
-            vscode.window.showInformationMessage(JSON.stringify(data));
-            return new Promise<PerformFinishResponse | null>((res,rej) => {
-                res(null);
-            });
-        },
-        getNextPage(page:IWizardPage, data: any): IWizardPage | null {
-            return null;
-        },
-        getPreviousPage(page:IWizardPage, data: any): IWizardPage | null {
-            return null;
-        }
-        },
-        pages: [
+        if(!selectedProject) 
         {
-            id: 'page1',
-            title: "Simulation-Project Configurator",
-            description: "Settings for Library Mapping, Folder, Files...",
-            fields: [
-                {
-                    id: "SimulationProjectType",
-                    label: "ProjectType",
-                    type: "select",
-                    description: "Select Tool",
-                    initialValue: "VUnit",
-                    properties: {
-                        options: Object.values(eSimulationTool)
-                    }
-                },
-                {
-                    id: "SimulationProjectLocation",
-                    label: "Project Location",
-                    initialValue: "",
-                    type: "file-picker",
-                    placeholder: "Select folder",
-                    dialogOptions: {
-                        canSelectMany: false,
-                        canSelectFiles: false,
-                        canSelectFolders: true,
-                        openLabel: "Select Folder"
-                    }
-                },
-                {
-                    id: "SimulationProjectLibrariesLocation",
-                    label: "Location of Libraries",
-                    initialValue: "",
-                    type: "file-picker",
-                    placeholder: "Select Folder containing all Libraries",
-                    dialogOptions: {
-                        canSelectMany: false,
-                        canSelectFiles: false,
-                        canSelectFolders: true,
-                        openLabel: "Select Folder"
-                    }
-                },
-                {
-                    id: "SimulationProjectRtlWildcard",
-                    label: "Rtl-Wildcard",
-                    description: "Enter a glob-pattern for RTL-Files",
-                    type: "textbox",
-                    initialValue: "**/src/*.vhd",
-                    placeholder: "**/src/*.vhd",
-                },
-                {
-                    id: "SimulationProjectTbWildcard",
-                    label: "Tb-Wildcard",
-                    description: "Enter a glob-pattern for Tb-Files",
-                    type: "textbox",
-                    initialValue: "**/tb/*.vhd",
-                    placeholder: "**/tb/*.vhd",
-                },
-
-            ],
-            validator: (parameters:any) => {
-                let items : ValidatorResponseItem[] = [];
-                
-                if(!fs.existsSync(parameters.SimulationProjectLocation))
-                {
-                    items.push(createValidationItem(SEVERITY.ERROR, "SimulationProjectLocation", 
-                    "Invalid path for project-location"));
-                }
-                
-                if(!fs.existsSync(parameters.SimulationProjectLibrariesLocation))
-                {
-                    items.push(createValidationItem(SEVERITY.ERROR, "SimulationProjectLibrariesLocation", 
-                    "Invalid path for location of libraries"));
-                }
-
-                return { items: items };
-            }
-            }
-        ]
-    };
-    return def;
-}
-
-export function createValidationItem(sev: SEVERITY, id: string, content: string): ValidatorResponseItem {
-    return {
-        severity: sev,
-        template: {
-            id: id,
-            content: content
+            vscode.window.showErrorMessage("No Simulation-Project was set!");
+            return undefined;
         }
-    };
+
+        //always store absolute path -> executing script is easier
+        if(!path.isAbsolute(selectedProject))
+        {
+            selectedProject = path.resolve(this.mWorkSpacePath, selectedProject);
+        }
+
+        return selectedProject;
+    }
+
+    public async SelectSimulationTool() : Promise<eSimulationTool | undefined>
+    {
+        // quick pick menu with available tools
+        let selectedTool = await vscode.window.showQuickPick(Object.values(eSimulationTool));
+
+        if (!selectedTool)
+        {
+            vscode.window.showErrorMessage("Selected Simulation-Tool is not available!");
+            return undefined;
+        }
+
+        return selectedTool as eSimulationTool;
+    }
+
+    // --------------------------------------------
+    // Private methods
+    // --------------------------------------------
+
+
 }

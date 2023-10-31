@@ -11,6 +11,13 @@ import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { RustHDL } from "./RustHDL";
+
+//module-internal types
+enum eTomlGenerationKind {
+    auto,
+    manual
+}
 
 export class ProjectManager {
 
@@ -26,11 +33,16 @@ export class ProjectManager {
     private mWorkSpacePath : string = "";
     private mProjectIsInitialised : boolean = false;
 
-    private mVhdlFinder! : IVhdlFinder;
+	private mRustHDL : RustHDL; // Language-Server (LSP)
 
-    private mFileHolder : FileHolder;
-    private mSynthesisManager : SynthesisManager;   
-    private mSimulationManager : SimulationManager;
+    private mVhdlFinder! : IVhdlFinder; // Tool for finding source-files of hdl-project
+    private mFileHolder : FileHolder;   // Storage for source-files
+
+    // hdl-tools
+    private mSynthesisManager : SynthesisManager;   // Synthesis-Projects
+    private mSimulationManager : SimulationManager; // Simulation-Projects
+
+    // editor-tools
     private mDynamicSnip : DynamicSnippets;
 
     // --------------------------------------------
@@ -52,6 +64,9 @@ export class ProjectManager {
         this.mContext = context;
         this.mOutputChannel = outputChannel;
 
+        //project-specific members
+		this.mRustHDL = new RustHDL(this.mContext);
+
         this.mFileHolder = new FileHolder();
 
         this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
@@ -65,6 +80,7 @@ export class ProjectManager {
 
     public async Initialize() : Promise<void>
 	{
+        
 		if(fs.existsSync(path.join(this.mWorkSpacePath, "vhdl_ls.toml")))
         {
             //load existing HDL-project
@@ -73,7 +89,14 @@ export class ProjectManager {
 
         this.mSimulationManager.Initialize();
         this.mSynthesisManager.Initialize();
+
+        this.connectEvents();
 	}
+
+    public Deactivate() : Thenable<void> | undefined
+    {
+		return this.mRustHDL.Deactivate();
+    }
 
     // --------------------------------------------
     // Private methods
@@ -83,30 +106,55 @@ export class ProjectManager {
         if(!this.mProjectIsInitialised)
         {
             // only activate Language-Server once
-            vscode.commands.executeCommand("VHDLbyHGB.vhdlls.activate");
+            this.mRustHDL.Activate();
         }
 
         //set flag for intialized hdl-project to true
         this.mProjectIsInitialised = true;
 
+        // tool for getting sources of a hdl-project
         this.mVhdlFinder = this.mSimulationManager.GetVhdlFinder();
+
+        // updating project-data
         this.Update();
 
     }
 
     private async Update() : Promise<void> 
     {
-        if(this.mProjectIsInitialised)
+        if(!this.mProjectIsInitialised)
         {
-            this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath).then((projectFiles) => 
-            {
+            return;
+        }
+
+        const tomlGenerationKind = vscode.workspace.getConfiguration().get("vhdl-by-hgb.vhdlls.toml.generation");
+        let tomlGenKind = tomlGenerationKind as keyof typeof eTomlGenerationKind;
+
+        switch(tomlGenKind)
+        {
+            case "manual":
+                // do not generate vhdl_ls.toml automatically with this option.
+                // the user will generate it itself
+                return;
+
+            case "auto":
+                const projectFiles = await this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath);
                 if(projectFiles.size !== 0)
                 {
                     this.mFileHolder.SetProjectFiles(projectFiles);
                     TomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
                 }
-            });
         }
+;
+    }
+
+    private connectEvents() : void
+    {
+        let disposable : vscode.Disposable;
+
+        //connect events
+        disposable = this.mSimulationManager.ActiveSimulationProjectChanged.event(()  => this.Setup());
+        this.mContext.subscriptions.push(disposable);
     }
 
     private async HandleFileEvents() : Promise<void>
@@ -155,10 +203,10 @@ export class ProjectManager {
     {
         let disposable : vscode.Disposable;
 
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.Setup", () => this.Setup());
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Project.Setup", () => this.Setup());
         this.mContext.subscriptions.push(disposable);
 
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.ProjectManager.Update", () => this.Update());
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Project.Update", () => this.Update());
         this.mContext.subscriptions.push(disposable);
     }
 

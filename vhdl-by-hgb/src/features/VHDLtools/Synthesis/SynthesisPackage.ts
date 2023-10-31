@@ -5,6 +5,7 @@ export const ACTIVE_SYNTHESIS_PROJECT = "ActiveSynthesisProject";
 
 export enum eSynthesisTool {
     Quartus = "Quartus",
+    None = "None",
 }
 
 export enum eSynthesisFile {

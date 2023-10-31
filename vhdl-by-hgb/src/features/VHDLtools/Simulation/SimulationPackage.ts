@@ -11,7 +11,8 @@ export interface TSimulationProject {
 
 export enum eSimulationTool {
     VUnit = "VUnit",
-    HDLRegression = "HDLRegression"
+    HDLRegression = "HDLRegression",
+    None = "None"
 }
 
 // mapping strings of eSimulationTool-Enum to their factories
