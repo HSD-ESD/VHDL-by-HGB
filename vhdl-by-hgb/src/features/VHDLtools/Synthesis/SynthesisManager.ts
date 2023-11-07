@@ -1,7 +1,7 @@
 //specific imports
 import { SynthesisWizard } from "./SynthesisWizard";
 import { ISynthesisProject, TSynthesisProjectConfig, TSynthesisProject } from "./SynthesisProject";
-import { ACTIVE_SYNTHESIS_PROJECT, SynthesisFileMap, SynthesisToolMap, eSynthesisFile, eSynthesisTool } from "./SynthesisPackage";
+import { ACTIVE_SYNTHESIS_PROJECT, NO_SYNTHESIS_PROJECT, SynthesisFileMap, SynthesisToolMap, eSynthesisFile, eSynthesisTool } from "./SynthesisPackage";
 import { VhdlEntity } from "../VhdlPackage";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 
@@ -118,13 +118,13 @@ export class SynthesisManager
 
     public async SetActiveProject() : Promise<boolean>
     {
-        const selectedTool : eSynthesisTool | undefined = await this.mWizard.SelectSynthesisTool();
+        const selectedTool : eSynthesisTool |  undefined = await this.mWizard.SelectSynthesisTool();
         if (!selectedTool)
         {
             return false;
         }
 
-        if(selectedTool === eSynthesisTool.None)
+        if(selectedTool as string === NO_SYNTHESIS_PROJECT)
         {
             this.updateActiveSynthesisProject(undefined);
             return true;
@@ -489,7 +489,7 @@ export class SynthesisManager
 
     private updateStatusBar(): void {
         if(!this.mActiveProject) { 
-            this.mStatusBarItem.text = eSynthesisTool.None;
+            this.mStatusBarItem.text = NO_SYNTHESIS_PROJECT;
             return;
         }
 

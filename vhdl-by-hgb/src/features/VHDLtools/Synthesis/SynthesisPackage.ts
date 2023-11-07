@@ -2,10 +2,10 @@ import { QuartusFactory } from "./Factory/QuartusFactory";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 
 export const ACTIVE_SYNTHESIS_PROJECT = "ActiveSynthesisProject";
+export const NO_SYNTHESIS_PROJECT = "None";
 
 export enum eSynthesisTool {
     Quartus = "Quartus",
-    None = "None",
 }
 
 export enum eSynthesisFile {

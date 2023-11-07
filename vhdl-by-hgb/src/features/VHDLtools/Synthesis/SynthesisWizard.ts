@@ -2,8 +2,8 @@
 // specific imports
 import { VhdlEntity } from "../VhdlPackage";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
-import { SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
-import { TSynthesisProjectConfig } from "./SynthesisProject";
+import { NO_SYNTHESIS_PROJECT, SynthesisToolMap, eSynthesisTool } from "./SynthesisPackage";
+import { ISynthesisProject, TSynthesisProjectConfig } from "./SynthesisProject";
 
 import { HDLUtils } from "../../FileTools/HDLUtils";
 
@@ -158,8 +158,9 @@ export class SynthesisWizard {
 
     public async SelectSynthesisTool() : Promise<eSynthesisTool | undefined>
     {
-        // quick pick menu with available tools
-        let selectedTool = await vscode.window.showQuickPick(Object.values(eSynthesisTool));
+        // quick pick menu with available tools:
+        // provide additional explicit option for No synthesis-project, as putting it in the enum itself would not be clean. 
+        let selectedTool = await vscode.window.showQuickPick([...Object.values(eSynthesisTool), NO_SYNTHESIS_PROJECT]);
 
         if (!selectedTool)
         {

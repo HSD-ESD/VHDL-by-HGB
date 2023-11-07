@@ -1,5 +1,5 @@
 //specific imports
-import { ACTIVE_SIMULATION_PROJECT, SimulationToolMap, TSimulationProject, eSimulationTool } from './SimulationPackage'; 
+import { ACTIVE_SIMULATION_PROJECT, NO_SIMULATION_PROJECT, SimulationToolMap, TSimulationProject, eSimulationTool } from './SimulationPackage'; 
 import { VUnit } from './VUnit/VUnit';
 import { HDLRegression } from './HDLRegression/HDLRegression';
 import { SimulationWizard } from './SimulationWizard';
@@ -90,13 +90,18 @@ export class SimulationManager {
 
     public async SetActiveProject() : Promise<boolean>
     {
-        const selectedTool = await this.mWizard.SelectSimulationTool();
+        const selectedTool : eSimulationTool | undefined = await this.mWizard.SelectSimulationTool();
         if(!selectedTool)
         {
             return false;
         }
 
-        if(selectedTool === eSimulationTool.None)
+        // check, if user decides to reset active simulation-project.
+        // This option could also be part of the enum eSimulationTool,
+        // but would not be clean, because then mSimulationProjects would have a key
+        // for eSimulationTool.None, which would not make sense.
+        // Therefore, this "hacky", but working solution.
+        if(selectedTool as string === NO_SIMULATION_PROJECT)
         {
             this.updateActiveSimulationProject(undefined);
             return true;
@@ -257,7 +262,7 @@ export class SimulationManager {
     private updateStatusBar(): void {
         if(!this.mActiveProject) 
         {
-            this.mStatusBarItem.text = eSimulationTool.None;
+            this.mStatusBarItem.text = NO_SIMULATION_PROJECT;
             return; 
         }
 
