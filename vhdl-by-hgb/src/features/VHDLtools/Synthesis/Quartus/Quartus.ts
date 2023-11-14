@@ -27,8 +27,8 @@ const QUARTUS_EXE = "quartus";
 const cFamilyRegex   : RegExp = /^set_global_assignment\s+-name\s+FAMILY\s+"([^"]+)"/;
 const cDeviceRegex   : RegExp = /^set_global_assignment\s+-name\s+DEVICE\s+([^"\s]+)/;
 const cTopLevelRegex : RegExp = /^set_global_assignment\s+-name\s+TOP_LEVEL_ENTITY\s+([^"\s]+)/;
-const cVhdlFileRegex : RegExp = /^set_global_assignment\s+-name\s+VHDL_FILE\s+"([^"]+\.(vhd|vhdl))"/;
-
+const cVhdlFileRegexWithQuotation : RegExp = /^set_global_assignment\s+-name\s+VHDL_FILE\s+"([^"]+\.(vhd|vhdl))"/;
+const cVhdlFileRegex : RegExp = /^set_global_assignment\s+-name\s+VHDL_FILE\s+([^\s]+(?:\.vhd|\.vhdl))/;
 
 //--------------------------------------------------------------
 // Quartus class
@@ -219,6 +219,12 @@ export class Quartus {
     private async ParseQsfLine(line: string, qsf: QuartusQsf): Promise<void> {
         let match: RegExpMatchArray | null;
     
+        match = line.match(cVhdlFileRegexWithQuotation);
+        if (match) {
+            qsf.VhdlFiles.push(match[1]);
+            return;
+        }
+
         match = line.match(cVhdlFileRegex);
         if (match) {
             qsf.VhdlFiles.push(match[1]);
