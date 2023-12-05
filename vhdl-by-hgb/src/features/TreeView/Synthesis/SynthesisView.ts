@@ -9,14 +9,12 @@ import { isElement } from 'lodash';
 
 
 
-export class SynthesisFileProvider implements vscode.TreeDataProvider<SynthesisItem>{
+export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisItem>{
 
     private mSynthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>;
-    private mTreeViewSynthesisTools : SynthesisTool[];
 
     constructor(synthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>){
         this.mSynthesisProjects = synthesisProjects;
-        this.mTreeViewSynthesisTools = [];
     }
 
     getTreeItem(element: SynthesisItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -116,8 +114,7 @@ class SynthesisProject extends SynthesisItem{
         light: path.join(__filename,  '..', '..', '..', '..', '..', 'resources', 'images','synthesis' , 'light', 'project.svg'),
         dark: path.join(__filename,  '..', '..', '..', '..', '..', 'resources', 'images', 'synthesis', 'dark', 'project.svg')
     };
-
-    tooltip = __filename;
+    
 }
 
 class SynthesisTopLevel extends SynthesisItem{
@@ -174,4 +171,6 @@ class SynthesisFile extends SynthesisItem{
     ){
         super(SynthesisFileName, collapsibleState);
     }
+
+    tooltip = path.basename(this.SynthesisFileName);
 }

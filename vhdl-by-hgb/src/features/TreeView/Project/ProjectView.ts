@@ -4,36 +4,50 @@ import * as path from 'path';
 
 
 //provides the files for the tree view
-export class FileProvider implements vscode.TreeDataProvider<File>{
+export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>{
     
+    private mWorkSpacePath : string;
     private mFileHolder : FileHolder;
 
-    constructor(fileHolder : FileHolder){
+    constructor(fileHolder : FileHolder, workspacePath : string){
+        this.mWorkSpacePath = workspacePath;
         this.mFileHolder = fileHolder;
     }
 
-    getTreeItem(element: File): vscode.TreeItem {
+    getTreeItem(element: ProjectItem): vscode.TreeItem {
         return element;
     }
 
-    getChildren(element?: File): Thenable<File[]> {
-        return Promise.resolve(this.getFilesFromFileHolder());
+    getChildren(element?: ProjectItem): vscode.ProviderResult<ProjectItem[]> 
+    {
+        if(element){
+            return element.children;
+        }
+        else{
+            return this.fillRoots();
+        }
     }
 
-    private getFilesFromFileHolder(): File[]{
-        const _files : File[] = [];
+    private fillRoots(): ProjectItem[]{
+
+        let libraries : LibraryItem[] = [];
 
         //check if projectfiles are not empty
         if(this.mFileHolder.GetProjectFiles().size !== 0){
 
-            for(const [lib, files] of this.mFileHolder.GetProjectFiles().entries()){
+            for(const [lib, files] of this.mFileHolder.GetProjectFiles()){
 
-                for(let file of files){
-                    _files.push(new File(file, vscode.TreeItemCollapsibleState.None));
+                const libraryItem : LibraryItem = new LibraryItem(lib,vscode.TreeItemCollapsibleState.Collapsed);
+
+                for(const file of files){
+                    const fileItem : FileItem = new FileItem(path.relative(this.mWorkSpacePath,file), vscode.TreeItemCollapsibleState.None);
+                    libraryItem.children.push(fileItem);
                 }
+
+                libraries.push(libraryItem);
             }
 
-            return _files;
+            return libraries;
         }
         else{
             //return an empty array if there are no files
@@ -41,10 +55,10 @@ export class FileProvider implements vscode.TreeDataProvider<File>{
         }
     }
 
-    private _onDidChangeTreeData: vscode.EventEmitter<File | undefined | null | void > =
-    new vscode.EventEmitter <File | undefined | null | void >();
+    private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined | null | void > =
+    new vscode.EventEmitter <FileItem | undefined | null | void >();
 
-    readonly onDidChangeTreeData: vscode.Event<File | undefined | null | void> = this._onDidChangeTreeData.event;
+    readonly onDidChangeTreeData: vscode.Event<FileItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     refresh(): void{
         this._onDidChangeTreeData.fire();
@@ -53,7 +67,19 @@ export class FileProvider implements vscode.TreeDataProvider<File>{
 
 
 //this is the class that describes a single file
-class File extends vscode.TreeItem{
+class ProjectItem extends vscode.TreeItem{
+
+    public children : ProjectItem[] = [];
+
+    constructor(
+        public readonly itemName : string,
+        public readonly collapsibleState : vscode.TreeItemCollapsibleState,
+    ){
+        super(itemName, collapsibleState);
+    }
+}
+
+class FileItem extends ProjectItem{
     constructor(
         public readonly fileName : string,
         public readonly collapsibleState : vscode.TreeItemCollapsibleState
@@ -63,8 +89,25 @@ class File extends vscode.TreeItem{
     }
     
     iconPath = {
-        light: path.join(__filename, '..' , '..', '..', '..', 'resources' , 'images', 'project', 'light', 'file.svg'),
-        dark: path.join(__filename, '..' , '..', '..', '..', 'resources' , 'images', 'project', 'dark',  'file.svg')
+        light: path.join(__filename, '..' , '..', '..', '..', '..', 'resources' , 'images', 'project', 'light', 'file.svg'),
+        dark: path.join(__filename, '..' , '..', '..', '..', '..', 'resources' , 'images', 'project', 'dark',  'file.svg')
+    };
+
+    tooltip = path.basename(this.fileName);
+}
+
+class LibraryItem extends ProjectItem{
+    constructor(
+        public readonly libraryName : string,
+        public readonly collapsibleState : vscode.TreeItemCollapsibleState
+    )
+    {
+        super(libraryName, collapsibleState);
+    }
+    
+    iconPath = {
+        light: path.join(__filename, '..' , '..', '..', '..', '..', 'resources' , 'images', 'project', 'light', 'library.svg'),
+        dark: path.join(__filename, '..' , '..', '..', '..', '..', 'resources' , 'images', 'project', 'dark',  'library.svg')
     };
 }
 

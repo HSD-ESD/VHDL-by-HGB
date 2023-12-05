@@ -11,6 +11,7 @@ import { SimpleVhdlFinder } from '../../FileTools/VhdlFinder/SimpleVhdlFinder';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { SimulationViewProvider } from '../../TreeView/Simulation/SimulationView';
 
 
 export class SimulationManager {
@@ -46,6 +47,9 @@ export class SimulationManager {
     private mSimulationProjects : Map<eSimulationTool,string[]>;
     private mActiveProject : TSimulationProject | undefined;
 
+    // UI
+    private mSimulationViewProvider : SimulationViewProvider;
+
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
@@ -77,6 +81,14 @@ export class SimulationManager {
         this.mHDLRegression = new HDLRegression(this.mOutputChannel);
 
         this.mSimulationProjects = new Map<eSimulationTool, string[]>();
+
+        // UI
+        this.mSimulationViewProvider = new SimulationViewProvider(this.mSimulationProjects, this.mWorkSpacePath);
+        vscode.window.createTreeView(
+            'vhdlbyhgb-view-simulation',{
+                treeDataProvider : this.mSimulationViewProvider
+            }
+        );
 
         this.HandleFileEvents();
         this.RegisterCommands();

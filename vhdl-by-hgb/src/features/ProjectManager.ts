@@ -2,8 +2,8 @@
 import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { FileHolder } from "./FileTools/FileHolder";
 import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
-import { FileProvider } from "./TreeView/Project/ProjectView";
-import { SynthesisFileProvider } from "./TreeView/Synthesis/SynthesisView";
+import { ProjectViewProvider } from "./TreeView/Project/ProjectView";
+import { SynthesisViewProvider } from "./TreeView/Synthesis/SynthesisView";
 import { Quartus } from "./VHDLtools/Synthesis/Quartus/Quartus";
 
 // General Imports
@@ -42,11 +42,14 @@ export class ProjectManager {
     private mVhdlFinder! : IVhdlFinder;
 
     private mFileHolder : FileHolder;
+    private mDynamicSnip : DynamicSnippets;
 
-    private mFileProvider : FileProvider;
     private mSynthesisManager : SynthesisManager;
     private mSimulationManager : SimulationManager;
-    private mDynamicSnip : DynamicSnippets;
+
+    // UI
+    private mFileProvider : ProjectViewProvider;
+
 
     // --------------------------------------------
     // Public methods
@@ -70,46 +73,33 @@ export class ProjectManager {
         //project-specific members
 		this.mRustHDL = new RustHDL(this.mContext);
         this.mFileHolder = new FileHolder();
-        this.mFileProvider = new FileProvider(this.mFileHolder);
-        this.mFileHolder = new FileHolder();       
-
-        this.mFileHolder = new FileHolder();
-
-        this.mSynthesisManager = new SynthesisManager(this.mContext, this.mFileHolder);
-        this.mSimulationManager = new SimulationManager(this.mContext);
 
         this.mDynamicSnip = new DynamicSnippets(this.mContext);
-
-        this.HandleFileEvents();
-        //tree view members
-        this.mFileProvider = new FileProvider(this.mFileHolder);
-
-        this.RegisterCommands();
         
-        //creating the tree views
+        this.mSynthesisManager = new SynthesisManager(this.mWorkSpacePath, this.mContext);
+        this.mSimulationManager = new SimulationManager(this.mContext);
+
+        // UI
+        this.mFileProvider = new ProjectViewProvider(this.mFileHolder, this.mWorkSpacePath);
         vscode.window.createTreeView(
             'vhdlbyhgb-view-project',{
             treeDataProvider: this.mFileProvider
         });
 
-        // vscode.window.createTreeView(
-        //     'vhdlbyhgb-view-synthesis',{
-        //         treeDataProvider : this.mSynthesisFileProvider
-        //     }
-        // );
+        this.HandleFileEvents();
+        this.RegisterCommands();
     }
 
     public async Initialize() : Promise<void>
 	{
+        await this.mSimulationManager.Initialize();
+        await this.mSynthesisManager.Initialize();
         
 		if(fs.existsSync(path.join(this.mWorkSpacePath, "vhdl_ls.toml")))
         {
             //load existing HDL-project
             this.Setup();
         }
-
-        this.mSimulationManager.Initialize();
-        this.mSynthesisManager.Initialize();
 
         this.connectEvents();
 	}

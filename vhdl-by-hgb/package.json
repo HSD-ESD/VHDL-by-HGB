@@ -61,24 +61,8 @@
                     "name": "Sources"
                 },
                 {
-                    "id": "vhdlbyhgb-view-dependency",
-                    "name": "Dependencies tree"
-                },
-                {
-                    "id": "vhdlbyhgb-view-watcher",
-                    "name": "Watchers"
-                },
-                {
-                    "id": "vhdlbyhgb-view-runs",
-                    "name": "Runs"
-                },
-                {
-                    "id": "vhdlbyhgb-view-output",
-                    "name": "Outputs"
-                },
-                {
-                    "id": "vhdlbyhgb-view-actions",
-                    "name": "Actions"
+                    "id": "vhdlbyhgb-view-synthesis",
+                    "name": "Synthesis"
                 }
             ]
         },

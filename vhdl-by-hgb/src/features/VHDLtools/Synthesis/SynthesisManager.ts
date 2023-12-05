@@ -8,7 +8,7 @@ import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 //general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { SynthesisFileProvider } from "../../TreeView/Synthesis/SynthesisView";
+import { SynthesisViewProvider } from "../../TreeView/Synthesis/SynthesisView";
 
 export class SynthesisManager
 {
@@ -27,7 +27,7 @@ export class SynthesisManager
     private mContext : vscode.ExtensionContext;
     private mStatusBarItem : vscode.StatusBarItem;
 
-    private mSynthesisFileProvider : SynthesisFileProvider;
+    private mSynthesisViewProvider : SynthesisViewProvider;
 
 
     // --------------------------------------------
@@ -52,19 +52,13 @@ export class SynthesisManager
         this.RegisterCommands();
         this.HandleFileEvents();
 
-        this.mSynthesisFileProvider = new SynthesisFileProvider(this.mSynthesisProjects);
+        this.mSynthesisViewProvider = new SynthesisViewProvider(this.mSynthesisProjects);
         vscode.window.createTreeView(
             'vhdlbyhgb-view-synthesis',{
-                treeDataProvider : this.mSynthesisFileProvider
-        }
-      
-    );
+                treeDataProvider : this.mSynthesisViewProvider
+            }
+        );
     }
-
-    //TODO
-    // public GetSynthesisProjects() :  Array<ISynthesisProject>{
-    //     return this.mSynthesisProjects;
-    // }
 
     public async Initialize() : Promise<void>
     {
@@ -529,7 +523,7 @@ export class SynthesisManager
         let disposable: vscode.Disposable;
 
         
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis-View.Refresh", () => { this.mSynthesisFileProvider.refresh(); });
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis-View.Refresh", () => { this.mSynthesisViewProvider.refresh(); });
         this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis.AddNewProject", () => { this.AddNewProject(); });
