@@ -1,77 +1,4 @@
 {
-    "Alias": {
-        "prefix": "alias",
-        "body": [
-            "alias ${1:<name>} : ${2:<subtype>} is ${3:<object_name>};",
-            "$0"
-        ],
-        "description": "alias declaration"
-    },
-    "Alias External Name": {
-        "prefix": "aliasext",
-        "body": [
-            "alias ${1:<name>} is << ${2|signal,variable,constant|} ${3:<path.to.signal.name>} : ${4:<type>} >>;",
-            "$0"
-        ],
-        "description": "hierarchical signal declaration (vhdl 2008). NOTE: for standard types (SLV, unsighed, signed, etc.), no range needs to be specified"
-    },
-    "Architecture": {
-        "prefix": "architecture",
-        "body": [
-            "architecture ${1:Rtl} of ${2:$TM_FILENAME_BASE} is",
-            "\t",
-            "begin",
-            "\t$0",
-            "\t",
-            "\t",
-            "end architecture;"
-        ],
-        "description": "architecture interface"
-    },
-    "Array": {
-        "prefix": "typearray",
-        "body": [
-            "type ${1:<name>} is array (${2:natural range<>}) of ${3:<element_type>};",
-            "$0"
-        ],
-        "description": "array type declaration"
-    },
-    "Assert": {
-        "prefix": "assert",
-        "body": [
-            "assert ${1:<negated_condition>}",
-            "\treport \"${2:<string>}\"",
-            "\tseverity ${3|note,warning,error,failure|};",
-            "$0"
-        ],
-        "description": "assert declaration"
-    },
-    "Attribute Declaration": {
-        "prefix": "attributedec",
-        "body": [
-            "attribute ${1:<name>} : ${2:<type>};",
-            "$0"
-        ],
-        "description": "attribute declaration"
-    },
-    "Attribute Specification": {
-        "prefix": "attributespec",
-        "body": [
-            "attribute ${1:<identifier>} of ${2:<entity_name_list>} : ${3:<entity_class>} is ${4:<expression>};",
-            "$0"
-        ],
-        "description": "assert specification"
-    },
-    "Block": {
-        "prefix": "block",
-        "body": [
-            "${1:<blk_Name>} : block ${2:(<optional_guard_conditional>)}",
-            "begin",
-            "\t$0",
-            "end block;"
-        ],
-        "description": "block interface"
-    },
     "Bit": {
         "prefix": "bit",
         "body": [
@@ -93,105 +20,13 @@
         ],
         "description": "bit_vector declaration"
     },
-    "Case": {
-        "prefix": "case",
-        "body": [
-            "case ${1:<sel>} is",
-            "\twhen ${2:<choice_1>} =>",
-            "\t\t$0",
-            "\twhen others =>",
-            "\t\t${3:null;}",
-            "end case;"
-        ],
-        "description": "case statement"
-    },
-    "Case Generate": {
-        "prefix": "casegen",
-        "body": [
-            "${1:<name>} : case ${2:<sel>} generate",
-            "\twhen ${3:<choice_1>} =>",
-            "\t\t$0",
-            "\twhen others =>",
-            "\t\t${4:null;}",
-            "end generate;"
-        ],
-        "description": "case generate instantiation (vhdl 2008)"
-    },
-    "Component Declaration": {
-        "prefix": "componentdec",
-        "body": [
-            "component ${1:$TM_FILENAME_BASE} is",
-            "\tport (",
-            "\t\t${2:iClk        : in std_ulogic;}",
-            "\t\t${3:inRstAsync  : in std_ulogic;}",
-            "\t\t$0",
-            "\t);",
-            "end component;"
-        ],
-        "description": "component declaration"
-    },
-    "Component Instantiation": {
-        "prefix": "componentinst",
-        "body": [
-            "${1:<name>}: ${2:<comp_name>}",
-            "\tgeneric map (",
-            "\t\t${3:generics}",
-            "\t)",
-            "\tport map (",
-            "\t\t${4:iClk       => clk,}",
-            "\t\t${5:inRstAsync => reset,}",
-            "\t\t$0",
-            "\t);"
-        ],
-        "description": "component instantiation"
-    },
-    "Constant": {
-        "prefix": "const",
-        "body": [
-            "constant ${1:<name>} : ${2:<type>} := ${3:<default_value>};",
-            "$0"
-        ],
-        "description": "constant declaration"
-    },
-    "Configuration": {
-        "prefix": "configuration",
-        "body": [
-            "configuration ${1:<configuration_identifier>} of ${2:<entity_name>} is",
-            "\tfor ${3:<arch_name>}",
-            "\t\tfor ${4:<instance_name>} : ${5:<component_name>}",
-            "\t\t\tuse entity work.$5(${6:<arch_name>});",
-            "\t\tend for;",
-            "\tend for;",
-            "end configuration $1;"
-        ],
-        "description": "configuration declaration"
-    },
-    "Context": {
-        "prefix": "context",
-        "body": [
-            "context ${1:<lib>}.${2:<context_name>};",
-            "$0"
-        ],
-        "description": "context clause (vhdl 2008)"
-    },
-    "Context IEEE": {
-        "prefix": "contextieee",
-        "body": [
-            "context ieee.${1|ieee_bit_context,ieee_std_context|};",
-            "$0"
-        ],
-        "description": "context clause for IEEE standard contexts (ieee_bit_context,ieee_std_context) (vhdl 2008)"
-    },
-
-
-
     "Conv To Integer": {
         "prefix": "to_int",
         "body": "to_integer(${1:input})",
         "description": "conv numeric to integer"
     },
     "Conv To Std_Logic_Vector": {
-        "prefix": "to_stdlv",
+        "prefix": "logic_to_stdlv",
         "body": "std_logic_vector(${1:input})",
         "description": "conv logic arith to std_logic_vector"
     },
@@ -206,7 +41,7 @@
         "description": "conv sign numeric to std_logic_vector"
     },
     "Conv Int To Std_Logic_Vector Unsigned": {
-        "prefix": "int_to_stdlv",
+        "prefix": "int_to_unsign_stdlv",
         "body": "std_logic_vector(to_unsigned(${1:input}, ${2:output}'length));",
         "description": "conv unsign numeric to std_logic_vector"
     },
@@ -221,7 +56,7 @@
         "description": "conv std_logic_vector sign to int"
     },
     "Conv Std_Logic_Vector Unsigned To Integer": {
-        "prefix": "stdlv_to_int",
+        "prefix": "stdlv_unsign_to_int",
         "body": "conv_integer(unsigned(${1:input}));",
         "description": "conv std_logic_vector unsign to int"
     },
@@ -246,13 +81,35 @@
         "description": "conv sign to unsign"
     },
     "Conv Unsigned To Signed": {
-        "prefix": "sign_to_unsign",
+        "prefix": "unsign_to_sign",
         "body": "signed(${1:input})",
         "description": "conv unsign to sign"
     },
-
-
-
+    "Conv to Std_Logic_Vector": {
+        "prefix": "to_stdlv",
+        "body": "To_StdLogicVector(${1:input})",
+        "description": "conv std_logic_vector"
+    },
+    "Conv to Std_ULogic_Vector": {
+        "prefix": "to_stdulv",
+        "body": "To_StdULogicVector(${1:input})",
+        "description": "conv std_ulogic_vector"
+    },
+    "Conv Bit to Std_ULogic": {
+        "prefix": "bit_to_stdu",
+        "body": "To_StdULogic(${1:input})",
+        "description": "conv bit to std_ulogic"
+    },
+    "Conv Std_ULogic to Bit": {
+        "prefix": "stdul_to_bit",
+        "body": "To_bit(${1:input})",
+        "description": "conv std_logic to bit"
+    },
+    "Conv std_ulogic_vector to Bitvector": {
+        "prefix": "stdulv_to_bitvec",
+        "body": "To_bitvector(${1:input})",
+        "description": "conv bitvec to std_ulogic_vector"
+    },
     "Decrement": {
         "prefix": "dec",
         "body": [
@@ -261,63 +118,10 @@
         ],
         "description": "decrement a signal"
     },
-    "Disconnect": {
-        "prefix": "disconnect",
-        "body": [
-            "disconnect ${1|signal,others,all|} : ${2:<type>} after ${3:<time_expression>};",
-            "$0"
-        ],
-        "description": "context clause for IEEE standard contexts (ieee_bit_context,ieee_std_context) (vhdl 2008)"
-    },
-    "Else": {
-        "prefix": "else",
-        "body": [
-            "else",
-            "\t$0"
-        ],
-        "description": "else block"
-    },
-    "Else Generate": {
-        "prefix": "elsegen",
-        "body": [
-            "else generate",
-            "\t$0"
-        ],
-        "description": "else generate instantiation (vhdl 2008)"
-    },
-    "Elsif": {
-        "prefix": "elsif",
-        "body": [
-            "elsif ${1:<conditional>} then",
-            "\t$0"
-        ],
-        "description": "elsif block"
-    },
-    "Elsif Generate": {
-        "prefix": "elsifgen",
-        "body": [
-            "elsif ${1:<conditional>} generate",
-            "\t$0"
-        ],
-        "description": "elsif generate instantiation (vhdl 2008)"
-    },
-    "Entity": {
-        "prefix": "entity",
-        "body": [
-            "entity ${1:Entity} is",
-            "\tport (",
-            "\t\t${2:iClk        : in std_ulogic;}",
-            "\t\t${3:inRstAsync  : in std_ulogic;}",
-            "\t\t$0",
-            "\t);",
-            "end entity $1;"
-        ],
-        "description": "entity declaration"
-    },
     "Entityinstantiation": {
-        "prefix": "entity",
+        "prefix": "entityinst",
         "body": [
-            "DUT_${1:entity}: entity work.$1",
+            "${1:entity}_inst: entity work.$1",
 			"\tgeneric map(",
 			"\t\t${2:<generics>)}",
             "\tport map(",
@@ -327,32 +131,8 @@
         ],
         "description": "entity instantiation"
     },
-    "Entity and Architecture": {
-        "prefix": "entarch",
-        "body": [
-            "entity ${1:$TM_FILENAME_BASE} is",
-            "\tport (",
-            "\t\t${2:iClk        : in std_ulogic;}",
-            "\t\t${3:inRstAsync  : in std_ulogic;}",
-            "\t\t$0",
-            "\t);",
-            "end entity $1;",
-            "",
-            "architecture ${4:Rtl} of $1 is",
-            "\t",
-            "begin",
-            "\t",
-            "\t",
-            "\t",
-            "end architecture;"
-        ],
-        "description": "entity and architecture declaration"
-    },
     "Enumerate": {
-        "prefix": [
-            "typeenum",
-            "enum"
-        ],
+        "prefix": "enum",
         "body": [
             "type ${1:<name>} is (${2:<state>});",
             "\t$0"
@@ -363,24 +143,6 @@
         "prefix": "fall",
         "body": "falling_edge(${1:iClk})$0",
         "description": "falling edge"
-    },
-    "For": {
-        "prefix": "for",
-        "body": [
-            "for ${1:i} in ${2:<range>} loop",
-            "\t$0",
-            "end loop;"
-        ],
-        "description": "for loop block"
-    },
-    "For Generate": {
-        "prefix": "forgen",
-        "body": [
-            "${1:<loop_gen_Name>} : for ${2:i} in ${3:<range>} generate",
-            "\t$0",
-            "end generate;"
-        ],
-        "description": "for generate loop instantiation (vhdl 2008)"
     },
     "FSM example generate": {
         "prefix": "fsm",
@@ -404,42 +166,6 @@
         ],
         "description": "case statement"
     },
-    "Function Body": {
-        "prefix": "funcbody",
-        "body": [
-            "function ${1:<name>} (${2:<params>}) return ${3:<type>} is",
-            "begin",
-            "\t$0",
-            "end function;"
-        ],
-        "description": "function body declaration"
-    },
-    "Function": {
-        "prefix": "funcdec",
-        "body": [
-            "function ${1:<name>} (${2:<params>}) return ${3:<type>};",
-            "$0"
-        ],
-        "description": "function declaration"
-    },
-    "Generic": {
-        "prefix": "generic",
-        "body": [
-            "generic (",
-            "\t$0",
-            ");"
-        ],
-        "description": "generic interface"
-    },
-    "Generic Map": {
-        "prefix": "genericmap",
-        "body": [
-            "generic map (",
-            "\t$0",
-            ")"
-        ],
-        "description": "generic map interface"
-    },
     "Headerkommentar": {
         "prefix": "header",
         "body": [
@@ -457,24 +183,6 @@
         ],
         "description": "header comment template"
     },
-    "If": {
-        "prefix": "if",
-        "body": [
-            "if ${1:<conditional>} then",
-            "\t$0",
-            "end if;"
-        ],
-        "description": "if block"
-    },
-    "If Generate": {
-        "prefix": "ifgen",
-        "body": [
-            "${1:<gen_Name>} : if ${2:<conditional>} generate",
-            "\t$0",
-            "end generate;"
-        ],
-        "description": "if generate instantiation"
-    },
     "Increment": {
         "prefix": "inc",
         "body": [
@@ -487,14 +195,6 @@
         "prefix": "int",
         "body": "integer$0",
         "description": "integer"
-    },
-    "Integer Range": {
-        "prefix": "intrange",
-        "body": [
-            "integer range ${1:0} ${2|to,downto|} ${3:<value>};",
-            "\t$0"
-        ],
-        "description": "integer range"
     },
     "Library": {
         "prefix": "lib",
@@ -527,174 +227,13 @@
         ],
         "description": "common IEEE libraries declaration with 2008 standard context (vhdl 2008)"
     },
-    "Library TextIO": {
-        "prefix": "libtextio",
-        "body": [
-            "library std;",
-            "use std.textio.all;",
-            "$0"
-        ],
-        "description": "TextIO library declaration"
-    },
-    "Loop": {
-        "prefix": "loop",
-        "body": [
-            "${1:<name>} : loop",
-            "\t$0",
-            "end loop; -- $1"
-        ],
-        "description": "loop declaration"
-    },
-    "Natural Range": {
-        "prefix": "naturalrange",
-        "body": [
-            "natural range<>"
-        ],
-        "description": "natural range declaration"
-    },
-    "Next": {
-        "prefix": "nextloop",
-        "body": [
-            "next ${1:<loop_label>};$0"
-        ],
-        "description": "next loop"
-    },
-    "Others": {
-        "prefix": "others",
-        "body": "(others => '${1:<value>}')${2| ,;|}$0",
-        "description": "others declaration"
-    },
-    "Package": {
-        "prefix": "pack",
-        "body": [
-            "package ${1:$TM_FILENAME_BASE} is",
-            "\t$0",
-            "end package;"
-        ],
-        "description": "package interface"
-    },
-    "Package Body": {
-        "prefix": "packbody",
-        "body": [
-            "package body ${1:$TM_FILENAME_BASE} is",
-            "\t$0",
-            "end package body;"
-        ],
-        "description": "package body interface"
-    },
-    "Port": {
-        "prefix": "port",
-        "body": [
-            "port (",
-            "\t$0",
-            ");"
-        ],
-        "description": "port interface"
-    },
-    "Port Map": {
-        "prefix": "portmap",
-        "body": [
-            "port map (",
-            "\t$0",
-            ");"
-        ],
-        "description": "port map interface"
-    },
-    "Procedure Body": {
-        "prefix": "procedurebody",
-        "body": [
-            "procedure ${1:<name>} (${2:<params>}) is",
-            "begin",
-            "\t$0",
-            "end procedure;"
-        ],
-        "description": "procedure body declaration"
-    },
-    "Procedure Declaration": {
-        "prefix": "proceduredec",
-        "body": [
-            "procedure ${1:<name>} (${2:<params>});",
-            "\t$0"
-        ],
-        "description": "procedure declaration"
-    },
-    "Process Asynchronous": {
-        "prefix": [
-            "asyncproc",
-            "processasync"
-        ],
-        "body": [
-            "process (${1:iClk}, ${2:inRstAsync})",
-            "begin",
-            "\tif $2 = ${3|'1','0'|} then",
-            "\t\t$0",
-            "\telsif ${4|rising_edge,falling_edge|}($1) then",
-            "\t\t",
-            "\tend if;",
-            "end process;"
-        ],
-        "description": "asynchronous process block"
-    },
-    "Process Synchronous": {
-        "prefix": [
-            "syncproc",
-            "processsync"
-        ],
-        "body": [
-            "process (${1:iClk})",
-            "begin",
-            "\tif ${2|rising_edge,falling_edge|}($1) then",
-            "\t\tif ${3:inRstAsync} = ${4|'1','0'|} then",
-            "\t\t\t$0",
-            "\t\telse",
-            "\t\t\t",
-            "\t\tend if;",
-            "\tend if;",
-            "end process;"
-        ],
-        "description": "clocked process block"
-    },
-    "Process Clocked": {
-        "prefix": [
-            "clkproc",
-            "processclk"
-        ],
-        "body": [
-            "process (${1:iClk})",
-            "begin",
-            "\tif ${2|rising_edge,falling_edge|}($1) then",
-            "\t\t$0",
-            "\tend if;",
-            "end process;"
-        ],
-        "description": "clocked process block"
-    },
-    "Process Combinatorial": {
-        "prefix": "process",
-        "body": [
-            "process (${1:all})",
-            "begin",
-            "\t$0",
-            "end process;"
-        ],
-        "description": "combinatorial process block"
-    },
-    "Record": {
-        "prefix": "typerecord",
-        "body": [
-            "type ${1:<name>} is record",
-            "\t$0",
-            "end record;"
-        ],
-        "description": "record declaration"
-    },
     "Report": {
         "prefix": "report",
         "body": [
             "report \"${1:<message>}\";",
             "$0"
         ],
-        "description": "others declaration"
+        "description": "report statement"
     },
     "Rising Edge": {
         "prefix": "rise",
@@ -702,76 +241,12 @@
         "description": "rising edge"
     },
     "Signal": {
-        "prefix": "signal",
+        "prefix": "sigdec",
         "body": [
             "signal ${1:<name>} : ${2:<type>} := ${3:<default_value>};",
             "$0"
         ],
         "description": "signal declaration"
-    },
-    "Signed Declaration": {
-        "prefix": "signdec",
-        "body": "signed($1 ${2|downto,to|} $3)${4| := (others => '0');,;|}$0",
-        "description": "signed declaration"
-    },
-    "Signed": {
-        "prefix": "sign",
-        "body": "signed$0",
-        "description": "signed"
-    },
-    "Standard Logic": {
-        "prefix": [
-			"stdl",
-			"std_l"
-		],
-        "body": [
-            "std_logic$0"
-        ],
-        "description": "std_logic"
-    },
-    "Standard ULogic": {
-        "prefix": [
-			"stdul",
-			"std_ul"
-		],
-        "body": [
-            "std_ulogic$0"
-        ],
-        "description": "std_ulogic"
-    },
-    "Standard Logic Vector": {
-        "prefix": [
-			"stdlvec",
-			"std_lv"
-		],
-        "body": [
-            "std_logic_vector$0"
-        ],
-        "description": "std_logic_vector"
-    },
-    "Standard Logic Vector Declaration": {
-        "prefix": "stdlvecdec",
-        "body": [
-            "std_logic_vector($1 ${2|downto,to|} $3)${4| := (others => '0');,;|}$0"
-        ],
-        "description": "std_logic_vector declaration"
-    },
-    "Standard ULogic Vector": {
-        "prefix": [
-			"stdulvec",
-			"std_ulv"
-		],
-        "body": [
-            "std_ulogic_vector"
-        ],
-        "description": "std_ulogic_vector"
-    },
-    "Standard ULogic Vector Declaration": {
-        "prefix": "stdulvecdec",
-        "body": [
-            "std_ulogic_vector($1 ${2|downto,to|} $3)${4| := (others => '0');,;|}$0"
-        ],
-        "description": "std_ulogic_vector declaration"
     },
     "Subtype": {
         "prefix": "sub",
@@ -779,12 +254,12 @@
             "subtype ${1:<name>} is ${2:<base_type>} range ${3:0} ${4|to,downto|} ${5:<value>};",
             "$0"
         ],
-        "description": "std_ulogic_vector declaration"
+        "description": "subtype declaration"
     },
     "State Processes": {
         "prefix": [
             "statesproc",
-            "processstates"
+            "processstate"
         ],
         "body": [
             "NextStateLogic : process (${1:all})",
@@ -803,33 +278,10 @@
         ],
         "description": "State-NextState-Logic"
     },
-    "Unsigned Declaration": {
-        "prefix": "unsigndec",
-        "body": [
-            "unsigned(${1} ${2|downto,to|} ${3})${4| := (others => '0');,;|}$0"
-        ],
-        "description": "unsigned declaration"
-    },
     "Unsigned": {
         "prefix": "unsign",
         "body": "unsigned$0",
         "description": "unsigned"
-    },
-    "Use": {
-        "prefix": "use",
-        "body": [
-            "use ${1:<lib>}.${2:<pkg>}.all;",
-            "$0"
-        ],
-        "description": "use clause"
-    },
-    "Use IEEE Package": {
-        "prefix": "useieee",
-        "body": [
-            "use ieee.${1|std_logic_1164,std_logic_textio,numeric_std,numeric_bit,math_real,math_complex|}.all;",
-            "$0"
-        ],
-        "description": "use clause IEEE standard package (std_logic_1164,std_logic_textio,numeric_std,math_real,math_complex)"
     },
     "Variable": {
         "prefix": "var",
@@ -837,10 +289,13 @@
             "variable ${1:<name>} : ${2:<type>} := ${3:<default_value>};",
             "$0"
         ],
-        "description": "variable"
+        "description": "variable declaration"
     },
     "VHDL Testbench": {
-        "prefix": "tb",
+        "prefix": [
+            "tb",
+            "testbench"
+        ],
         "body": [
             "library ieee;",
             "use ieee.std_logic_1164.all;",
@@ -868,7 +323,7 @@
             "",
             "\t--------------------------------------------------------------------",
             "\t-- entity instantiation with components",
-            "\t-- -> search for \"ei_\"",
+            "\t-- -> search for \"entity {} - instantiation\"",
             "\t-- -> if right entity not found use the shortcut \"Strg + Alt + S\"",
             "\t--------------------------------------------------------------------",
             "\t",
@@ -881,7 +336,7 @@
             "\t--------------------------------------------------------------------",
             "\t-- Testcases",
             "\t--------------------------------------------------------------------",
-            "\tTestcase_Proc : process",
+            "\tTestcase_proc : process",
             "\tbegin",
             "\t\t",
             "\t\t",
@@ -927,7 +382,7 @@
             "",
             "\t--------------------------------------------------------------------",
             "\t-- entity instantiation with components",
-            "\t-- -> search for \"ei_\"",
+            "\t-- -> search for \"entity {} - instantiation\"",
             "\t-- -> if right entity not found use the shortcut \"Strg + Alt + S\"",
             "\t--------------------------------------------------------------------",
             "\t",
@@ -940,7 +395,7 @@
             "\t--------------------------------------------------------------------",
             "\t-- waveform generation",
             "\t--------------------------------------------------------------------",
-            "\tWaveGen_Proc : process",
+            "\tWaveGen_proc : process",
             "\tbegin",
             "\t\t-- VUnit setup",
             "\t\ttest_runner_setup(runner, runner_cfg);",
@@ -968,11 +423,8 @@
         ],
         "description": "VHDL testbench VUnit template"
     },
-
-
-
     "Wait for": {
-        "prefix": "wait_for",
+        "prefix": "waitf",
         "body": [
             "wait for ${1:10ns};",
             "$0"
@@ -980,7 +432,7 @@
         "description": "wait for"
     },
     "Wait on": {
-        "prefix": "wait_on",
+        "prefix": "waito",
         "body": [
             "wait on ${1:clk};",
             "$0"
@@ -988,52 +440,11 @@
         "description": "wait on"
     },
     "Wait until": {
-        "prefix": "wait_until",
+        "prefix": "waitu",
         "body": [
             "wait until ${1:clk = '1'};",
             "$0"
         ],
         "description": "wait until"
-    },
-
-
-    
-    "When": {
-        "prefix": "when",
-        "body": [
-            "when ${1:<choice>} =>",
-            "\t$0"
-        ],
-        "description": "when declaration"
-    },
-    "When Else": {
-        "prefix": "whenelse",
-        "body": [
-            "${1:<signal>} <= ${2:<value>} when ${3:<conditional>} else ${4:<value>};",
-            "$0"
-        ],
-        "description": "concurrent when else declaration"
-    },
-    "While": {
-        "prefix": "while",
-        "body": [
-            "while ${1:<conditional>} loop",
-            "\t$0",
-            "end loop;"
-        ],
-        "description": "while loop"
-    },
-    "With Select": {
-        "prefix": [
-            "sel",
-            "withsel"
-        ],
-        "body": [
-            "with ${1:<sel>} select",
-            "\t${2:<signal>} <= ${3:<value>} when ${4:<sel_value>},",
-            "\t\t${5:<value>} when others;",
-            "$0"
-        ],
-        "description": "concurrent with select declaration"
-    }
+    }   
 }

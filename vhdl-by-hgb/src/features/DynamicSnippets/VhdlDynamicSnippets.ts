@@ -200,7 +200,7 @@ export class DynamicSnippets {
                 const portsAll = entity.ports.join(' => ,\n\t\t') + " =>";
                 const genAll = entity.generics.join(' => ,\n\t\t') + " =>";
 
-                const snipStr = "ei_" + entity.name;
+                const snipStr = "entity " +  entity.name + " - instantiation";
 
                 var newSnippStr;
                 //ports and generics exist
@@ -209,7 +209,7 @@ export class DynamicSnippets {
                         'EntityInstantiation': {
                             'prefix': snipStr,
                             'body': [
-                                "DUT_" + entity.name + ": entity ${1:work}." + entity.name,
+                                entity.name + "_inst" + ": entity ${1:work}." + entity.name,
                                 "\tgeneric map(",
                                 "\t\t" + genAll,
                                 "\t)",
@@ -228,7 +228,7 @@ export class DynamicSnippets {
                         'EntityInstantiation': {
                             'prefix': snipStr,
                             'body': [
-                                "DUT_" + entity.name + ": entity ${1:work}." + entity.name,
+                                entity.name + "_inst" + ": entity ${1:work}." + entity.name,
                                 "\tgeneric map(",
                                 "\t\t" + genAll,
                                 "\t);",
@@ -244,7 +244,7 @@ export class DynamicSnippets {
                         'EntityInstantiation': {
                             'prefix': snipStr,
                             'body': [
-                                "DUT_" + entity.name + ": entity ${1:work}." + entity.name,
+                                entity.name + "_inst" + ": entity ${1:work}." + entity.name,
                                 "\tport map(",
                                 "\t\t" + portsAll,
                                 "\t);",
@@ -298,7 +298,7 @@ export class DynamicSnippets {
                     }
                 );
 
-            vscode.window.showInformationMessage('New entity instantiation (ei) Snippets made.');
+            vscode.window.showInformationMessage('New entity instantiation Snippets made.');
 
         }
         else {

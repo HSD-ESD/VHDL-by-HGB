@@ -227,6 +227,10 @@
                 "path": "./snippets/vhdl.json"
             },
             {
+                "language": "vhdl",
+                "path": "./snippets/quartus.json"
+            },
+            {
                 "language": "tcl",
                 "path": "./snippets/tcl.json"
             }

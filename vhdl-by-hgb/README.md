@@ -195,7 +195,9 @@ This can be done by:
 - executing the command: `VHDLbyHGB.dynamicSnippets`
 - pressing the shortcut: `Ctrl+Alt+S`(default) / `shift+cmd+s`(Mac)
 
-The generated snippets can be used by typing `ei_${entity-name}`.
+The generated snippets can be used by typing `entity`.<!--`ei_${entity-name}`.-->
+
+The Snippet format is `entity {entity-name} - instantiation`.
 
 ## Entity-Converter
 
@@ -261,6 +263,244 @@ To execute a command on a synthesis-project, it is required to set an active syn
 All the other commands will be executed on the selected project.
 
 When the extension is loaded, the opened folder is searched recursively for synthesis-projects of supported synthesis-tools.
+
+## VHDL Snippets
+
+### General Snippets
+Besides the Snippets from the Language Server, here a some more usable snippets:
+#### **Conversionsfunctions Snippets**
+<table>
+	<thead>
+		<tr>
+			<th>Snippet</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>to_int</td>
+			<td>conversion from numeric to integer</td>
+		</tr>
+		<tr>
+			<td>logic_to_stdlv</td>
+			<td>conversion from logic arithmetic to std_logic_vector</td>
+		</tr>
+		<tr>
+			<td>to_stdlv</td>
+			<td>conversion to std_logic_vector</td>
+		</tr>
+		<tr>
+			<td>to_stdulv</td>
+			<td>conversion to std_ulogic_vector</td>
+		</tr>
+		<tr>
+			<td>int_to_sign</td>
+			<td>conversion from int to signed</td>
+		</tr>
+		<tr>
+			<td>int_to_stdlv</td>
+			<td>conversion from signed numeric to std_logic_vector</td>
+		</tr>
+		<tr>
+			<td>int_to_unsign_stdlv</td>
+			<td>conversion unsigned numeric to std_logic_vector</td>
+		</tr>
+		<tr>
+			<td>int_to_unsign</td>
+			<td>conversion from int to unsigned</td>
+		</tr>
+		<tr>
+			<td>stdlv_to_int</td>
+			<td>conversion from std_logic_vector signed to int</td>
+		</tr>
+		<tr>
+			<td>stdlv_unsign_to_int</td>
+			<td>conversion from std_logic_vector unsigned to int</td>
+		</tr>
+		<tr>
+			<td>stdlv_to_sign</td>
+			<td>conversion from std_logic_vector to signed</td>
+		</tr>
+		<tr>
+			<td>stdlv_to_unsign</td>
+			<td>conversion from std_logic_vector to unsigned</td>
+		</tr>
+		<tr>
+			<td>sign_to_int</td>
+			<td>conversion from signed to integer</td>
+		</tr>
+		<tr>
+			<td>sign_to_unsign</td>
+			<td>conversion from signed to unsigned</td>
+		</tr>
+		<tr>
+			<td>unsign_to_sign</td>
+			<td>conversion from unsigned to signed</td>
+		</tr>
+		<tr>
+			<td>bit_to_stdu</td>
+			<td>conversion from bit to std_ulogic</td>
+		</tr>
+		<tr>
+			<td>stdul_to_bit</td>
+			<td>conversion from std_logic to bit</td>
+		</tr>
+		<tr>
+			<td>stdulv_to_bitvec</td>
+			<td>conversion from bitvector to std_ulogic_vector</td>
+		</tr>
+	</tbody>
+</table>
+
+
+#### **Instantiation Snippets**
+<table>
+	<thead>
+		<tr>
+			<th>Snippet</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>entityinst</td>
+			<td>a basic entity instantiation without any ports or generics</td>
+		</tr>
+		<tr>
+			<td>tb | testbench</td>
+			<td>a simple VHDL testbench with simple logic</td>
+		</tr>
+	</tbody>
+</table>
+
+
+#### **Other Snippets**
+<table>
+	<thead>
+		<tr>
+			<th>Snippet</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>bitvecdec</td>
+			<td>a bit vector decalration</td>
+		</tr>
+		<tr>
+			<td>dec</td>
+			<td>a decrement statement</td>
+		</tr>
+		<tr>
+			<td>fall</td>
+			<td>using the "falling_edge" function</td>
+		</tr>
+		<tr>
+			<td>fsm</td>
+			<td>a generic fsm model with some cases</td>
+		</tr>
+		<tr>
+			<td>header</td>
+			<td>a simple header comment with title, file, author, dare, reviwe and description</td>
+		</tr>
+		<tr>
+			<td>inc</td>
+			<td>an increment statement</td>
+		</tr>
+		<tr>
+			<td>report</td>
+			<td>a simple report of a message</td>
+		</tr>
+		<tr>
+			<td>rise</td>
+			<td>using the "rising_edge" function</td>
+		</tr>
+		<tr>
+			<td>sigdec</td>
+			<td>a simple signal declaration</td>
+		</tr>
+		<tr>
+			<td>sub</td>
+			<td>a simple subtype declaration</td>
+		</tr>
+		<tr>
+			<td>stateproc | processstate</td>
+			<td>a simple "State - NextState logic structure</td>
+		</tr>
+		<tr>
+			<td>var</td>
+			<td>a variable declaration</td>
+		</tr>
+		<tr>
+			<td>waitf</td>
+			<td>a "wait for" statement</td>
+		</tr>
+		<tr>
+			<td>waito</td>
+			<td>a "wait on" statement</td>
+		</tr>
+		<tr>
+			<td>waitu</td>
+			<td>a "wait until" statement</td>
+		</tr>
+	</tbody>
+</table>
+
+### VUnit Snippets
+<table>
+	<thead>
+		<tr>
+			<th>Snippet</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>vunit_tb | tbvunit</td>
+			<td>a testbench template for VUnit tests (no entities)</td>
+		</tr>
+	</tbody>
+</table>
+
+### Quartus Snippets
+<table>
+	<thead>
+		<tr>
+			<th>Snippet</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Single Clock RAM OldData</td>
+			<td>a generic single clock ram structure from Intel with old data on read-during-write</td>
+		</tr>
+		<tr>
+			<td>Single Clock RAM NewData</td>
+			<td>a generic single clock ram structure from Intel with old data on read-during-write</td>
+		</tr>
+		<tr>
+			<td>Single Clock Concurrent RAM</td>
+			<td>a generic single clock ram structure from Intel with a concurrent signal</td>
+		</tr>
+		<tr>
+			<td>Simple Dual RAM</td>
+			<td>a generic dual clock ram structure from Intel with two clocks</td>
+		</tr>
+		<tr>
+			<td>True Dual Port RAM</td>
+			<td>a generic single clock dual port ram structure from Intel with one clock</td>
+		</tr>
+		<tr>
+			<td>Synch ROM 3 AddrBit</td>
+			<td>a generic single clock rom structure from Intel with an addressbit width of 3</td>
+		</tr>
+		<tr>
+			<td>Dual Port ROM with Init-Func</td>
+			<td>a generic single clock dual port rom structure from Intel with dynamic address and data length and init function</td>
+		</tr>
+	</tbody>
+</table>
 
 ## Prerequisites
 - Simulation-Tools(VUnit, HDLRegression...) must be already installed for generating the `vhdl_ls.toml` with Simulation-Projects.
