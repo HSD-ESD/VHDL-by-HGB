@@ -1,5 +1,5 @@
 {
-    "Single-Clock-RAM Inference Old Data": {
+    "Single-Clock-RAM Inference Old Data Quartus": {
         "prefix": [
             "SCOldDataInfRAM", 
             "Single Clock RAM OldData"
@@ -35,7 +35,7 @@
         ],
         "description": "A Single-Clock-RAM structure with old data Read-During-Write and Inference from Intel"
     },
-    "Single-Clock-RAM Inference New Data": {
+    "Single-Clock-RAM Inference New Data Quartus": {
         "prefix": [
             "SCOldDataInfRAM",
             "Single Clock RAM NewData"
@@ -73,7 +73,7 @@
         ],
         "description": "A Single-Clock-RAM structure with new data Read-During-Write and Inference from Intel"
     },
-    "Single-Clock-RAM Inference Concurrent": {
+    "Single-Clock-RAM Inference Concurrent Quartus": {
         "prefix": [
             "SCConcurrentInfRAM",
             "Single Clock Concurrent RAM"
@@ -111,7 +111,7 @@
         ],
         "description": "A Single-Clock-RAM structure with concurrent signal and Inference from Intel"
     },
-    "Dual-Clock-RAM Inference": {
+    "Dual-Clock-RAM Inference Quartus": {
         "prefix": [
             "DCInfRAM", 
             "Simple Dual RAM"
@@ -154,7 +154,7 @@
         ],
         "description": "A Dual-Clock-RAM structure with Inference from Intel"
     },
-    "True Dual-Port-RAM Inference": {
+    "True Dual-Port-RAM Inference Quartus": {
         "prefix": [
             "TrueDPInfRAM", 
             "True Dual Port RAM"
@@ -212,7 +212,7 @@
         ],
         "description": "A True-Dual-Port-RAM structure with Inference from Intel"
     },
-    "Synchronous-ROM Inference": {
+    "Synchronous-ROM Inference Quartus": {
         "prefix": [
             "SyncInfROM-3Bit", 
             "Synch ROM 3 AddrBit"
@@ -250,7 +250,7 @@
         ],
         "description": "A Synchronous ROM structure with 3 Bit address and Inference from Intel"
     },
-    "Dual Port ROM Function Inference": {
+    "Dual Port ROM Function Inference Quartus": {
         "prefix": ["DPFuncInfROM", "Dual Port ROM with Init-Func"],
         "body": [
             "library ieee;",
