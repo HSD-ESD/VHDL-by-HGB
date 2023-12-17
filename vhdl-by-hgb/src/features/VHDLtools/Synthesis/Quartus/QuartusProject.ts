@@ -1,5 +1,5 @@
 //Specific Imports
-import { ISynthesisProject, SynthesisProject } from "../SynthesisProject";
+import { ISynthesisProject, SynthesisProject} from "../SynthesisProject";
 import * as TclScripts from "../TclScripts";
 import { QuartusScriptGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { Quartus} from "./Quartus";
@@ -54,7 +54,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
             this.Update();
         }
     }
-
+    
     public async Generate() : Promise<boolean>
     {
         //create tcl-script for generating a Quartus-Project
@@ -241,7 +241,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public GetFiles() : string[] { return this.mQSF.VhdlFiles; }
 
-    public GetTopLevelEntity(): string {return this.mQSF.TopLevelEntity.mName };
+    public GetTopLevelEntity(): string {return this.mQSF.TopLevelEntity.mName;};
     
     public GetTclScriptsFolder() : string { return this.mTclScriptsFolder; }
 

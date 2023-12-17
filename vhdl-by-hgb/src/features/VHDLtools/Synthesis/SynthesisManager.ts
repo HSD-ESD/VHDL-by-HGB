@@ -33,7 +33,7 @@ export class SynthesisManager
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    constructor(workSpacePath : string ,context : vscode.ExtensionContext)
+    constructor(workSpacePath : string, context : vscode.ExtensionContext)
     {
         //vs-code members
         this.mContext = context;
@@ -52,7 +52,7 @@ export class SynthesisManager
         this.RegisterCommands();
         this.HandleFileEvents();
 
-        this.mSynthesisViewProvider = new SynthesisViewProvider(this.mSynthesisProjects);
+        this.mSynthesisViewProvider = new SynthesisViewProvider(this.mSynthesisProjects, this.mContext);
         vscode.window.createTreeView(
             'vhdlbyhgb-view-synthesis',{
                 treeDataProvider : this.mSynthesisViewProvider
@@ -522,8 +522,7 @@ export class SynthesisManager
 
         let disposable: vscode.Disposable;
 
-        
-        disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis-View.Refresh", () => { this.mSynthesisViewProvider.refresh(); });
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis.View.Refresh", () => { this.mSynthesisViewProvider.refresh(); });
         this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.Synthesis.AddNewProject", () => { this.AddNewProject(); });

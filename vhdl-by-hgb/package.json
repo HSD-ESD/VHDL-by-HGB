@@ -32,7 +32,7 @@
         "Linters",
         "Keymaps"
     ],
-    "icon": "resources/images/logo.jpg",
+    "icon": "resources/images/general/logo.jpg",
     "repository": {
         "type": "git",
         "url": "https://github.com/jakobjung10/pro4_vhdl_IDE"
@@ -80,7 +80,28 @@
         ],
         "menus": {
             "explorer/context": [],
-            "view/title": [],
+            "view/title": [
+                {
+                    "command" : "VHDLbyHGB.Project.View.Refresh",
+                    "when" : "view == vhdlbyhgb-view-project",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.View.Refresh",
+                    "when" : "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command" : "VHDLbyHGB.Simulation.View.Refresh",
+                    "when" : "view == vhdlbyhgb-view-simulation",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.AddNewProject",
+                    "when" : "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                }
+            ],
             "view/item/context": [],
             "editor/title": []
         },
@@ -106,8 +127,21 @@
                 "title": "VHDLbyHGB.SynthesisManager.AddNewProject"
             },
             {
-                "command": "VHDLbyHGB.SynthesisManager.AddExistingProject",
-                "title": "VHDLbyHGB.SynthesisManager.AddExistingProject"
+                "command": "VHDLbyHGB.Project.View.Refresh",
+                "title" : "Refresh Project View",
+                "icon" : {
+                    "light" : "resources/images/general/light/refresh.svg",
+                    "dark" :  "resources/images/general/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.AddNewProject",
+                "title": "Add new Synthesis Project",
+                "group": "navigation",
+                "icon": {
+                    "light" : "resources/images/general/light/add.svg",
+                    "dark"  : "resources/images/general/dark/add.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.SynthesisManager.SetActiveProject",
@@ -138,10 +172,55 @@
                 "title": "VHDLbyHGB.SynthesisManager.SetFamily"
             },
             {
-                "command": "VHDLbyHGB.reloadEntities",
-                "title": "VHDLbyHGB.Reload Entities"
-            }
-
+                "command": "VHDLbyHGB.Synthesis.View.Refresh",
+                "title": "Refresh Synthesis View",
+                "group": "navigation",
+                "icon" : {
+                    "light" : "resources/images/general/light/refresh.svg",
+                    "dark" :  "resources/images/general/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "VHDLbyHGB.Simulation.SetActiveProject",
+                "title": "VHDLbyHGB.Simulation.SetActiveProject"
+            },
+            {
+                "command": "VHDLbyHGB.Simulation.View.Refresh",
+                "title": "Refresh Simulation View",
+                "group": "navigation",
+                "icon" : {
+                    "light" : "resources/images/general/light/refresh.svg",
+                    "dark" :  "resources/images/general/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "VHDLbyHGB.dynamicSnippets",
+                "title": "VHDLbyHGB.Dynamic Snippets"
+            },
+            {
+				"command": "VHDLbyHGB.copyEntity",
+				"title": "VHDLbyHGB.copyEntity"
+			},
+            {
+				"command": "VHDLbyHGB.pasteSignals",
+				"title": "VHDLbyHGB.pasteSignals"
+			},
+			{
+				"command": "VHDLbyHGB.pasteConstants",
+				"title": "VHDLbyHGB.pasteConstants"
+			},
+			{
+				"command": "VHDLbyHGB.pasteAsComponent",
+				"title": "VHDLbyHGB.pasteAsComponent"
+			},
+			{
+				"command": "VHDLbyHGB.pasteAsInstance",
+				"title": "VHDLbyHGB.pasteAsInstance"
+			},
+			{
+				"command": "VHDLbyHGB.pasteAsEntity",
+				"title": "VHDLbyHGB.pasteAsEntity"
+			}
         ],
         "languages": [
             {
@@ -277,10 +356,11 @@
         "lint": "eslint src --ext ts",
         "watch": "npm run build-prepare & npm run generate-examples & tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
-        "test": "node ./out/test/runTest.js",
-        "generate-doc": "cd ./resources/project_manager; ./copy_documentation.sh",
-        "generate-examples": "cd ./resources/project_manager; ./copy_examples.sh",
-        "build-prepare": "cd ./resources/project_manager; ./generate_html.py;"
+        "esbuild-base": "npm run clean && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+        "esbuild": "npm run esbuild-base -- --sourcemap",
+        "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+        "esbuild-minify": "npm run esbuild-base -- --minify",
+        "vscode:prepublish": "npm run esbuild-base -- --sourcemap"
     },
     "dependencies": {
         "@octokit/rest": "16.36.0",

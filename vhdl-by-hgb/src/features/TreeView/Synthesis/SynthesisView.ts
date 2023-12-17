@@ -1,20 +1,21 @@
 import * as vscode from 'vscode';
 import { SynthesisManager } from '../../VHDLtools/Synthesis/SynthesisManager';
 import { ISynthesisProject  } from '../../VHDLtools/Synthesis/SynthesisProject';
-import { eSynthesisTool } from '../../VHDLtools/Synthesis/SynthesisPackage';
+import { SynthesisGraphicsMap, eSynthesisTool } from '../../VHDLtools/Synthesis/SynthesisPackage';
 import * as path from 'path';
 import { TreeItem } from 'vscode';
 import { type } from 'os';
 import { isElement } from 'lodash';
 
-
+let _Context : vscode.ExtensionContext;
 
 export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisItem>{
 
     private mSynthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>;
 
-    constructor(synthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>){
+    constructor(synthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>, context : vscode.ExtensionContext) {
         this.mSynthesisProjects = synthesisProjects;
+        _Context = context;
     }
 
     getTreeItem(element: SynthesisItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -37,7 +38,7 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
 
         for(const [synthesisTool, synthesisProjects] of this.mSynthesisProjects)
         {
-            const tool : SynthesisTool = new SynthesisTool(synthesisTool.valueOf(), vscode.TreeItemCollapsibleState.Collapsed);
+            const tool : SynthesisTool = new SynthesisTool(synthesisTool, vscode.TreeItemCollapsibleState.Collapsed);
 
             for ( const synthesisProject of synthesisProjects)
             {
@@ -89,15 +90,15 @@ class SynthesisItem extends vscode.TreeItem{
 class SynthesisTool extends SynthesisItem{
 
     constructor(
-        public readonly SynthesisToolName : string,
+        public readonly synthesisTool : eSynthesisTool,
         public readonly collapsibleState : vscode.TreeItemCollapsibleState,
     ){
-        super(SynthesisToolName, collapsibleState);
+        super(synthesisTool.valueOf(), collapsibleState);
     }
 
     iconPath = {
-        light: path.join(__filename,  '..', '..', '..', '..', '..', 'resources', 'images','synthesis', 'quartus.svg'),
-        dark: path.join(__filename,  '..', '..', '..', '..', '..', 'resources', 'images', 'synthesis', 'quartus.svg')
+        light: _Context.asAbsolutePath(SynthesisGraphicsMap.get(this.synthesisTool)!),
+        dark: _Context.asAbsolutePath(SynthesisGraphicsMap.get(this.synthesisTool)!)
     };
 }
 
@@ -111,8 +112,8 @@ class SynthesisProject extends SynthesisItem{
     }
 
     iconPath = {
-        light: path.join(__filename,  '..', '..', '..', '..', '..', 'resources', 'images','synthesis' , 'light', 'project.svg'),
-        dark: path.join(__filename,  '..', '..', '..', '..', '..', 'resources', 'images', 'synthesis', 'dark', 'project.svg')
+        light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'project.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'project.svg'))
     };
     
 }

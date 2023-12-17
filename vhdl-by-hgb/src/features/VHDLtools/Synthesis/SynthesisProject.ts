@@ -51,6 +51,7 @@ export interface ISynthesisProject
     GetTool() : eSynthesisTool;
 
     GetFamily() : string;
+
 }
 
 export abstract class SynthesisProject

@@ -2,6 +2,7 @@ import { FileHolder } from "../../FileTools/FileHolder";
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+let _Context : vscode.ExtensionContext;
 
 //provides the files for the tree view
 export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>{
@@ -9,8 +10,9 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
     private mWorkSpacePath : string;
     private mFileHolder : FileHolder;
 
-    constructor(fileHolder : FileHolder, workspacePath : string){
+    constructor(fileHolder : FileHolder, context : vscode.ExtensionContext, workspacePath : string){
         this.mWorkSpacePath = workspacePath;
+        _Context = context;
         this.mFileHolder = fileHolder;
     }
 
@@ -89,8 +91,8 @@ class FileItem extends ProjectItem{
     }
     
     iconPath = {
-        light: path.join(__filename, '..' , '..', '..', '..', '..', 'resources' , 'images', 'project', 'light', 'file.svg'),
-        dark: path.join(__filename, '..' , '..', '..', '..', '..', 'resources' , 'images', 'project', 'dark',  'file.svg')
+        light: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'file.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'file.svg'))
     };
 
     tooltip = path.basename(this.fileName);
@@ -106,8 +108,8 @@ class LibraryItem extends ProjectItem{
     }
     
     iconPath = {
-        light: path.join(__filename, '..' , '..', '..', '..', '..', 'resources' , 'images', 'project', 'light', 'library.svg'),
-        dark: path.join(__filename, '..' , '..', '..', '..', '..', 'resources' , 'images', 'project', 'dark',  'library.svg')
+        light: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'library.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'library.svg'))
     };
 }
 

@@ -1,5 +1,5 @@
 //specific imports
-import { ACTIVE_SIMULATION_PROJECT, NO_SIMULATION_PROJECT, SimulationToolMap, TSimulationProject, eSimulationTool } from './SimulationPackage'; 
+import { ACTIVE_SIMULATION_PROJECT, NO_SIMULATION_PROJECT, SimulationToolMap, TSimulationProject, eSimulationTool} from './SimulationPackage'; 
 import { VUnit } from './VUnit/VUnit';
 import { HDLRegression } from './HDLRegression/HDLRegression';
 import { SimulationWizard } from './SimulationWizard';
@@ -83,7 +83,7 @@ export class SimulationManager {
         this.mSimulationProjects = new Map<eSimulationTool, string[]>();
 
         // UI
-        this.mSimulationViewProvider = new SimulationViewProvider(this.mSimulationProjects, this.mWorkSpacePath);
+        this.mSimulationViewProvider = new SimulationViewProvider(this.mSimulationProjects, this.mContext, this.mWorkSpacePath);
         vscode.window.createTreeView(
             'vhdlbyhgb-view-simulation',{
                 treeDataProvider : this.mSimulationViewProvider
@@ -290,6 +290,9 @@ export class SimulationManager {
     private RegisterCommands(): void {
 
         let disposable: vscode.Disposable;
+
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Simulation.View.Refresh", () => { this.mSimulationViewProvider.refresh(); });
+        this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand("VHDLbyHGB.Simulation.SetActiveProject", () => { this.SetActiveProject(); });
         this.mContext.subscriptions.push(disposable);

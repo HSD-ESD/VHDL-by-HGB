@@ -6,7 +6,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Run Extension",
+			"name": "Run Extension(tsc)",
 			"type": "extensionHost",
 			"request": "launch",
 			"sourceMaps": true,
@@ -17,6 +17,19 @@
 				"${workspaceFolder}/out/**/*.js"
 			],
 			"preLaunchTask": "npm: watch"
+		},
+		{
+			"name": "Run Extension(esbuild)",
+			"type": "extensionHost",
+			"request": "launch",
+			"sourceMaps": true,
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "npm: esbuild"
 		}
 	]
 }

@@ -5,15 +5,17 @@ import { eSimulationTool, SimulationGraphicsMap } from '../../VHDLtools/Simulati
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+let _Context : vscode.ExtensionContext;
 
 export class SimulationViewProvider implements vscode.TreeDataProvider<SimulationItem>{
 
     private mWorkSpacePath : string;
     private mSimulationProjects : Map<eSimulationTool, string[]>;
 
-    constructor(synthesisProjects : Map<eSimulationTool, string[]>, workspacePath : string){
+    constructor(synthesisProjects : Map<eSimulationTool, string[]>, context : vscode.ExtensionContext, workspacePath : string){
         this.mWorkSpacePath = workspacePath;
         this.mSimulationProjects = synthesisProjects;
+        _Context = context;
     }
 
     getTreeItem(element: SimulationItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -85,8 +87,8 @@ class SimulationTool extends SimulationItem{
     }
 
     iconPath = {
-        light: SimulationGraphicsMap.get(this.simulationTool)!,
-        dark: SimulationGraphicsMap.get(this.simulationTool)!
+        light: _Context.asAbsolutePath(SimulationGraphicsMap.get(this.simulationTool)!),
+        dark: _Context.asAbsolutePath(SimulationGraphicsMap.get(this.simulationTool)!)
     };
 
 }
@@ -101,10 +103,9 @@ class SimulationProject extends SimulationItem{
     }
 
     iconPath = {
-        light: path.join(__filename,  '..', '..', '..', '..', '..', 'resources', 'images','simulation' , 'light' ,'project.svg'),
-        dark: path.join(__filename,  '..', '..', '..', '..', '..', 'resources', 'images', 'simulation', 'dark', 'project.svg')
-    };
+        light: _Context.asAbsolutePath(path.join('resources', 'images','simulation' , 'light' ,'project.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'simulation', 'dark', 'project.svg'))
+    };    
 
     tooltip = path.basename(this.simulationProjectPath);
-
 }

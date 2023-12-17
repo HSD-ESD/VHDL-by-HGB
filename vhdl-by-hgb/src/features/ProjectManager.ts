@@ -37,6 +37,7 @@ export class ProjectManager {
     // project-specific members
     private mWorkSpacePath : string = "";
     private mProjectIsInitialised : boolean = false;
+    private mResourcePath : string = "";
 
 	private mRustHDL : RustHDL; // Language-Server (LSP)
     private mVhdlFinder! : IVhdlFinder;
@@ -48,7 +49,7 @@ export class ProjectManager {
     private mSimulationManager : SimulationManager;
 
     // UI
-    private mFileProvider : ProjectViewProvider;
+    private mProjectViewProvider : ProjectViewProvider;
 
 
     // --------------------------------------------
@@ -80,10 +81,10 @@ export class ProjectManager {
         this.mSimulationManager = new SimulationManager(this.mContext);
 
         // UI
-        this.mFileProvider = new ProjectViewProvider(this.mFileHolder, this.mWorkSpacePath);
+        this.mProjectViewProvider = new ProjectViewProvider(this.mFileHolder, this.mContext, this.mWorkSpacePath);
         vscode.window.createTreeView(
             'vhdlbyhgb-view-project',{
-            treeDataProvider: this.mFileProvider
+            treeDataProvider: this.mProjectViewProvider
         });
 
         this.HandleFileEvents();
@@ -209,7 +210,6 @@ export class ProjectManager {
         });
     }
 
-
     private RegisterCommands() : void
     {
         let disposable : vscode.Disposable;
@@ -220,7 +220,8 @@ export class ProjectManager {
         disposable = vscode.commands.registerCommand("VHDLbyHGB.Project.Update", () => this.Update());
         this.mContext.subscriptions.push(disposable);
 
-        vscode.commands.registerCommand('treeData.refreshEntry', () => this.mFileProvider.refresh());
+        disposable = vscode.commands.registerCommand("VHDLbyHGB.Project.View.Refresh", () => this.mProjectViewProvider.refresh());
+        this.mContext.subscriptions.push(disposable);
     }
 
 }
