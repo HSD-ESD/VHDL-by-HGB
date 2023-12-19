@@ -44,6 +44,8 @@ export class HDLRegressionVhdlFinder implements IVhdlFinder {
 
         for (const file of data)
         {
+            // file.library_name = file.library_name.
+
             if (projectFiles.has(file.library_name))
             {
                 projectFiles.get(file.library_name)?.push(file.file_name);

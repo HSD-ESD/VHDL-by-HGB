@@ -13,8 +13,10 @@ import { HDLRegressionData, HDLRegressionFile, HDLRegressionTest } from './HDLRe
 
 //module-internal constants
 const cHDLRegressionLtcMatcher : RegExp = /^TC:(\d+)\s+-\s+(\w+)\.(\w+)\.(\w+)/;
-const cHDLRegressionLibraryMatcher : RegExp = /\|\-\-\[(\d+)\]\-\-\s+(.+)/;
-const cHDLRegressionFileMatcher = /\|---\s(.+?)(?:\.(\w+))?$/;
+const cHDLRegressionLibraryMatcher: RegExp = /\|\-\-\[(\d+)\]\-\-\s+([^(]+)(?![^(]*\))/;
+// const cHDLRegressionFileMatcher = /\|---\s(.+?)(?:\.(\w+))?$/;
+// const cHDLRegressionFileMatcher: RegExp = /\|---\s(.+?)(?:\.\w+)?\s*(?=\()/;
+const cHDLRegressionFileMatcher: RegExp = /\|---\s(.+?(?:\.\w+)?)\s*(?=\()/;
 
 
 export class HDLRegression {
