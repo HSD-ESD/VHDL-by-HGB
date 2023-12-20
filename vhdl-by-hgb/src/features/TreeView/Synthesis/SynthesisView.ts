@@ -1,11 +1,7 @@
 import * as vscode from 'vscode';
-import { SynthesisManager } from '../../VHDLtools/Synthesis/SynthesisManager';
 import { ISynthesisProject  } from '../../VHDLtools/Synthesis/SynthesisProject';
 import { SynthesisGraphicsMap, eSynthesisTool } from '../../VHDLtools/Synthesis/SynthesisPackage';
 import * as path from 'path';
-import { TreeItem } from 'vscode';
-import { type } from 'os';
-import { isElement } from 'lodash';
 
 let _Context : vscode.ExtensionContext;
 
@@ -48,7 +44,7 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
                 project.children.push(new SynthesisDevice (synthesisProject.GetDevice() , vscode.TreeItemCollapsibleState.None));
                 project.children.push( new SynthesisFamily(synthesisProject.GetFamily(), vscode.TreeItemCollapsibleState.None));
                 
-                let synthesisFiles : SynthesisFiles = new SynthesisFiles("Project Files", vscode.TreeItemCollapsibleState.Collapsed);
+                let synthesisFiles : SynthesisFiles = new SynthesisFiles("files", vscode.TreeItemCollapsibleState.Collapsed);
                 
                 for (const currentFile of synthesisProject.GetFiles()){
                     synthesisFiles.children.push(new SynthesisFile(currentFile, vscode.TreeItemCollapsibleState.None));
@@ -127,7 +123,12 @@ class SynthesisTopLevel extends SynthesisItem{
         super(SynthesisTopLevelName, collapsibleState);
     }
 
-    description = "Top Level";
+    description = "top level";
+
+    iconPath = {
+        light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'toplevel.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'toplevel.svg'))
+    };
 }
 
 class SynthesisDevice extends SynthesisItem{
@@ -139,7 +140,12 @@ class SynthesisDevice extends SynthesisItem{
         super(SynthesisDeviceName, collapsibleState);
     }
 
-    description = "Device";
+    description = "device";
+
+    iconPath = {
+        light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'device.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'device.svg'))
+    };
 }
 
 class SynthesisFamily extends SynthesisItem{
@@ -151,7 +157,12 @@ class SynthesisFamily extends SynthesisItem{
         super(SynthesisFamilyName, collapsibleState);
     }
 
-    description = "Family";
+    description = "family";
+
+    iconPath = {
+        light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'family.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'family.svg'))
+    };
 }
 
 class SynthesisFiles extends SynthesisItem{
@@ -162,6 +173,11 @@ class SynthesisFiles extends SynthesisItem{
     ){
         super(SynthesisFilesName, collapsibleState);
     }
+
+    iconPath = {
+        light: _Context.asAbsolutePath(path.join('resources', 'images','project' , 'light', 'files.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'project' , 'dark', 'files.svg'))
+    };
 }
 
 class SynthesisFile extends SynthesisItem{
@@ -174,4 +190,9 @@ class SynthesisFile extends SynthesisItem{
     }
 
     tooltip = path.basename(this.SynthesisFileName);
+
+    iconPath = {
+        light: _Context.asAbsolutePath(path.join('resources', 'images','project' , 'light', 'file.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'project' , 'dark', 'file.svg'))
+    };
 }
