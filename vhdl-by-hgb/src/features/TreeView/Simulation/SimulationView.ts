@@ -45,7 +45,12 @@ export class SimulationViewProvider implements vscode.TreeDataProvider<Simulatio
                 const simulationProject : SimulationProject = new SimulationProject(
                                                                     path.relative(this.mWorkSpacePath, project),
                                                                     vscode.TreeItemCollapsibleState.None);
-                
+                simulationProject.resourceUri = vscode.Uri.file(project);
+                simulationProject.command = {
+                    title: `open ${simulationProject.tooltip}`,
+                    command: 'vscode.open',
+                    arguments: [simulationProject.resourceUri],
+                };
                 tool.children.push(simulationProject);
             }
 

@@ -52,7 +52,7 @@ export class SynthesisManager
         this.RegisterCommands();
         this.HandleFileEvents();
 
-        this.mSynthesisViewProvider = new SynthesisViewProvider(this.mSynthesisProjects, this.mContext);
+        this.mSynthesisViewProvider = new SynthesisViewProvider(this.mSynthesisProjects, this.mContext, this.mWorkSpacePath);
         vscode.window.createTreeView(
             'vhdlbyhgb-view-synthesis',{
                 treeDataProvider : this.mSynthesisViewProvider

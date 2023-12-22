@@ -7,10 +7,12 @@ let _Context : vscode.ExtensionContext;
 
 export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisItem>{
 
+    private mWorkSpacePath : string;
     private mSynthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>;
 
-    constructor(synthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>, context : vscode.ExtensionContext) {
+    constructor(synthesisProjects : Map<eSynthesisTool, Array<ISynthesisProject>>, context : vscode.ExtensionContext, workspacePath : string) {
         this.mSynthesisProjects = synthesisProjects;
+        this.mWorkSpacePath = workspacePath;
         _Context = context;
     }
 
@@ -36,9 +38,16 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
         {
             const tool : SynthesisTool = new SynthesisTool(synthesisTool, vscode.TreeItemCollapsibleState.Collapsed);
 
-            for ( const synthesisProject of synthesisProjects)
-            {
-                const  project : SynthesisProject = new SynthesisProject(synthesisProject.GetName(), vscode.TreeItemCollapsibleState.Collapsed);
+            for (const synthesisProject of synthesisProjects)
+            {   
+                const relativeProjectPath = path.relative(this.mWorkSpacePath, synthesisProject.GetPath());
+                const project : SynthesisProject = new SynthesisProject(relativeProjectPath, vscode.TreeItemCollapsibleState.Collapsed);
+                project.resourceUri = vscode.Uri.file(synthesisProject.GetPath());
+                project.command = {
+                    title: `open ${project.tooltip}`,
+                    command: 'vscode.open',
+                    arguments: [project.resourceUri],
+                };
 
                 project.children.push(new SynthesisTopLevel(synthesisProject.GetTopLevelEntity(), vscode.TreeItemCollapsibleState.None));
                 project.children.push(new SynthesisDevice (synthesisProject.GetDevice() , vscode.TreeItemCollapsibleState.None));
@@ -46,8 +55,17 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
                 
                 let synthesisFiles : SynthesisFiles = new SynthesisFiles("files", vscode.TreeItemCollapsibleState.Collapsed);
                 
-                for (const currentFile of synthesisProject.GetFiles()){
-                    synthesisFiles.children.push(new SynthesisFile(currentFile, vscode.TreeItemCollapsibleState.None));
+                for (const currentFile of synthesisProject.GetFiles())
+                {
+                    let synthesisFile : SynthesisFile = new SynthesisFile(currentFile, vscode.TreeItemCollapsibleState.None);
+                    const synthesisProjectPath = path.resolve(synthesisProject.GetPath(), currentFile);
+                    synthesisFile.resourceUri = vscode.Uri.file(synthesisProjectPath);
+                    synthesisFile.command = {
+                        title: `open ${synthesisFile.tooltip}`,
+                        command: 'vscode.open',
+                        arguments: [synthesisFile.resourceUri],
+                    };
+                    synthesisFiles.children.push(synthesisFile);
                 }
 
                 project.children.push(synthesisFiles);
@@ -101,11 +119,13 @@ class SynthesisTool extends SynthesisItem{
 class SynthesisProject extends SynthesisItem{
 
     constructor(
-        public readonly SynthesisProjectName : string,
+        public readonly SynthesisProjectPath : string,
         public readonly collapsibleState : vscode.TreeItemCollapsibleState,
-    ){
-        super(SynthesisProjectName, collapsibleState);
+    ) {
+        super(SynthesisProjectPath, collapsibleState);
     }
+
+    tooltip = path.basename(this.SynthesisProjectPath);
 
     iconPath = {
         light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'project.svg')),

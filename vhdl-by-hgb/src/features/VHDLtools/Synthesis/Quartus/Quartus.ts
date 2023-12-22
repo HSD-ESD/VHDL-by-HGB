@@ -221,13 +221,17 @@ export class Quartus {
     
         match = line.match(cVhdlFileRegexWithQuotation);
         if (match) {
-            qsf.VhdlFiles.push(match[1]);
+            let filePath = match[1];
+            filePath = correctFilePathFromQsfFile(filePath);
+            qsf.VhdlFiles.push(filePath);
             return;
         }
 
         match = line.match(cVhdlFileRegex);
         if (match) {
-            qsf.VhdlFiles.push(match[1]);
+            let filePath = match[1];
+            filePath = correctFilePathFromQsfFile(filePath);
+            qsf.VhdlFiles.push(filePath);
             return;
         }
 
@@ -373,4 +377,19 @@ function GetNewestQuartusVersion(DefaultPath: string): string {
     NewestVersion = Math.max(...directoryNames);
 
     return NewestVersion.toString();
+}
+
+function correctFilePathFromQsfFile(filePath : string) : string 
+{
+    if (!fs.existsSync(filePath))
+    {
+        if(!path.isAbsolute(filePath))
+        {
+            // quartus specifies relative paths from the project-folder,
+            // but we want the relative path originating from the qsf-file
+            filePath = path.join('..', filePath);
+        }
+    }
+
+    return filePath;
 }
