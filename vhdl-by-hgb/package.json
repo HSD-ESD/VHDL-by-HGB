@@ -324,7 +324,15 @@
             },
             {
                 "language": "vhdl",
+                "path": "./snippets/vunit.json"
+            },
+            {
+                "language": "vhdl",
                 "path": "./snippets/quartus.json"
+            },
+            {
+                "language": "vhdl",
+                "path": "./snippets/xilinx.json"
             },
             {
                 "language": "tcl",

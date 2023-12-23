@@ -1,8 +1,7 @@
 {
-    "Single-Clock-RAM Inference Old Data Quartus": {
+    "Single-Clock-RAM Inference Old Data": {
         "prefix": [
-            "SCOldDataInfRAM", 
-            "Single Clock RAM OldData"
+            "Quartus: Single Clock RAM OldData"
         ],
         "body": [
             "library ieee;",
@@ -35,10 +34,9 @@
         ],
         "description": "A Single-Clock-RAM structure with old data Read-During-Write and Inference from Intel"
     },
-    "Single-Clock-RAM Inference New Data Quartus": {
+    "Single-Clock-RAM Inference New Data": {
         "prefix": [
-            "SCOldDataInfRAM",
-            "Single Clock RAM NewData"
+            "Quartus: Single Clock RAM NewData"
         ],
         "body": [
             "library ieee;",
@@ -73,10 +71,9 @@
         ],
         "description": "A Single-Clock-RAM structure with new data Read-During-Write and Inference from Intel"
     },
-    "Single-Clock-RAM Inference Concurrent Quartus": {
+    "Single-Clock-RAM Inference Concurrent": {
         "prefix": [
-            "SCConcurrentInfRAM",
-            "Single Clock Concurrent RAM"
+            "Quartus: Single Clock Concurrent RAM"
         ],
         "body": [
             "library ieee;",
@@ -111,10 +108,9 @@
         ],
         "description": "A Single-Clock-RAM structure with concurrent signal and Inference from Intel"
     },
-    "Dual-Clock-RAM Inference Quartus": {
+    "Dual-Clock-RAM Inference": {
         "prefix": [
-            "DCInfRAM", 
-            "Simple Dual RAM"
+            "Quartus: Simple Dual RAM"
         ],
         "body": [
             "library ieee;",
@@ -154,10 +150,9 @@
         ],
         "description": "A Dual-Clock-RAM structure with Inference from Intel"
     },
-    "True Dual-Port-RAM Inference Quartus": {
+    "True Dual-Port-RAM Inference": {
         "prefix": [
-            "TrueDPInfRAM", 
-            "True Dual Port RAM"
+            "Quartus: True Dual Port RAM"
         ],
         "body": [
             "library ieee;",
@@ -212,10 +207,9 @@
         ],
         "description": "A True-Dual-Port-RAM structure with Inference from Intel"
     },
-    "Synchronous-ROM Inference Quartus": {
+    "Synchronous-ROM Inference": {
         "prefix": [
-            "SyncInfROM-3Bit", 
-            "Synch ROM 3 AddrBit"
+            "Quartus: Synch ROM 3 AddrBit"
         ],
         "body": [
             "library ieee;",
@@ -250,8 +244,10 @@
         ],
         "description": "A Synchronous ROM structure with 3 Bit address and Inference from Intel"
     },
-    "Dual Port ROM Function Inference Quartus": {
-        "prefix": ["DPFuncInfROM", "Dual Port ROM with Init-Func"],
+    "Dual Port ROM Function Inference": {
+        "prefix": [
+            "Quartus: Dual Port ROM with Init-Func"
+        ],
         "body": [
             "library ieee;",
             "use ieee.std_logic_1164.all;\n",
