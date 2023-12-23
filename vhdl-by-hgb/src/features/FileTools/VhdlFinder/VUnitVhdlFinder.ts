@@ -1,8 +1,9 @@
 //specific imports
 import { VUnit } from "../../VHDLtools/Simulation/VUnit/VUnit";
 import { VUnitExportData } from "../../VHDLtools/Simulation/VUnit/VUnitPackage";
-import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../VHDLtools/VhdlPackage";
+import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary } from "../../VHDLtools/VhdlPackage";
 import { IVhdlFinder } from "./VhdlFinder";
+import { VHDL_LS } from "./../../vhdl_ls_package";
 
 //general imports
 import * as vscode from 'vscode';
@@ -26,10 +27,10 @@ export class VUnitVhdlFinder implements IVhdlFinder {
         this.mRunPyPath = runPyPath;
     }
 
-    public async GetVhdlFiles(workSpacePath: string) : Promise<VHDL_ProjectFiles> 
+    public async GetVhdlFiles(workSpacePath: string) : Promise<VhdlProjectFiles> 
     {
 
-        let projectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
+        let projectFiles : VhdlProjectFiles = new Map<VhdlLibrary, VhdlLibraryContents>();
 
         if(!fs.existsSync(workSpacePath)) 
         {
@@ -47,11 +48,11 @@ export class VUnitVhdlFinder implements IVhdlFinder {
         {
             if (projectFiles.has(file.library_name))
             {
-                projectFiles.get(file.library_name)?.push(file.file_name);
+                projectFiles.get(file.library_name)?.files.push(file.file_name);
             }
             else
             {
-                projectFiles.set(file.library_name, [file.file_name]);
+                projectFiles.set(file.library_name, {files:[file.file_name]});
             }
         }
 

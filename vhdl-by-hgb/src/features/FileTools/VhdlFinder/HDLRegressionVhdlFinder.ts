@@ -1,7 +1,7 @@
 //specific imports
 import { HDLRegression } from "../../VHDLtools/Simulation/HDLRegression/HDLRegression";
 import { HDLRegressionFile } from "../../VHDLtools/Simulation/HDLRegression/HDLRegressionPackage";
-import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "../../VHDLtools/VhdlPackage";
+import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary } from "../../VHDLtools/VhdlPackage";
 import { IVhdlFinder } from "./VhdlFinder";
 
 //general imports
@@ -25,10 +25,10 @@ export class HDLRegressionVhdlFinder implements IVhdlFinder {
         this.mHDLRegressionScriptPath = hdlregressionScriptPath;
     }
 
-    public async GetVhdlFiles(workSpacePath: string) : Promise<VHDL_ProjectFiles> 
+    public async GetVhdlFiles(workSpacePath: string) : Promise<VhdlProjectFiles> 
     {
 
-        let projectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
+        let projectFiles : VhdlProjectFiles = new Map<VhdlLibrary, VhdlLibraryContents>();
 
         if(!fs.existsSync(workSpacePath)) 
         {
@@ -46,11 +46,11 @@ export class HDLRegressionVhdlFinder implements IVhdlFinder {
         {
             if (projectFiles.has(file.library_name))
             {
-                projectFiles.get(file.library_name)?.push(file.file_name);
+                projectFiles.get(file.library_name)?.files.push(file.file_name);
             }
             else
             {
-                projectFiles.set(file.library_name, [file.file_name]);
+                projectFiles.set(file.library_name, {files:[file.file_name]});
             }
         }
 

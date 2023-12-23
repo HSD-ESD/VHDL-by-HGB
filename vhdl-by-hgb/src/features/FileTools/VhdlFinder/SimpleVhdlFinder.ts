@@ -1,6 +1,6 @@
 //Specific Imports
 import { IVhdlFinder } from "./VhdlFinder";
-import { VHDL_ProjectFiles, VHDL_Files, VHDL_Library } from "./../../VHDLtools/VhdlPackage";
+import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary } from "./../../VHDLtools/VhdlPackage";
 import { walk } from 'walk-file-tree';
 
 //General Imports
@@ -16,32 +16,35 @@ const DEFAULT_LIBRARY_NAME = "lib";
 
 export class SimpleVhdlFinder implements IVhdlFinder
 {
-    public async GetVhdlFiles(workSpacePath: string) : Promise<VHDL_ProjectFiles> 
+    public async GetVhdlFiles(workSpacePath: string) : Promise<VhdlProjectFiles> 
 	{
 
-        let projectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
+        let projectFiles : VhdlProjectFiles = new Map<VhdlLibrary, VhdlLibraryContents>();
 
         if(!fs.existsSync(workSpacePath)) 
         {
             return projectFiles;
         }
 
-		let files : VHDL_Files = await GetLibFiles(workSpacePath);
-    	projectFiles.set(DEFAULT_LIBRARY_NAME, files);
+		let libContents : VhdlLibraryContents = await GetLibFiles(workSpacePath);
+    	projectFiles.set(DEFAULT_LIBRARY_NAME, libContents);
 
 		return projectFiles;
 		
     }
 }
 
-async function GetLibFiles(libPath: string) : Promise<VHDL_Files> {
+async function GetLibFiles(libPath: string) : Promise<VhdlLibraryContents> {
 	
 	if(!fs.existsSync(libPath))
 	{
-		return new Array<string>();
+		return {files:[]};
 	}
 
-	let files : VHDL_Files = new Array<string>();
+	let libContents : VhdlLibraryContents = 
+	{
+		files:[]
+	};
 
 	//Walk through working-directory recursively
 	for await (const entry of walk({
@@ -54,10 +57,10 @@ async function GetLibFiles(libPath: string) : Promise<VHDL_Files> {
 		  }
 		})) 
 		{
-			files.push(entry);
+			libContents.files.push(entry);
 		}
 	
-	return files;
+	return libContents;
 }
 
 function IsBlackListed(file: string) : boolean {

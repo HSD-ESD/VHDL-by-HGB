@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { FileSysWatcher } from '../FileSystemWatcher';
 import { Disposable } from 'vscode-languageclient';
+import { VHDL_LS } from '../vhdl_ls_package';
 
 const CONFIG_KEY = 'VHDLbyHGB.snippets';
 
@@ -91,7 +92,7 @@ export class DynamicSnippets {
         //vscode.commands.executeCommand("VHDLbyHGB.ProjectManager.UpdateFiles");
 
         //get the toml file and get als vhdl files
-        const tomlPath = path.join(filePath, "vhdl_ls.toml");
+        const tomlPath = path.join(filePath, VHDL_LS.VHDL_LS_FILE);
         const tomlBuffer = fs.readFileSync(tomlPath, 'utf-8');
         const tomlLines = tomlBuffer.split('\n');
 
@@ -121,7 +122,7 @@ export class DynamicSnippets {
                         vscode.Uri.file(newPath));
 
             //if the LS hasn't given an Output -> wait
-            while (documentSymbols == undefined) {
+            while (documentSymbols === undefined) {
                 documentSymbols =
                     await vscode.commands.executeCommand
                         <vscode.DocumentSymbol[]>
@@ -195,7 +196,7 @@ export class DynamicSnippets {
     private async updateSnippets() {
         const mySnippets: vscode.CompletionItem[] = [];
 
-        if(this.mEntities.length != 0){
+        if(this.mEntities.length !== 0){
             this.mEntities.forEach((entity: any) => {
                 const portsAll = entity.ports.join(' => ,\n\t\t') + " =>";
                 const genAll = entity.generics.join(' => ,\n\t\t') + " =>";
@@ -312,11 +313,11 @@ export class DynamicSnippets {
 
         if (vscode.workspace.workspaceFolders !== undefined) {
             const workspace = vscode.workspace.workspaceFolders[0].uri.fsPath;
-            const saveComamndHandler = vscode.commands.registerCommand(commandId, () => {
+            const saveCommandHandler = vscode.commands.registerCommand(commandId, () => {
                 this.GetOutput(workspace);
             });
 
-            this.mContext.subscriptions.push(saveComamndHandler);
+            this.mContext.subscriptions.push(saveCommandHandler);
         }
     }
 }

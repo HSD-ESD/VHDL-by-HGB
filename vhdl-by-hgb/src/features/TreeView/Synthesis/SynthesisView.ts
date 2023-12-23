@@ -41,7 +41,7 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
             for (const synthesisProject of synthesisProjects)
             {   
                 const relativeProjectPath = path.relative(this.mWorkSpacePath, synthesisProject.GetPath());
-                const project : SynthesisProject = new SynthesisProject(relativeProjectPath, vscode.TreeItemCollapsibleState.Collapsed);
+                const project : SynthesisProject = new SynthesisProject(relativeProjectPath, vscode.TreeItemCollapsibleState.Collapsed, synthesisProject.GetName());
                 project.resourceUri = vscode.Uri.file(synthesisProject.GetPath());
                 project.command = {
                     title: `open ${project.tooltip}`,
@@ -52,7 +52,6 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
                 project.children.push(new SynthesisTopLevel(synthesisProject.GetTopLevelEntity(), vscode.TreeItemCollapsibleState.None));
                 project.children.push(new SynthesisDevice (synthesisProject.GetDevice() , vscode.TreeItemCollapsibleState.None));
                 project.children.push( new SynthesisFamily(synthesisProject.GetFamily(), vscode.TreeItemCollapsibleState.None));
-                
                 let synthesisFiles : SynthesisFiles = new SynthesisFiles("files", vscode.TreeItemCollapsibleState.Collapsed);
                 
                 for (const currentFile of synthesisProject.GetFiles())
@@ -89,7 +88,7 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
     }
 }
 
-class SynthesisItem extends vscode.TreeItem{
+export class SynthesisItem extends vscode.TreeItem{
 
     public children : SynthesisItem[] = [];
 
@@ -121,11 +120,12 @@ class SynthesisProject extends SynthesisItem{
     constructor(
         public readonly SynthesisProjectPath : string,
         public readonly collapsibleState : vscode.TreeItemCollapsibleState,
+        public readonly projectName : string
     ) {
         super(SynthesisProjectPath, collapsibleState);
     }
 
-    tooltip = path.basename(this.SynthesisProjectPath);
+    tooltip = this.projectName;
 
     iconPath = {
         light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'project.svg')),

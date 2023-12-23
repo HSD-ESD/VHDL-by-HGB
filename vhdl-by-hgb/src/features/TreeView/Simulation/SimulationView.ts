@@ -70,7 +70,7 @@ export class SimulationViewProvider implements vscode.TreeDataProvider<Simulatio
     }
 }
 
-class SimulationItem extends vscode.TreeItem{
+export class SimulationItem extends vscode.TreeItem{
 
     public children : SimulationItem[] = [];
 

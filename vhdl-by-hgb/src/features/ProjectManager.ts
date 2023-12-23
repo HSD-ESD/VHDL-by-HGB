@@ -1,22 +1,20 @@
 // specific imports
 import { IVhdlFinder } from "./FileTools/VhdlFinder/VhdlFinder";
 import { FileHolder } from "./FileTools/FileHolder";
-import { TomlGenerator } from "./FileTools/FileGenerator/TomlGenerator";
-import { ProjectViewProvider } from "./TreeView/Project/ProjectView";
-import { SynthesisViewProvider } from "./TreeView/Synthesis/SynthesisView";
-import { Quartus } from "./VHDLtools/Synthesis/Quartus/Quartus";
-
-// General Imports
-import * as vscode from 'vscode';
+import { TomlUtils } from "./FileTools/FileGenerator/TomlUtils";
+import { ProjectViewProvider, ProjectItem} from "./TreeView/Project/ProjectView";
 import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
 import { SimulationManager } from "./VHDLtools/Simulation/SimulationManager";
 import { HDLUtils } from "./FileTools/HDLUtils";
 import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
+import { RustHDL } from "./RustHDL";
+import { VHDL_LS } from "./vhdl_ls_package";
 
 // general imports
+import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { RustHDL } from "./RustHDL";
+import { VhdlProjectFiles } from "./VHDLtools/VhdlPackage";
 
 //module-internal types
 enum eTomlGenerationKind {
@@ -50,7 +48,7 @@ export class ProjectManager {
 
     // UI
     private mProjectViewProvider : ProjectViewProvider;
-
+    private mProjectView : vscode.TreeView<ProjectItem>;
 
     // --------------------------------------------
     // Public methods
@@ -82,7 +80,7 @@ export class ProjectManager {
 
         // UI
         this.mProjectViewProvider = new ProjectViewProvider(this.mFileHolder, this.mContext, this.mWorkSpacePath);
-        vscode.window.createTreeView(
+        this.mProjectView = vscode.window.createTreeView(
             'vhdlbyhgb-view-project',{
             treeDataProvider: this.mProjectViewProvider
         });
@@ -96,7 +94,7 @@ export class ProjectManager {
         await this.mSimulationManager.Initialize();
         await this.mSynthesisManager.Initialize();
         
-		if(fs.existsSync(path.join(this.mWorkSpacePath, "vhdl_ls.toml")))
+		if(fs.existsSync(path.join(this.mWorkSpacePath, VHDL_LS.VHDL_LS_FILE)))
         {
             //load existing HDL-project
             this.Setup();
@@ -145,19 +143,27 @@ export class ProjectManager {
         switch(tomlGenKind)
         {
             case "manual":
+            {
                 // do not generate vhdl_ls.toml automatically with this option.
-                // the user will generate it itself
-                return;
-
+                // the user will generate it itself.
+                // therefore, the vhdl_ls.toml is parsed
+                const projectFiles = TomlUtils.Parse_VHDL_LS(path.join(this.mWorkSpacePath, VHDL_LS.VHDL_LS_FILE));
+                this.mFileHolder.SetProjectFiles(projectFiles);
+                break;
+            }
             case "auto":
+            {
                 const projectFiles = await this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath);
                 if(projectFiles.size !== 0)
                 {
+                    mark_third_party_libraries(projectFiles);
                     this.mFileHolder.SetProjectFiles(projectFiles);
-                    TomlGenerator.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
+                    TomlUtils.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
                 }
+                break;
+            }
         }
-;
+
     }
 
     private connectEvents() : void
@@ -177,10 +183,14 @@ export class ProjectManager {
                 const filePath = file.fsPath.toLowerCase();
                 return HDLUtils.IsVhdlFile(filePath);
             });
-            if(containsVhdlFile)
-            {
-                this.Update();
-            }
+
+            if(!containsVhdlFile) { return; }
+            const tomlGenerationKind = vscode.workspace.getConfiguration().get("vhdl-by-hgb.vhdlls.toml.generation");
+            let tomlGenKind = tomlGenerationKind as keyof typeof eTomlGenerationKind;
+            if (tomlGenKind !== "auto") { return; }
+
+            this.Update();
+
         });
 
         vscode.workspace.onDidDeleteFiles((event) => 
@@ -189,10 +199,13 @@ export class ProjectManager {
                 const filePath = file.fsPath.toLowerCase();
                 return HDLUtils.IsVhdlFile(filePath);
             });
-            if(containsVhdlFile)
-            {
-                this.Update();
-            }
+
+            if(!containsVhdlFile) { return; }
+            const tomlGenerationKind = vscode.workspace.getConfiguration().get("vhdl-by-hgb.vhdlls.toml.generation");
+            let tomlGenKind = tomlGenerationKind as keyof typeof eTomlGenerationKind;
+            if (tomlGenKind !== "auto") { return; }
+
+            this.Update();
         });
 
         vscode.workspace.onDidRenameFiles((event) => 
@@ -203,10 +216,24 @@ export class ProjectManager {
                 return  HDLUtils.IsVhdlFile(oldFilePath) ||
                         HDLUtils.IsVhdlFile(newFilePath);
             });
-            if(containsVhdlFile)
-            {
-                this.Update();
-            }
+            
+            if(!containsVhdlFile) { return; }
+            const tomlGenerationKind = vscode.workspace.getConfiguration().get("vhdl-by-hgb.vhdlls.toml.generation");
+            let tomlGenKind = tomlGenerationKind as keyof typeof eTomlGenerationKind;
+            if (tomlGenKind !== "auto") { return; }
+
+            this.Update();
+        });
+
+        vscode.workspace.onDidChangeTextDocument((event) => {
+            const isTOML : boolean = path.basename(event.document.uri.fsPath) === VHDL_LS.VHDL_LS_FILE;
+            if(!isTOML) { return; }
+
+            const tomlGenerationKind = vscode.workspace.getConfiguration().get("vhdl-by-hgb.vhdlls.toml.generation");
+            let tomlGenKind = tomlGenerationKind as keyof typeof eTomlGenerationKind;
+            if (tomlGenKind !== "manual") { return; }
+
+            this.Update();
         });
     }
 
@@ -224,4 +251,15 @@ export class ProjectManager {
         this.mContext.subscriptions.push(disposable);
     }
 
+}
+
+function mark_third_party_libraries(projectFiles : VhdlProjectFiles)
+{
+    for (const [libraryName, libraryContents] of projectFiles.entries())
+    {
+        if (VHDL_LS.is_third_party_library(libraryName))
+        {
+            projectFiles.get(libraryName)!.is_third_party = true;
+        }
+    }
 }

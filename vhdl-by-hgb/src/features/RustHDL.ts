@@ -1,4 +1,5 @@
 
+'use strict';
 import Octokit = require('@octokit/rest');
 import util = require('util');
 import vscode = require('vscode');
@@ -16,6 +17,7 @@ import {
     LanguageClientOptions,
     ServerOptions,
 } from 'vscode-languageclient/node';
+import { VHDL_LS } from './vhdl_ls_package';
 
 
 const exec = util.promisify(require('child_process').exec);
@@ -35,6 +37,7 @@ enum LanguageServerBinary {
     embedded,
     user,
     systemPath,
+    docker
 }
 
 
@@ -88,7 +91,7 @@ export class RustHDL {
             .getConfiguration()
             .get('vhdl-by-hgb.vhdlls.languageServer');
         let lsBinary = languageServerBinary as keyof typeof LanguageServerBinary;
-        let serverOptions: ServerOptions;
+        let serverOptions : ServerOptions | undefined;
         switch (lsBinary) {
             case 'embedded':
                 serverOptions = getServerOptionsEmbedded(this.context);
@@ -103,6 +106,11 @@ export class RustHDL {
             case 'systemPath':
                 serverOptions = getServerOptionsSystemPath();
                 output.appendLine('Running language server from path');
+                break;
+
+            case 'docker':
+                serverOptions = await getServerOptionsDocker();
+                output.appendLine('Using vhdl_ls from Docker Hub');
                 break;
     
             default:
@@ -122,7 +130,7 @@ export class RustHDL {
                 fileEvents: workspace.createFileSystemWatcher(
                     path.join(
                         workspace.workspaceFolders[0].uri.fsPath,
-                        'vhdl_ls.toml'
+                        VHDL_LS.VHDL_LS_FILE
                     )
                 ),
             };
@@ -132,7 +140,7 @@ export class RustHDL {
         this.client = new LanguageClient(
             'vhdlls',
             'VHDL LS',
-            serverOptions,
+            serverOptions!,
             clientOptions
         );
     

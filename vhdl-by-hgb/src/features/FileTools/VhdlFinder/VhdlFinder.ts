@@ -1,7 +1,7 @@
-import { VHDL_ProjectFiles } from "../../VHDLtools/VhdlPackage";
+import { VhdlProjectFiles } from "../../VHDLtools/VhdlPackage";
 
 export interface IVhdlFinder {
 
-    GetVhdlFiles(WorkSpacePath: string) : Promise<VHDL_ProjectFiles>
+    GetVhdlFiles(WorkSpacePath: string) : Promise<VhdlProjectFiles>
 
 }

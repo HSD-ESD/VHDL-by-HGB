@@ -1,6 +1,7 @@
 import { FileHolder } from "../../FileTools/FileHolder";
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { VHDL_LS } from "../../vhdl_ls_package";
 
 let _Context : vscode.ExtensionContext;
 
@@ -72,11 +73,12 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         //check if projectfiles are not empty
         if(this.mFileHolder.GetProjectFiles().size !== 0){
 
-            for(const [lib, files] of this.mFileHolder.GetProjectFiles()){
+            for(const [lib, libContents] of this.mFileHolder.GetProjectFiles()){
 
                 const libraryItem : LibraryItem = new LibraryItem(lib, vscode.TreeItemCollapsibleState.Collapsed);
+                if (libContents.is_third_party) {libraryItem.description = "third party";} 
 
-                for(const file of files){
+                for(const file of libContents.files){
                     const fileItem : FileItem = new FileItem(path.relative(this.mWorkSpacePath,file), vscode.TreeItemCollapsibleState.None);
                     fileItem.resourceUri = vscode.Uri.file(file);
                     fileItem.command = {
@@ -107,13 +109,15 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
             title: `setup project`,
             command: 'VHDLbyHGB.Project.Setup',
         };
+        projectSetup.tooltip = projectSetup.command.command;
         commands.push(projectSetup);
 
         const projectUpdate : CommandItem = new CommandItem("update project", vscode.TreeItemCollapsibleState.None);
-        projectSetup.command = {
+        projectUpdate.command = {
             title: `update project`,
             command: 'VHDLbyHGB.Project.Update',
         };
+        projectUpdate.tooltip = projectUpdate.command.command;
         commands.push(projectUpdate);
 
         return commands;
@@ -123,15 +127,20 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
     {
         let VHDL_LS_Items : ProjectItem[] = [];
 
+        // workspace-config
+        const workspaceConfig : vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration();
+
         // toml
-        let vhdllsTomlItem : ProjectItem = new ProjectItem("vhdl_ls.toml", vscode.TreeItemCollapsibleState.None);
+        let vhdllsTomlItem : ProjectItem = new ProjectItem(VHDL_LS.VHDL_LS_FILE, vscode.TreeItemCollapsibleState.None);
         vhdllsTomlItem.iconPath = {
             light: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'toml.svg')),
             dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'toml.svg'))
         };
-        vhdllsTomlItem.resourceUri = vscode.Uri.file(path.join(this.mWorkSpacePath, "vhdl_ls.toml"));
+        vhdllsTomlItem.tooltip = VHDL_LS.VHDL_LS_FILE;
+        vhdllsTomlItem.description = workspaceConfig.get("vhdl-by-hgb.vhdlls.toml.generation");
+        vhdllsTomlItem.resourceUri = vscode.Uri.file(path.join(this.mWorkSpacePath, VHDL_LS.VHDL_LS_FILE));
         vhdllsTomlItem.command = {
-            title: 'Open vhdl_ls.toml',
+            title: `Open ${VHDL_LS.VHDL_LS_FILE}`,
             command: 'vscode.open',
             arguments: [vhdllsTomlItem.resourceUri],
         };
@@ -140,8 +149,8 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         // commands
         let commandsItem : ProjectItem = new ProjectItem("commands", vscode.TreeItemCollapsibleState.Collapsed);
         commandsItem.iconPath = {
-            light: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'light', 'commands.svg')),
-            dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'dark',  'commands.svg'))
+            light: _Context.asAbsolutePath(path.join('resources', 'images', 'general', 'light', 'commands.svg')),
+            dark: _Context.asAbsolutePath(path.join('resources', 'images', 'general', 'dark', 'commands.svg'))
         };
 
             const VHDL_LS_restart : CommandItem = new CommandItem("VHDL_LS: restart", vscode.TreeItemCollapsibleState.None);
@@ -149,6 +158,7 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
                 title: 'VHDL_LS: restart',
                 command: 'VHDLbyHGB.vhdlls.restart',
             };
+            VHDL_LS_restart.tooltip = VHDL_LS_restart.command.command;
             commandsItem.children.push(VHDL_LS_restart);
 
             const VHDL_LS_activate : CommandItem = new CommandItem("VHDL_LS: activate", vscode.TreeItemCollapsibleState.None);
@@ -156,6 +166,7 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
                 title: 'VHDL_LS: activate',
                 command: 'VHDLbyHGB.vhdlls.activate',
             };
+            VHDL_LS_activate.tooltip = VHDL_LS_activate.command.command;
             commandsItem.children.push(VHDL_LS_activate);
 
             const VHDL_LS_deactivate : CommandItem = new CommandItem("VHDL_LS: deactivate", vscode.TreeItemCollapsibleState.None);
@@ -163,9 +174,31 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
                 title: 'VHDL_LS: deactivate',
                 command: 'VHDLbyHGB.vhdlls.deactivate',
             };
+            VHDL_LS_deactivate.tooltip =VHDL_LS_deactivate.command.command; 
             commandsItem.children.push(VHDL_LS_deactivate);
 
         VHDL_LS_Items.push(commandsItem);
+
+        // config
+        let configItem : ProjectItem = new ProjectItem("configuration", vscode.TreeItemCollapsibleState.Collapsed);
+        configItem.iconPath = {
+            light: _Context.asAbsolutePath(path.join('resources', 'images', 'general', 'light', 'settings.svg')),
+            dark: _Context.asAbsolutePath(path.join('resources', 'images', 'general', 'dark',  'settings.svg'))
+        };
+
+            const VHDL_LS_location : ConfigItem = new ConfigItem(workspaceConfig.get('vhdl-by-hgb.vhdlls.languageServer')!, vscode.TreeItemCollapsibleState.None);
+            VHDL_LS_location.description = "location";
+            configItem.children.push(VHDL_LS_location);
+
+            const VHDL_LS_user_path : ConfigItem = new ConfigItem(workspaceConfig.get('vhdl-by-hgb.vhdlls.languageServerUserPath')!, vscode.TreeItemCollapsibleState.None);
+            VHDL_LS_user_path.description = "user path";
+            configItem.children.push(VHDL_LS_user_path);
+
+            const VHDL_LS_trace : ConfigItem = new ConfigItem(workspaceConfig.get('vhdl-by-hgb.vhdlls.trace.server')!, vscode.TreeItemCollapsibleState.None);
+            VHDL_LS_trace.description = "trace";
+            configItem.children.push(VHDL_LS_trace);
+
+        VHDL_LS_Items.push(configItem);
         
         return VHDL_LS_Items;
     }
@@ -181,7 +214,7 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
 }
 
 
-class ProjectItem extends vscode.TreeItem{
+export class ProjectItem extends vscode.TreeItem{
 
     public children : ProjectItem[] = [];
 
@@ -237,6 +270,21 @@ class CommandItem extends ProjectItem{
     iconPath = {
         light: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'light', 'command.svg')),
         dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'dark',  'command.svg'))
+    };
+}
+
+class ConfigItem extends ProjectItem{
+    constructor(
+        public readonly commandName : string,
+        public readonly collapsibleState : vscode.TreeItemCollapsibleState
+    )
+    {
+        super(commandName, collapsibleState);
+    }
+    
+    iconPath = {
+        light: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'light', 'setting.svg')),
+        dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'dark',  'setting.svg'))
     };
 }
 

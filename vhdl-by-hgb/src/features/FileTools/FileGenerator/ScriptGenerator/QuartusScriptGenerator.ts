@@ -1,7 +1,7 @@
 //specific imports
 import { QuartusProject } from '../../../VHDLtools/Synthesis/Quartus/QuartusProject';
 import * as TclScripts from '../../../VHDLtools/Synthesis/TclScripts';
-import * as Constants from '../../../../Constants';
+import * as Constants from '../../../vhdl_ls_package';
 
 // general imports
 import * as fs from 'fs';
@@ -93,7 +93,7 @@ export class QuartusScriptGenerator {
         //check writestream
         if(!wstream.writable)
         {
-            console.log(Constants.ErrWriteStream);
+            console.log("Error in writestream");
             return false;
         }
 

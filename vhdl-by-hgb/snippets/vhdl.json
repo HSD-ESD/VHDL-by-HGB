@@ -166,7 +166,7 @@
         ],
         "description": "case statement"
     },
-    "Headerkommentar": {
+    "HeaderComment": {
         "prefix": "header",
         "body": [
             "------------------------------------------------------------------------",

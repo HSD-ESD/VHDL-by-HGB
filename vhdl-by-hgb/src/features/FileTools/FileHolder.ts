@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 
 // specifc imports
-import { VHDL_Library, VHDL_Files, VHDL_ProjectFiles } from "../VHDLtools/VhdlPackage";
+import { VhdlLibrary, VhdlLibraryContents, VhdlProjectFiles } from "../VHDLtools/VhdlPackage";
 
 export class FileHolder {
 
@@ -20,7 +20,7 @@ export class FileHolder {
     // Member for storing all the libraries of a VHDL-Project
     // Key: Library name
     // Value: Array of file paths
-    private mProjectFiles : VHDL_ProjectFiles = new Map<VHDL_Library, VHDL_Files>();
+    private mProjectFiles : VhdlProjectFiles = new Map<VhdlLibrary, VhdlLibraryContents>();
 
     // --------------------------------------------
     // Public methods
@@ -30,13 +30,13 @@ export class FileHolder {
         this.FilesChanged = new vscode.EventEmitter<void>();
     }
 
-    public SetProjectFiles(projectFiles : VHDL_ProjectFiles) : void
+    public SetProjectFiles(projectFiles : VhdlProjectFiles) : void
     {
         this.mProjectFiles = projectFiles;
         this.FilesChanged.fire();
     }
 
-    public GetProjectFiles() : VHDL_ProjectFiles 
+    public GetProjectFiles() : VhdlProjectFiles 
     { 
         return this.mProjectFiles;
     }

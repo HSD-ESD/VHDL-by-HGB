@@ -38,8 +38,6 @@ export interface ISynthesisProject
     //Getter-Methods
     GetName() : string;
 
-    GetTclScriptsFolder() : string;
-
     GetPath() : string;
 
     GetTopLevelEntity() : string;

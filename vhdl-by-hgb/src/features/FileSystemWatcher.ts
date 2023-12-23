@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { VHDL_LS } from './vhdl_ls_package';
 
 export class FileSysWatcher {
     //--------------------------------------------
@@ -20,7 +21,7 @@ export class FileSysWatcher {
             const filePattern = '**/*.vhd';
             this.mVHDLWatcher = vscode.workspace.createFileSystemWatcher(filePattern);
 
-            const tomlPath = path.join(workspace, "vhdl_ls.toml");
+            const tomlPath = path.join(workspace, VHDL_LS.VHDL_LS_FILE);
 
             this.mTomlWatcher = vscode.workspace.createFileSystemWatcher(tomlPath);
         }

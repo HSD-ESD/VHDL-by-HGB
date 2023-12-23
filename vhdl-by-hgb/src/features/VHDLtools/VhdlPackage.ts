@@ -1,8 +1,11 @@
 
 //type-definitions for vhdl-files of a vhdl-project
-export type VHDL_Library = string;
-export type VHDL_Files = string[];
-export type VHDL_ProjectFiles = Map<VHDL_Library, VHDL_Files>;
+export type VhdlLibrary = string;
+export interface VhdlLibraryContents {
+    files: string[];
+    is_third_party?: boolean;
+}
+export type VhdlProjectFiles = Map<VhdlLibrary, VhdlLibraryContents>;
 
 export class VhdlEntity {
     mName: string = "";

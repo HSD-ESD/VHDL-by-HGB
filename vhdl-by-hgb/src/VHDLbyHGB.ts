@@ -20,21 +20,26 @@ export class VHDLbyHGB {
     private mContext : vscode.ExtensionContext;
 	private mOutputChannel: vscode.OutputChannel;
 
-	// project-dependent tools
-	private mProjectManager : ProjectManager;
+	// project-independent tools
 	private mFormatter : VHDLFormatterHGB;
 	private mEntityConverter : EntityConverter;
+
+	// project-dependent tools
+	private mProjectManager : ProjectManager;
 
 	//--------------------------------------------
 	//Public Methods
 	//--------------------------------------------
-	constructor(context: vscode.ExtensionContext) {
+	constructor(context: vscode.ExtensionContext) 
+	{
+		// vscode-members
 		this.mContext = context;
 		this.mOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB');
+		// project-independent tools
 		this.mFormatter = new VHDLFormatterHGB(context);
 		this.mEntityConverter = new EntityConverter(this.mContext);
+		// project-dependent tools
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
-		
     }
 
 	public async Initialize() : Promise<void>

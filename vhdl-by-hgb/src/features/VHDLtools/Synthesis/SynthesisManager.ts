@@ -4,11 +4,11 @@ import { ISynthesisProject, TSynthesisProjectConfig, TSynthesisProject } from ".
 import { ACTIVE_SYNTHESIS_PROJECT, NO_SYNTHESIS_PROJECT, SynthesisFileMap, SynthesisToolMap, eSynthesisFile, eSynthesisTool } from "./SynthesisPackage";
 import { VhdlEntity } from "../VhdlPackage";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
+import { SynthesisViewProvider, SynthesisItem } from "../../TreeView/Synthesis/SynthesisView";
 
 //general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { SynthesisViewProvider } from "../../TreeView/Synthesis/SynthesisView";
 
 export class SynthesisManager
 {
@@ -27,8 +27,9 @@ export class SynthesisManager
     private mContext : vscode.ExtensionContext;
     private mStatusBarItem : vscode.StatusBarItem;
 
+    // UI
     private mSynthesisViewProvider : SynthesisViewProvider;
-
+    private mSynthesisView : vscode.TreeView<SynthesisItem>;
 
     // --------------------------------------------
     // Public methods
@@ -49,15 +50,14 @@ export class SynthesisManager
         this.mSynthesisProjects = new Map<eSynthesisTool, Array<ISynthesisProject>>();
         this.mWizard = new SynthesisWizard(this.mWorkSpacePath);
 
-        this.RegisterCommands();
-        this.HandleFileEvents();
-
         this.mSynthesisViewProvider = new SynthesisViewProvider(this.mSynthesisProjects, this.mContext, this.mWorkSpacePath);
-        vscode.window.createTreeView(
+        this.mSynthesisView = vscode.window.createTreeView(
             'vhdlbyhgb-view-synthesis',{
                 treeDataProvider : this.mSynthesisViewProvider
-            }
-        );
+        });
+
+        this.RegisterCommands();
+        this.HandleFileEvents();
     }
 
     public async Initialize() : Promise<void>

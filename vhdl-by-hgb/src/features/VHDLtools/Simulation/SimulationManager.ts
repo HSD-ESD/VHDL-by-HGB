@@ -6,12 +6,12 @@ import { SimulationWizard } from './SimulationWizard';
 import { SimulationWizardUi } from './SimulationWizardUi';
 import { IVhdlFinder } from '../../FileTools/VhdlFinder/VhdlFinder';
 import { SimpleVhdlFinder } from '../../FileTools/VhdlFinder/SimpleVhdlFinder';
+import { SimulationViewProvider, SimulationItem} from '../../TreeView/Simulation/SimulationView';
 
 //general imports
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { SimulationViewProvider } from '../../TreeView/Simulation/SimulationView';
 
 
 export class SimulationManager {
@@ -49,6 +49,7 @@ export class SimulationManager {
 
     // UI
     private mSimulationViewProvider : SimulationViewProvider;
+    private mSimulationView : vscode.TreeView<SimulationItem>;
 
     // --------------------------------------------
     // Public methods
@@ -84,11 +85,10 @@ export class SimulationManager {
 
         // UI
         this.mSimulationViewProvider = new SimulationViewProvider(this.mSimulationProjects, this.mContext, this.mWorkSpacePath);
-        vscode.window.createTreeView(
+        this.mSimulationView = vscode.window.createTreeView(
             'vhdlbyhgb-view-simulation',{
-                treeDataProvider : this.mSimulationViewProvider
-            }
-        );
+            treeDataProvider : this.mSimulationViewProvider
+        });
 
         this.HandleFileEvents();
         this.RegisterCommands();
