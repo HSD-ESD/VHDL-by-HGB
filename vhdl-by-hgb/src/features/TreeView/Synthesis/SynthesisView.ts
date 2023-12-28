@@ -40,6 +40,11 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
 
             for (const synthesisProject of synthesisProjects)
             {   
+                if (!synthesisProjects)
+                {
+                    continue;
+                }
+
                 const relativeProjectPath = path.relative(this.mWorkSpacePath, synthesisProject.GetPath());
                 const project : SynthesisProject = new SynthesisProject(relativeProjectPath, vscode.TreeItemCollapsibleState.Collapsed, synthesisProject.GetName());
                 project.resourceUri = vscode.Uri.file(synthesisProject.GetPath());
@@ -49,7 +54,7 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
                     arguments: [project.resourceUri],
                 };
 
-                project.children.push(new SynthesisTopLevel(synthesisProject.GetTopLevelEntity(), vscode.TreeItemCollapsibleState.None));
+                project.children.push(new SynthesisTopLevel(synthesisProject.GetTopLevel().mName, vscode.TreeItemCollapsibleState.None));
                 project.children.push(new SynthesisDevice (synthesisProject.GetDevice() , vscode.TreeItemCollapsibleState.None));
                 project.children.push( new SynthesisFamily(synthesisProject.GetFamily(), vscode.TreeItemCollapsibleState.None));
                 let synthesisFiles : SynthesisFiles = new SynthesisFiles("files", vscode.TreeItemCollapsibleState.Collapsed);

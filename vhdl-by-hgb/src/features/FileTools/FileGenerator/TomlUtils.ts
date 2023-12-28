@@ -81,13 +81,13 @@ export class TomlUtils {
     {
         const tomlString = fs.readFileSync(filePath, 'utf8');
         const parsedToml = toml.parse(tomlString) as unknown as TomlConfig;
-        const projectFiles = convertTomlDataToLibraryMapping(parsedToml);
+        const projectFiles = convertTomlDataToProjectFiles(parsedToml);
         return projectFiles;
     }
 
 }
 
-function convertTomlDataToLibraryMapping(tomlData : TomlConfig) : VhdlProjectFiles
+function convertTomlDataToProjectFiles(tomlData : TomlConfig) : VhdlProjectFiles
 {
     const projectFiles: VhdlProjectFiles = new Map<VhdlLibrary, VhdlLibraryContents>();
 

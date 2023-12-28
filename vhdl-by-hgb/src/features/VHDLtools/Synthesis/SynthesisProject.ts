@@ -40,15 +40,15 @@ export interface ISynthesisProject
 
     GetPath() : string;
 
-    GetTopLevelEntity() : string;
+    GetTopLevel() : VhdlEntity;
 
     GetDevice() : string;
+
+    GetFamily() : string;
 
     GetFiles() : string[];
 
     GetTool() : eSynthesisTool;
-
-    GetFamily() : string;
 
 }
 

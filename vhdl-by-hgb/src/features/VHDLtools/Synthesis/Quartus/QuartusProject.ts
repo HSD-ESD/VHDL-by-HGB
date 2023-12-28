@@ -1,17 +1,17 @@
 //Specific Imports
 import { ISynthesisProject, SynthesisProject} from "../SynthesisProject";
-import * as TclScripts from "../TclScripts";
+import  {CustomQuartusTclScript, CustomQuartusTclScriptsFolder} from "./QuartusPackage";
 import { QuartusScriptGenerator } from "../../../FileTools/FileGenerator/ScriptGenerator/QuartusScriptGenerator";
 import { Quartus} from "./Quartus";
+import { VhdlEntity } from "../../VhdlPackage";
+import { HDLUtils } from "../../../FileTools/HDLUtils";
+import { QuartusQsf} from "./QuartusPackage";
+import { eSynthesisFile, eSynthesisTool } from "../SynthesisPackage";
 
 //General Imports
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { VhdlEntity } from "../../VhdlPackage";
-import { HDLUtils } from "../../../FileTools/HDLUtils";
-import { QuartusQsf} from "./QuartusPackage";
-import { eSynthesisFile, eSynthesisTool } from "../SynthesisPackage";
 
 export class QuartusProject extends SynthesisProject implements ISynthesisProject
 {
@@ -20,8 +20,12 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // --------------------------------------------
     private mQuartus : Quartus;
     private mTclScriptsFolder: string;
-    private mFileHolder : FileHolder;
-    private mFolderWatcher : vscode.FileSystemWatcher;
+    private mQSF : QuartusQsf;
+
+    //vscode-members
+    private mOutputChannel : vscode.OutputChannel;
+    private mContext : vscode.ExtensionContext;
+    private mQsfWatcher : vscode.FileSystemWatcher;
 
     // --------------------------------------------
     // public methods
@@ -40,8 +44,8 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         const qsfPath = path.join(this.mFolderPath, this.mName + eSynthesisFile.Quartus);
         this.mQSF = new QuartusQsf(qsfPath);
 
-        //When new Quartus-Project is created -> make directory for all Tcl-Scripts
-        this.mTclScriptsFolder = path.join(this.mFolderPath, TclScripts.Folder);
+        //When new project is created -> make directory for all Tcl-Scripts
+        this.mTclScriptsFolder = path.join(this.mFolderPath, CustomQuartusTclScriptsFolder);
         if (!fs.existsSync(this.mTclScriptsFolder)) {
             fs.mkdirSync(this.mTclScriptsFolder);
         }
@@ -58,13 +62,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     public async Generate() : Promise<boolean>
     {
         //create tcl-script for generating a Quartus-Project
-        QuartusScriptGenerator.GenerateProject(this);
+        const scriptPath = QuartusScriptGenerator.GenerateProject(this);
 
-        //compute script-path
-        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.GenerateProject);
+        if (!scriptPath)
+        {
+            vscode.window.showErrorMessage(`Creating Quartus-Project "${this.mName}" failed!`);
+            return false;
+        }
 
         //Run Tcl-Script for generating Project
-        const IsSuccess : boolean = await this.mQuartus.RunTclScript(ScriptPath);
+        const IsSuccess : boolean = await this.mQuartus.RunTclScript(scriptPath);
+
+        QuartusScriptGenerator.DeleteScript(scriptPath);
 
         if (!IsSuccess) {
             vscode.window.showErrorMessage(`Creating Quartus-Project "${this.mName}" failed!`);
@@ -94,13 +103,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mQSF.VhdlFiles = Array.from(files);
         
         //create tcl-script for updating files of a Quartus-Project
-        QuartusScriptGenerator.GenerateUpdateFiles(this);
+        const scriptPath = QuartusScriptGenerator.GenerateUpdateFiles(this);
 
-        //compute script-path
-        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.UpdateFiles);
+        if (!scriptPath)
+        {
+            vscode.window.showErrorMessage(`Updating files in Quartus-Project "${this.mName}" failed!`);
+            return false;
+        }
 
         //Run Tcl-Script for updating files of a Quartus-Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+
+        QuartusScriptGenerator.DeleteScript(scriptPath);
 
         if (!IsSuccess) {
             vscode.window.showErrorMessage(`Updating files in Quartus-Project "${this.mName}" failed!`);
@@ -113,16 +127,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public async LaunchGUI() : Promise<boolean>
     {
-        //compute script-path
-        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.LaunchGUI);
+        const scriptPath = QuartusScriptGenerator.GenerateLaunchGUI(this);
 
-        if (!fs.existsSync(ScriptPath)) {
-            //create tcl-script for launching a Quartus-Project
-            QuartusScriptGenerator.GenerateLaunchGUI(this);
+        if (!scriptPath)
+        {
+            vscode.window.showErrorMessage(`Launching Quartus-Project "${this.mName}" failed!`);
+            return false;
         }
 
         //Run Tcl-Script for launching GUI
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+
+        QuartusScriptGenerator.DeleteScript(scriptPath);
 
         if (!IsSuccess) {
             vscode.window.showErrorMessage(`Launching Quartus-Project "${this.mName}" failed!`);
@@ -134,12 +150,12 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public async Compile() : Promise<boolean>
     {
-        //compute script-path
-        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.Compile);
+        const scriptPath = QuartusScriptGenerator.GenerateCompile(this);
 
-        if (!fs.existsSync(ScriptPath)) {
-            //create tcl-script for compiling a Quartus-Project
-            QuartusScriptGenerator.GenerateCompile(this);
+        if (!scriptPath)
+        {
+            vscode.window.showErrorMessage(`Compiling Quartus-Project "${this.mName}" failed!`);
+            return false;
         }
 
         //inform user about compiling
@@ -147,7 +163,9 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mOutputChannel.show();
 
         //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+
+        QuartusScriptGenerator.DeleteScript(scriptPath);
 
         if (!IsSuccess) {
             vscode.window.showErrorMessage(`Compiling Quartus-Project "${this.mName}" failed!`);
@@ -165,13 +183,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mQSF.TopLevelEntity = entity;
 
         //create tcl-script for setting TopLevelEntity of a Quartus-Project
-        QuartusScriptGenerator.GenerateTopLevelEntity(this);
+        const scriptPath = QuartusScriptGenerator.GenerateTopLevelEntity(this);
 
-        //compute script-path
-        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.TopLevelEntity);
+        if (!scriptPath)
+        {
+            vscode.window.showErrorMessage(`Setting TopLevelEntity for Quartus-Project "${this.mName}" failed!`);
+            return false;
+        }
 
         //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+
+        QuartusScriptGenerator.DeleteScript(scriptPath);
 
         if (!IsSuccess) {
             vscode.window.showErrorMessage(`Setting TopLevelEntity for Quartus-Project "${this.mName}" failed!`);
@@ -188,13 +211,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mQSF.Family = family;
 
         //create tcl-script for setting Family of a Quartus-Project
-        QuartusScriptGenerator.GenerateFamily(this);
+        const scriptPath = QuartusScriptGenerator.GenerateFamily(this);
 
-        //compute script-path
-        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.Family);
+        if (!scriptPath)
+        {
+            vscode.window.showErrorMessage(`Setting Family for Quartus-Project "${this.mName}" failed!`);
+            return false;
+        }
 
         //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+
+        QuartusScriptGenerator.DeleteScript(scriptPath);
 
         if (!IsSuccess) {
             vscode.window.showErrorMessage(`Setting Family for Quartus-Project "${this.mName}" failed!`);
@@ -211,13 +239,18 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mQSF.Device = device;
 
         //create tcl-script for setting Device of a Quartus-Project
-        QuartusScriptGenerator.GenerateDevice(this);
+        const scriptPath = QuartusScriptGenerator.GenerateDevice(this);
 
-        //compute script-path
-        const ScriptPath : string = path.join(this.mTclScriptsFolder, TclScripts.Device);
+        if (!scriptPath)
+        {
+            vscode.window.showErrorMessage(`Setting Device for Quartus-Project "${this.mName}" failed!`);
+            return false;
+        }
 
         //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(ScriptPath);
+        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+
+        QuartusScriptGenerator.DeleteScript(scriptPath);
 
         if (!IsSuccess) {
             vscode.window.showErrorMessage(`Setting Device for Quartus-Project "${this.mName}" failed!`);
@@ -240,8 +273,6 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     public GetDevice() : string { return this.mQSF.Device; }
 
     public GetFiles() : string[] { return this.mQSF.VhdlFiles; }
-
-    public GetTopLevelEntity(): string {return this.mQSF.TopLevelEntity.mName;};
     
     public GetTclScriptsFolder() : string { return this.mTclScriptsFolder; }
 

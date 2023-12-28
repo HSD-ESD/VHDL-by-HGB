@@ -38,6 +38,11 @@ export class SimulationViewProvider implements vscode.TreeDataProvider<Simulatio
 
         for(const [simulationTool, simulationProjects] of this.mSimulationProjects)
         {
+            if (simulationProjects.length === 0)
+            {
+                continue;
+            }
+
             const tool : SimulationTool = new SimulationTool(simulationTool, vscode.TreeItemCollapsibleState.Collapsed);
 
             for (const project of simulationProjects)

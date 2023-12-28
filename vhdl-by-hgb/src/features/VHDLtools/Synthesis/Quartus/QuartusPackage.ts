@@ -1,5 +1,18 @@
 import { VhdlEntity } from "../../VhdlPackage";
 
+//folder for scripts
+export const CustomQuartusTclScriptsFolder : string = "TclScriptsHGB";
+
+export enum CustomQuartusTclScript {
+    GenerateProject = "Generate.tcl",
+    UpdateFiles = "UpdateFiles.tcl",
+    LaunchGUI = "LaunchGUI.tcl",
+    Compile = "Compile.tcl",
+    TopLevelEntity = "TopLevel.tcl",
+    Device = "Device.tcl",
+    Family = "Family.tcl",
+}
+
 export class QuartusQsf {
     public Path: string;
     public TopLevelEntity: VhdlEntity;
@@ -14,4 +27,4 @@ export class QuartusQsf {
       this.Device = "";
       this.VhdlFiles = [];
     }
-  }
+}

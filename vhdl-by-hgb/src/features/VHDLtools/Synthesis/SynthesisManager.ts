@@ -80,7 +80,12 @@ export class SynthesisManager
         //use factory of selected synthesis-tool to create a synthesis-project
         let newProject : ISynthesisProject = projectConfig.factory.CreateProject(projectConfig.name, projectConfig.folderPath, this.mContext);
         //Generate Project-Files
-        newProject.Generate();
+        const isGenerated = newProject.Generate();
+        if(!isGenerated)
+        {
+            vscode.window.showErrorMessage("Synthesis-Project could not be generated!");
+            return false;
+        }
 
         if(!this.mSynthesisProjects.has(projectConfig.tool))
         {

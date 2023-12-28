@@ -1,6 +1,6 @@
 //specific imports
 import { QuartusProject } from '../../../VHDLtools/Synthesis/Quartus/QuartusProject';
-import * as TclScripts from '../../../VHDLtools/Synthesis/TclScripts';
+import  {CustomQuartusTclScript, CustomQuartusTclScriptsFolder} from "../../../VHDLtools/Synthesis/Quartus/QuartusPackage";
 import * as Constants from '../../../vhdl_ls_package';
 
 // general imports
@@ -79,22 +79,22 @@ export class QuartusScriptGenerator {
     // --------------------------------------------
 
     //Pass ProjectName as absolute path
-    public static GenerateProject(quartusProject : QuartusProject) : boolean {
+    public static GenerateProject(quartusProject : QuartusProject) : string | undefined {
         
-        //writestream for Tcl-Script
-        if(fs.existsSync(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.GenerateProject)))
+        if(quartusProject.GetFolderPath().length === 0)
         {
-            vscode.window.showInformationMessage(TclScripts.GenerateProject + " already exists and cannot be overwritten!");
-            return false;
+            vscode.window.showInformationMessage('No existing Quartus-Project -> Files cannot be updated!');
+            return undefined;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.GenerateProject), { flags: 'wx'});
+        const scriptPath : string = path.join(quartusProject.GetTclScriptsFolder(), CustomQuartusTclScript.GenerateProject);
+        let wstream : fs.WriteStream = fs.createWriteStream(scriptPath, { flags: 'wx'});
         
         //check writestream
         if(!wstream.writable)
         {
             console.log("Error in writestream");
-            return false;
+            return undefined;
         }
 
         //Set DesignName
@@ -119,18 +119,19 @@ export class QuartusScriptGenerator {
         //close writestream
         wstream.end();
 
-        return true;
+        return scriptPath;
     }
 
-    public static GenerateUpdateFiles(quartusProject : QuartusProject) : boolean
+    public static GenerateUpdateFiles(quartusProject : QuartusProject) : string | undefined
     {
         if(quartusProject.GetFolderPath().length === 0)
         {
             vscode.window.showInformationMessage('No existing Quartus-Project -> Files cannot be updated!');
-            return false;
+            return undefined;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.UpdateFiles), { flags: 'w' });
+        const scriptPath : string = path.join(quartusProject.GetTclScriptsFolder(), CustomQuartusTclScript.UpdateFiles);
+        let wstream : fs.WriteStream = fs.createWriteStream(scriptPath, { flags: 'w' });
         
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
@@ -162,18 +163,19 @@ export class QuartusScriptGenerator {
         //close writestream
         wstream.end();
 
-        return true;
+        return scriptPath;
     }
 
-    public static GenerateCompile(quartusProject : QuartusProject) : boolean
+    public static GenerateCompile(quartusProject : QuartusProject) : string | undefined
     {
         if(quartusProject.GetFolderPath().length === 0)
         {
             vscode.window.showInformationMessage('No existing Quartus-Project -> No compilation posssible!');
-            return false;
+            return undefined;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.Compile), { flags: 'w'});
+        const scriptPath : string = path.join(quartusProject.GetTclScriptsFolder(), CustomQuartusTclScript.Compile);
+        let wstream : fs.WriteStream = fs.createWriteStream(scriptPath, { flags: 'w'});
 
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
@@ -191,41 +193,43 @@ export class QuartusScriptGenerator {
         //close writestream
         wstream.end();
 
-        return true;
+        return scriptPath;
     }
 
-    public static GenerateLaunchGUI(quartusProject : QuartusProject) : boolean
+    public static GenerateLaunchGUI(quartusProject : QuartusProject) : string | undefined
     {
         if(quartusProject.GetFolderPath().length === 0)
         {
             vscode.window.showInformationMessage('No existing Quartus-Project -> GUI cannot be launched!');
-            return false;
+            return undefined;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.LaunchGUI), { flags: 'w'});
+        const scriptPath : string = path.join(quartusProject.GetTclScriptsFolder(), CustomQuartusTclScript.LaunchGUI);
+        let wstream : fs.WriteStream = fs.createWriteStream(scriptPath, { flags: 'w'});
 
         //Launch Quartus-GUI
-        wstream.write(cExecute + (quartusProject.GetQuartus().GetExePath().replace(/\\/g, "/")) + " " + path.join(quartusProject.GetFolderPath() ,quartusProject.GetName()).replace(/\\/g, "/"));
+        wstream.write(cExecute + (quartusProject.GetQuartus().GetExePath().replace(/\\/g, "/")) + " " + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/"));
 
-        return true;
+        return scriptPath;
     }
 
-    public static GenerateTopLevelEntity(quartusProject : QuartusProject) : boolean
+    public static GenerateTopLevelEntity(quartusProject : QuartusProject) : string | undefined
     {
         if(quartusProject.GetFolderPath().length === 0)
         {
             vscode.window.showInformationMessage('No existing Quartus-Project -> TopLevelEntity cannot be set!');
-            return false;
+            return undefined;
         }
 
         //check, if top-level-entity has already been set
         if(!quartusProject.GetTopLevel())
         {
             vscode.window.showWarningMessage('Top-Level-Entity has not been set yet!');
-            return false;
+            return undefined;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.TopLevelEntity), { flags: 'w'});
+        const scriptPath : string = path.join(quartusProject.GetTclScriptsFolder(), CustomQuartusTclScript.TopLevelEntity);
+        let wstream : fs.WriteStream = fs.createWriteStream(scriptPath, { flags: 'w'});
 
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
@@ -243,25 +247,26 @@ export class QuartusScriptGenerator {
         //close writestream
         wstream.end();
 
-        return true;
+        return scriptPath;
     }
 
-    public static GenerateDevice(quartusProject : QuartusProject) : boolean
+    public static GenerateDevice(quartusProject : QuartusProject) : string | undefined
     {
         if(quartusProject.GetFolderPath().length === 0)
         {
             vscode.window.showInformationMessage('No existing Quartus-Project -> Device cannot be set!');
-            return false;
+            return undefined;
         }
 
         //check, if device has already been set
         if(!quartusProject.GetDevice())
         {
             vscode.window.showWarningMessage('Device has not been set yet!');
-            return false;
+            return undefined;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.Device), { flags: 'w'});
+        const scriptPath : string = path.join(quartusProject.GetTclScriptsFolder(), CustomQuartusTclScript.Device);
+        let wstream : fs.WriteStream = fs.createWriteStream(scriptPath, { flags: 'w'});
 
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
@@ -279,25 +284,26 @@ export class QuartusScriptGenerator {
         //close writestream
         wstream.end();
 
-        return true;
+        return scriptPath;
     }
 
-    public static GenerateFamily(quartusProject : QuartusProject) : boolean
+    public static GenerateFamily(quartusProject : QuartusProject) : string | undefined
     {
         if(quartusProject.GetFolderPath().length === 0)
         {
             vscode.window.showInformationMessage('No existing Quartus-Project -> Family cannot be set!');
-            return false;
+            return undefined;
         }
 
         //check, if device has already been set
         if(!quartusProject.GetFamily())
         {
             vscode.window.showWarningMessage('Family has not been set yet!');
-            return false;
+            return undefined;
         }
 
-        let wstream : fs.WriteStream = fs.createWriteStream(path.join(quartusProject.GetTclScriptsFolder(), TclScripts.Family), { flags: 'w'});
+        const scriptPath : string = path.join(quartusProject.GetTclScriptsFolder(), CustomQuartusTclScript.Family);
+        let wstream : fs.WriteStream = fs.createWriteStream(scriptPath, { flags: 'w'});
 
         //Load Packages
         wstream.write(cLoadPackage + cPackageProject + "\n");
@@ -315,7 +321,15 @@ export class QuartusScriptGenerator {
         //close writestream
         wstream.end();
 
-        return true;
+        return scriptPath;
+    }
+
+    public static DeleteScript(scriptPath : string) : void
+    {
+        if(fs.existsSync(scriptPath))
+        {
+            fs.unlinkSync(scriptPath);
+        }
     }
 
 }

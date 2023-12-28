@@ -1,35 +1,36 @@
+
 // specific members
 import { ISynthesisFactory } from "./SynthesisFactory";
 import { ISynthesisProject } from "../SynthesisProject";
-import { QuartusProject } from "../Quartus/QuartusProject";
+import { DiamondProject } from "../diamond/diamond_project";
 
 // general members
 import * as vscode from 'vscode';
 
-export class QuartusFactory implements ISynthesisFactory
+export class DiamondFactory implements ISynthesisFactory
 {
     // --------------------------------------------
     // Private members
     // --------------------------------------------
-    private static mInstance : QuartusFactory;
+    private static mInstance : DiamondFactory;
 
     private constructor() {}
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
-    public static getInstance(): QuartusFactory 
+    public static getInstance(): DiamondFactory 
     {
-        if (!QuartusFactory.mInstance) {
-            QuartusFactory.mInstance = new QuartusFactory();
+        if (!DiamondFactory.mInstance) {
+            DiamondFactory.mInstance = new DiamondFactory();
         }
 
-        return QuartusFactory.mInstance;
+        return DiamondFactory.mInstance;
     }
 
     public CreateProject(name : string, path : string, context : vscode.ExtensionContext) : ISynthesisProject
     {
-        return new QuartusProject(name, path, context);
+        return new DiamondProject(name, path, context);
     }
 
 }

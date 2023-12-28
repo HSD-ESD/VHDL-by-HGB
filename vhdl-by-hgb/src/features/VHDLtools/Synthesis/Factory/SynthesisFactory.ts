@@ -1,6 +1,5 @@
 // specific imports
 import { ISynthesisProject } from "../SynthesisProject";
-import { FileHolder } from "../../../FileTools/FileHolder";
 
 // general imports
 import * as  vscode from 'vscode';

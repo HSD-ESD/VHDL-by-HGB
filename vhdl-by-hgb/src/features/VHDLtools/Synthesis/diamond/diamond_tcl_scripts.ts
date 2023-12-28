@@ -1,6 +1,6 @@
 
 //Folder for Scripts
-export const Folder : string = "TclScripts";
+export const Folder : string = "TclScriptsHGB";
 
 //ScriptNames
 export const GenerateProject = "Generate.tcl";

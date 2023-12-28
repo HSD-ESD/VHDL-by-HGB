@@ -29,22 +29,30 @@ Library definitions in later files redefines those from previously loaded files.
 
 **Example vhdl_ls.toml**
 ```toml
-# File names are either absolute or relative to the parent folder of the
-# vhdl_ls.toml file and supports glob-style patterns.
-
+# File names are either absolute or relative to the parent folder of the vhdl_ls.toml file
 [libraries]
 
-# Defines library lib2
 lib2.files = [
   'pkg2.vhd',
-  'src/**/*.vhd',
 ]
 
-# Defines library lib1
 lib1.files = [
   'pkg1.vhd',
-  'tb_ent.vhd',
+  'tb_ent.vhd'
 ]
+
+# Wildcards are supported
+lib3.files = [
+  'test/*.vhd',
+  'src/*.vhd',
+  'src/*/*.vhd',
+]
+
+# Libraries can be marked as third-party to disable some analysis warnings, such as unused declarations
+UNISIM.files = [
+  'C:\Xilinx\Vivado\2023.1\data\vhdl\src\unisims\unisim_VCOMP.vhd',
+]
+UNISIM.is_third_party = true
 ```
 
 ## Project-Setup

@@ -43,7 +43,7 @@ export class Quartus {
     private mOutputChannel: vscode.OutputChannel;
     private mContext: vscode.ExtensionContext;
 
-    private mQuartusBinaryPath: string = "";
+    private mQuartusBinaryPath : string | undefined;
 
     // --------------------------------------------
     // Public methods
@@ -53,7 +53,7 @@ export class Quartus {
         //setting vscode-members
         this.mOutputChannel = ouputChannel;
         this.mContext = context;
-        this.mQuartusBinaryPath = SearchQuartusBinaryPath();
+        this.mQuartusBinaryPath = GetQuartusBinaryPath();
     }
 
     public async RunTclScript(TclScript: string): Promise<boolean> 
@@ -72,14 +72,8 @@ export class Quartus {
             }
         }
 
-        //if no valid quartus binary-path -> select path
-        if (this.mQuartusBinaryPath.length === 0) {
-            IsSuccess = await this.SelectQuartusBinaryPath();
-
-            if (!IsSuccess) {
-                vscode.window.showInformationMessage('Quartus-Binary-Path not set!');
-                return false;
-            }
+        if (!this.mQuartusBinaryPath) {
+            return false;
         }
 
         //path for quartus-shell
@@ -94,6 +88,8 @@ export class Quartus {
             vscode.window.showInformationMessage('Failed to start Quartus-Shell!');
             return false;
         }
+
+        this.mOutputChannel.show(true);
 
         quartusShell.stdout.on('data', (data: Buffer) => {
             console.log(data.toString());
@@ -130,14 +126,8 @@ export class Quartus {
 
         let IsSuccess: boolean = false;
     
-        //if no valid quartus binary-path -> select path
-        if (this.mQuartusBinaryPath.length === 0) {
-            IsSuccess = await this.SelectQuartusBinaryPath();
-    
-            if (!IsSuccess) {
-                vscode.window.showInformationMessage('Quartus-Binary-Path not set!');
-                return false;
-            }
+        if (!this.mQuartusBinaryPath) {
+            return false;
         }
     
         //path for quartus-shell
@@ -202,11 +192,29 @@ export class Quartus {
     }
 
     //Getter-Methods
-    public GetBinaryPath() : string { return this.mQuartusBinaryPath; }
+    public GetBinaryPath() : string 
+    {
+        if (!this.mQuartusBinaryPath) {
+            return "";
+        }
+        return this.mQuartusBinaryPath; 
+    }
 
-    public GetExePath() : string { return path.join(this.mQuartusBinaryPath, QUARTUS_EXE);}
+    public GetExePath() : string 
+    {
+        if (!this.mQuartusBinaryPath) {
+            return "";
+        }
+        return path.join(this.mQuartusBinaryPath, QUARTUS_EXE);
+    }
 
-    public GetShellPath() : string { return path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);}
+    public GetShellPath() : string 
+    {
+        if (!this.mQuartusBinaryPath) {
+            return "";
+        }
+        return path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);
+    }
 
     public IsBlackListed(fileName: string) {
         return fileName.startsWith("tb");
@@ -297,70 +305,95 @@ export class Quartus {
 
 }
 
-function GetQuartusBinaryPathFromEnv(): string 
+//automatically get Quartus path with newest version -> if not found, path will be empty
+function GetQuartusBinaryPath() : string | undefined 
+{
+    let QuartusBinaryPath : string | undefined;
+
+    //check if path is set in environment variables
+    QuartusBinaryPath = GetQuartusBinaryPathFromEnv();
+
+    if (!QuartusBinaryPath) 
+    {
+        // get default path
+        QuartusBinaryPath = GetQuartusPathFromDefaultPaths();
+    }
+
+    if(!QuartusBinaryPath)
+    {
+        // TODO:
+        // get version from extension-settings
+    }
+
+    return QuartusBinaryPath;
+}
+
+function GetQuartusBinaryPathFromEnv() : string | undefined
 {
     const quartusRootDir = process.env.QUARTUS_ROOTDIR || '';
 
-    let quartusBinaryPath = "";
+    // check if path exists
+    if (!fs.existsSync(quartusRootDir)) {
+        return undefined;
+    }
 
-    quartusBinaryPath = path.join(quartusRootDir, "bin64");
+    let quartusBinaryPath : string = path.join(quartusRootDir, "bin64");
 
     // check if path exists
     if (!fs.existsSync(quartusBinaryPath)) {
-        return "";
+        return undefined;
     }
 
     return quartusBinaryPath;
 }
 
-//automatically get Quartus path with newest version -> if not found, path will be empty
-function SearchQuartusBinaryPath(): string 
+function GetQuartusPathFromDefaultPaths() : string | undefined
 {
     const OperatingSystem = process.platform;
-    let QuartusPath: string = "";
+    let QuartusPath : string | undefined;
 
     if (OperatingSystem === 'win32') {
-        let QuartusVersion: string = GetNewestQuartusVersion(QUARTUS_PATH_WINDOWS);
+        let QuartusVersion : number | undefined = GetNewestQuartusVersion(QUARTUS_PATH_WINDOWS);
 
-        //check for empty string
-        if (QuartusVersion.length === 0) {
-            return QuartusPath;
+        if (!QuartusVersion) {
+            return undefined;
         }
 
         QuartusPath = path.join(QUARTUS_PATH_WINDOWS, QuartusVersion.toString());
-
     }
     else if (OperatingSystem === 'linux') {
-        let QuartusVersion: string = GetNewestQuartusVersion(QUARTUS_PATH_LINUX);
+        let QuartusVersion : number | undefined =  GetNewestQuartusVersion(QUARTUS_PATH_LINUX);
 
-        //check for empty string
-        if (QuartusVersion.length === 0) {
-            return QuartusPath;
+        if (!QuartusVersion) {
+            return undefined;
         }
 
         QuartusPath = path.join(QUARTUS_PATH_LINUX, QuartusVersion.toString());
+    }
 
+    if (!QuartusPath) {
+        return undefined;
     }
 
     //default folder for Quartus-binaries
-    QuartusPath = path.join(QuartusPath, "quartus", "bin64");
+    const QuartusBinaryPath = path.join(QuartusPath, "quartus", "bin64");
 
     //check if path exists
-    if (!fs.existsSync(QuartusPath)) {
-        return "";
+    if (!fs.existsSync(QuartusBinaryPath)) {
+        return undefined;
     }
 
-    return QuartusPath;
+    return QuartusBinaryPath;
 }
 
 //get newest Quartus version from specified path (intelFPGA_lite)
-function GetNewestQuartusVersion(DefaultPath: string): string {
-
-    let NewestVersion: number = 0;
+function GetNewestQuartusVersion(DefaultPath: string) : number | undefined 
+{
+    let NewestVersion: number | undefined;
 
     //check if specified path exists
     if (!fs.existsSync(DefaultPath)) {
-        return "";
+        return undefined;
     }
 
     //read all directories in specified path and search for newest version
@@ -376,7 +409,7 @@ function GetNewestQuartusVersion(DefaultPath: string): string {
 
     NewestVersion = Math.max(...directoryNames);
 
-    return NewestVersion.toString();
+    return NewestVersion;
 }
 
 function correctFilePathFromQsfFile(filePath : string) : string 
