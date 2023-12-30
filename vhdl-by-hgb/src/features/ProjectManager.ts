@@ -4,7 +4,7 @@ import { FileHolder } from "./FileTools/FileHolder";
 import { TomlUtils } from "./FileTools/FileGenerator/TomlUtils";
 import { ProjectViewProvider, ProjectItem} from "./TreeView/Project/ProjectView";
 import { SynthesisManager } from "./VHDLtools/Synthesis/SynthesisManager";
-import { SimulationManager } from "./VHDLtools/Simulation/SimulationManager";
+import { VerificationManager } from "./VHDLtools/verification/verification_manager";
 import { HDLUtils } from "./FileTools/HDLUtils";
 import { DynamicSnippets } from "./DynamicSnippets/VhdlDynamicSnippets";
 import { RustHDL } from "./RustHDL";
@@ -44,7 +44,7 @@ export class ProjectManager {
     private mDynamicSnip : DynamicSnippets;
 
     private mSynthesisManager : SynthesisManager;
-    private mSimulationManager : SimulationManager;
+    private mVerificationManager : VerificationManager;
 
     // UI
     private mProjectViewProvider : ProjectViewProvider;
@@ -76,7 +76,7 @@ export class ProjectManager {
         this.mDynamicSnip = new DynamicSnippets(this.mContext);
         
         this.mSynthesisManager = new SynthesisManager(this.mWorkSpacePath, this.mContext);
-        this.mSimulationManager = new SimulationManager(this.mContext);
+        this.mVerificationManager = new VerificationManager(this.mContext);
 
         // UI
         this.mProjectViewProvider = new ProjectViewProvider(this.mFileHolder, this.mContext, this.mWorkSpacePath);
@@ -91,7 +91,7 @@ export class ProjectManager {
 
     public async Initialize() : Promise<void>
 	{
-        await this.mSimulationManager.Initialize();
+        await this.mVerificationManager.Initialize();
         await this.mSynthesisManager.Initialize();
         
 		if(fs.existsSync(path.join(this.mWorkSpacePath, VHDL_LS.VHDL_LS_FILE)))
@@ -123,7 +123,7 @@ export class ProjectManager {
         this.mProjectIsInitialised = true;
 
         // tool for getting sources of a hdl-project
-        this.mVhdlFinder = this.mSimulationManager.GetVhdlFinder();
+        this.mVhdlFinder = this.mVerificationManager.GetVhdlFinder();
 
         // updating project-data
         this.Update();
@@ -171,7 +171,7 @@ export class ProjectManager {
         let disposable : vscode.Disposable;
 
         //connect events
-        disposable = this.mSimulationManager.ActiveSimulationProjectChanged.event(()  => this.Setup());
+        disposable = this.mVerificationManager.ActiveVerificationProjectChanged.event(()  => this.Setup());
         this.mContext.subscriptions.push(disposable);
     }
 

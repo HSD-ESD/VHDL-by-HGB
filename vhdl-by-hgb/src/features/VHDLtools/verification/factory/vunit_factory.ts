@@ -1,12 +1,12 @@
 //specific imports
-import { ISimulationFactory } from "./SimulationFactory";
+import { IVerificationFactory } from "./verification_factory";
 import { IVhdlFinder } from "../../../FileTools/VhdlFinder/VhdlFinder";
 
 //general imports
 import * as vscode from 'vscode';
 import { VUnitVhdlFinder } from "../../../FileTools/VhdlFinder/VUnitVhdlFinder";
 
-export class VUnitFactory implements ISimulationFactory
+export class VUnitFactory implements IVerificationFactory
 {
 
     // --------------------------------------------

@@ -9,7 +9,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { ChildProcess, spawn } from 'child_process';
 import readline = require('readline');
-import { HDLRegressionData, HDLRegressionFile, HDLRegressionTest } from './HDLRegressionPackage';
+import { HDLRegressionData, HDLRegressionFile, HDLRegressionTest } from './hdlregression_package';
 
 //module-internal constants
 const cHDLRegressionLtcMatcher : RegExp = /^TC:(\d+)\s+-\s+(\w+)\.(\w+)\.(\w+)/;

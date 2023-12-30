@@ -2,7 +2,7 @@
 'use strict';
 
 //specific imports
-import {VUnitExportData} from './VUnitPackage';
+import {VUnitExportData} from './vunit_package';
 
 //general imports
 import * as vscode from 'vscode';

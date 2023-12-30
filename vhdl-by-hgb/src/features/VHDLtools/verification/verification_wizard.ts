@@ -5,9 +5,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // specific imports
-import { EnabledSimulationTools, NO_SIMULATION_PROJECT, eSimulationTool } from './SimulationPackage';
+import { EnabledVerificationTools, NO_VERIFICATION_PROJECT, eVerificationTool } from './verification_package';
 
-export class SimulationWizard 
+export class VerificationWizard 
 {
     // --------------------------------------------
     // Private members
@@ -36,7 +36,7 @@ export class SimulationWizard
 
         if(!selectedProject) 
         {
-            vscode.window.showErrorMessage("No Simulation-Project was set!");
+            vscode.window.showErrorMessage("No Verification-Project was set!");
             return undefined;
         }
 
@@ -49,18 +49,18 @@ export class SimulationWizard
         return selectedProject;
     }
 
-    public async SelectSimulationTool() : Promise<eSimulationTool | undefined>
+    public async SelectTool() : Promise<eVerificationTool | undefined>
     {
         // quick pick menu with available tools
-        let selectedTool = await vscode.window.showQuickPick([...EnabledSimulationTools, NO_SIMULATION_PROJECT]);
+        let selectedTool = await vscode.window.showQuickPick([...EnabledVerificationTools, NO_VERIFICATION_PROJECT]);
 
         if (!selectedTool)
         {
-            vscode.window.showErrorMessage("Selected Simulation-Tool is not available!");
+            vscode.window.showErrorMessage("Selected Verification-Tool is not available!");
             return undefined;
         }
 
-        return selectedTool as eSimulationTool;
+        return selectedTool as eVerificationTool;
     }
 
     // --------------------------------------------

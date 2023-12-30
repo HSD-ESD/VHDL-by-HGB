@@ -1,6 +1,6 @@
 //specific imports
-import { HDLRegression } from "../../VHDLtools/Simulation/HDLRegression/HDLRegression";
-import { HDLRegressionFile } from "../../VHDLtools/Simulation/HDLRegression/HDLRegressionPackage";
+import { HDLRegression } from "../../VHDLtools/verification/hdlregression/hdlregression";
+import { HDLRegressionFile } from "../../VHDLtools/verification/hdlregression/hdlregression_package";
 import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary } from "../../VHDLtools/VhdlPackage";
 import { IVhdlFinder } from "./VhdlFinder";
 

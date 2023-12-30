@@ -57,8 +57,8 @@
                     "name": "Project"
                 },
                 {
-                    "id": "vhdlbyhgb-view-source",
-                    "name": "Sources"
+                    "id": "vhdlbyhgb-view-verification",
+                    "name": "Verification"
                 },
                 {
                     "id": "vhdlbyhgb-view-synthesis",
@@ -98,8 +98,8 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "VHDLbyHGB.Simulation.View.Refresh",
-                    "when": "view == vhdlbyhgb-view-simulation",
+                    "command": "VHDLbyHGB.Verification.View.Refresh",
+                    "when": "view == vhdlbyhgb-view-verification",
                     "group": "navigation"
                 },
                 {
@@ -214,12 +214,12 @@
                 }
             },
             {
-                "command": "VHDLbyHGB.Simulation.SetActiveProject",
-                "title": "VHDLbyHGB.Simulation.SetActiveProject"
+                "command": "VHDLbyHGB.Verification.SetActiveProject",
+                "title": "VHDLbyHGB.Verification.SetActiveProject"
             },
             {
-                "command": "VHDLbyHGB.Simulation.View.Refresh",
-                "title": "Refresh Simulation View",
+                "command": "VHDLbyHGB.Verification.View.Refresh",
+                "title": "Refresh Verification View",
                 "group": "navigation",
                 "icon": {
                     "light": "resources/images/general/light/refresh.svg",

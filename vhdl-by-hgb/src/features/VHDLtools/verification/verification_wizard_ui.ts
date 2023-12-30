@@ -1,5 +1,5 @@
 //specific imports
-import { eSimulationTool } from './SimulationPackage'; 
+import { eVerificationTool } from './verification_package'; 
 
 import {    UPDATE_TITLE, 
             BUTTONS, 
@@ -16,7 +16,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 
 
-export class SimulationWizardUi 
+export class VerificationWizardUi
 {
 
     // --------------------------------------------
@@ -30,8 +30,8 @@ export class SimulationWizardUi
     // --------------------------------------------
     public constructor(context : vscode.ExtensionContext) {
         this.mContext = context;
-        const def : WizardDefinition = getSimulationWizardDefinition(this.mContext);
-        this.mWizard = new WebviewWizard("Simulation-Wizard", "Simulation Wizard", this.mContext, def, new Map<string,string>());
+        const def : WizardDefinition = getVerificationWizardDefinition(this.mContext);
+        this.mWizard = new WebviewWizard("Verification-Wizard", "Verification Wizard", this.mContext, def, new Map<string,string>());
     }
 
     public async Run() : Promise<any> 
@@ -42,10 +42,10 @@ export class SimulationWizardUi
 }
 
 
-export function getSimulationWizardDefinition(context: vscode.ExtensionContext) : WizardDefinition {
+export function getVerificationWizardDefinition(context: vscode.ExtensionContext) : WizardDefinition {
     let def : WizardDefinition = {
-        title: "Simulation Wizard", 
-        description: "Generate HDL-Simulation-Project",
+        title: "Verification Wizard", 
+        description: "Generate HDL-Verification-Project",
         workflowManager: {
         canFinish(wizard:WebviewWizard, data: any): boolean {
             return true;
@@ -66,21 +66,21 @@ export function getSimulationWizardDefinition(context: vscode.ExtensionContext) 
         pages: [
         {
             id: 'page1',
-            title: "Simulation-Project Configurator",
+            title: "Verification-Project Configurator",
             description: "Settings for Library Mapping, Folder, Files...",
             fields: [
                 {
-                    id: "SimulationProjectType",
+                    id: "VerificationProjectType",
                     label: "ProjectType",
                     type: "select",
                     description: "Select Tool",
                     initialValue: "VUnit",
                     properties: {
-                        options: Object.values(eSimulationTool)
+                        options: Object.values(eVerificationTool)
                     }
                 },
                 {
-                    id: "SimulationProjectLocation",
+                    id: "VerificationProjectLocation",
                     label: "Project Location",
                     initialValue: "",
                     type: "file-picker",
@@ -93,7 +93,7 @@ export function getSimulationWizardDefinition(context: vscode.ExtensionContext) 
                     }
                 },
                 {
-                    id: "SimulationProjectLibrariesLocation",
+                    id: "VerificationProjectLibrariesLocation",
                     label: "Location of Libraries",
                     initialValue: "",
                     type: "file-picker",
@@ -106,7 +106,7 @@ export function getSimulationWizardDefinition(context: vscode.ExtensionContext) 
                     }
                 },
                 {
-                    id: "SimulationProjectRtlWildcard",
+                    id: "VerificationProjectRtlWildcard",
                     label: "Rtl-Wildcard",
                     description: "Enter a glob-pattern for RTL-Files",
                     type: "textbox",
@@ -114,7 +114,7 @@ export function getSimulationWizardDefinition(context: vscode.ExtensionContext) 
                     placeholder: "**/src/*.vhd",
                 },
                 {
-                    id: "SimulationProjectTbWildcard",
+                    id: "VerificationProjectTbWildcard",
                     label: "Tb-Wildcard",
                     description: "Enter a glob-pattern for Tb-Files",
                     type: "textbox",
@@ -126,15 +126,15 @@ export function getSimulationWizardDefinition(context: vscode.ExtensionContext) 
             validator: (parameters:any) => {
                 let items : ValidatorResponseItem[] = [];
                 
-                if(!fs.existsSync(parameters.SimulationProjectLocation))
+                if(!fs.existsSync(parameters.VerificationProjectLocation))
                 {
-                    items.push(createValidationItem(SEVERITY.ERROR, "SimulationProjectLocation", 
+                    items.push(createValidationItem(SEVERITY.ERROR, "VerificationProjectLocation", 
                     "Invalid path for project-location"));
                 }
                 
-                if(!fs.existsSync(parameters.SimulationProjectLibrariesLocation))
+                if(!fs.existsSync(parameters.VerificationProjectLibrariesLocation))
                 {
-                    items.push(createValidationItem(SEVERITY.ERROR, "SimulationProjectLibrariesLocation", 
+                    items.push(createValidationItem(SEVERITY.ERROR, "VerificationProjectLibrariesLocation", 
                     "Invalid path for location of libraries"));
                 }
 

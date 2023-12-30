@@ -1,12 +1,12 @@
 //specific imports
-import { ISimulationFactory } from "./SimulationFactory";
+import { IVerificationFactory } from "./verification_factory";
 import { IVhdlFinder } from "../../../FileTools/VhdlFinder/VhdlFinder";
 
 //general imports
 import * as vscode from 'vscode';
 import { HDLRegressionVhdlFinder } from "../../../FileTools/VhdlFinder/HDLRegressionVhdlFinder";
 
-export class HDLRegressionFactory implements ISimulationFactory
+export class HDLRegressionFactory implements IVerificationFactory
 {
 
     // --------------------------------------------

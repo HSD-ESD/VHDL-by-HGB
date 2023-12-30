@@ -73,14 +73,14 @@ UNISIM.is_third_party = true
 ### auto 
 - `vhdl_ls.toml` is generated automatically:
 
-	By invoking the command `VHDLbyHGB.Simulation.SetActiveProject`, a simulation-project in your vhdl-project
+	By invoking the command `VHDLbyHGB.Verification.SetActiveProject`, a verification-project in your vhdl-project
 	can be configured.
 
 	Supported Tools:
 	- VUnit
 	- HDLRegression
 
-	As a consequence of setting an active Simulation-Project, the `vhdl_ls.toml` will be generated automatically
+	As a consequence of setting an active verification-project, the `vhdl_ls.toml` will be generated automatically
 	from the source-information from these projects.
 
 ### manual 
@@ -511,7 +511,7 @@ Besides the Snippets from the Language Server, here a some more usable snippets:
 </table>
 
 ## Prerequisites
-- Simulation-Tools(VUnit, HDLRegression...) must be already installed for generating the `vhdl_ls.toml` with Simulation-Projects.
+- Verification-Tools(VUnit, HDLRegression...) must be already installed for generating the `vhdl_ls.toml` with Verification-Projects.
 - Synthesis-Tools (Quartus...) must be already installed for interacting with Synthesis-Projects.
 
 ## History

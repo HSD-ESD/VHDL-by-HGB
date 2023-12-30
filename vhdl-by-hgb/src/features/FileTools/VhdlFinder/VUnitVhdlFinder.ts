@@ -1,6 +1,6 @@
 //specific imports
-import { VUnit } from "../../VHDLtools/Simulation/VUnit/VUnit";
-import { VUnitExportData } from "../../VHDLtools/Simulation/VUnit/VUnitPackage";
+import { VUnit } from "../../VHDLtools/verification/vunit/vunit";
+import { VUnitExportData } from "../../VHDLtools/verification/vunit/vunit_package";
 import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary } from "../../VHDLtools/VhdlPackage";
 import { IVhdlFinder } from "./VhdlFinder";
 import { VHDL_LS } from "./../../vhdl_ls_package";
