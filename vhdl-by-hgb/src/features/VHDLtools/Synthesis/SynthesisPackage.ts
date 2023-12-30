@@ -19,19 +19,26 @@ export enum eSynthesisFile {
     Diamond = ".ldf",
 }
 
-export const SynthesisGraphicsMap : Map<eSynthesisTool, string> = new Map<eSynthesisTool, string>([
+// this array allows to activate only certain synthesis tools
+// and to develop support for other synthesis-tools without activating them
+// for release during development
+export const EnabledSynthesisTools: eSynthesisTool[] = Array.from(new Set([
+    eSynthesisTool.Quartus
+]));
+
+export const SynthesisGraphicsMap: Map<eSynthesisTool, string> = new Map<eSynthesisTool, string>([
     [eSynthesisTool.Quartus, path.join('resources', 'images','synthesis', 'quartus.svg')],
     [eSynthesisTool.Diamond, path.join('resources', 'images','synthesis', 'diamond.svg')],
 ]);
 
 // mapping strings of eSynthesisTool-Enum to their factories
-export const SynthesisToolMap : Map<eSynthesisTool,ISynthesisFactory> = new Map<eSynthesisTool,ISynthesisFactory>([
+export const SynthesisToolMap: Map<eSynthesisTool, ISynthesisFactory> = new Map<eSynthesisTool, ISynthesisFactory>([
     [eSynthesisTool.Quartus, QuartusFactory.getInstance()],
-    // [eSynthesisTool.Diamond, DiamondFactory.getInstance()],
+    [eSynthesisTool.Diamond, DiamondFactory.getInstance()],
 ]);
 
 // mapping strings of eSynthesisFile to eSynthesisTool-Enum
-export const SynthesisFileMap : Map<eSynthesisFile, eSynthesisTool> = new Map<eSynthesisFile, eSynthesisTool>([
+export const SynthesisFileMap: Map<eSynthesisFile, eSynthesisTool> = new Map<eSynthesisFile, eSynthesisTool>([
     [eSynthesisFile.Quartus, eSynthesisTool.Quartus],
-    // [eSynthesisFile.Diamond, eSynthesisTool.Diamond],
+    [eSynthesisFile.Diamond, eSynthesisTool.Diamond],
 ]);

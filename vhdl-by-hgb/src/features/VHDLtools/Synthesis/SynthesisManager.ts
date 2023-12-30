@@ -1,7 +1,7 @@
 //specific imports
 import { SynthesisWizard } from "./SynthesisWizard";
 import { ISynthesisProject, TSynthesisProjectConfig, TSynthesisProject } from "./SynthesisProject";
-import { ACTIVE_SYNTHESIS_PROJECT, NO_SYNTHESIS_PROJECT, SynthesisFileMap, SynthesisToolMap, eSynthesisFile, eSynthesisTool } from "./SynthesisPackage";
+import { ACTIVE_SYNTHESIS_PROJECT, EnabledSynthesisTools, NO_SYNTHESIS_PROJECT, SynthesisFileMap, SynthesisToolMap, eSynthesisFile, eSynthesisTool } from "./SynthesisPackage";
 import { VhdlEntity } from "../VhdlPackage";
 import { ISynthesisFactory } from "./Factory/SynthesisFactory";
 import { SynthesisViewProvider, SynthesisItem } from "../../TreeView/Synthesis/SynthesisView";
@@ -64,6 +64,7 @@ export class SynthesisManager
     {
         await this.LoadSynthesisProjects();
         this.updateStatusBar();
+        this.mSynthesisViewProvider.refresh();
     }
 
     public async AddNewProject() : Promise<boolean>
@@ -100,7 +101,7 @@ export class SynthesisManager
         return true;
     }
 
-    public async AddExistingProject(projectFile : string) : Promise<boolean>
+    public AddExistingProject(projectFile : string) : boolean
     {
         const fileName = path.basename(projectFile);
         const projectName = fileName.split('.')[0];
@@ -434,7 +435,10 @@ export class SynthesisManager
         synthesisFileEndings.forEach((fileEnding) => {
             if(path.extname(filePath) === fileEnding)
             {
-                return true;
+                if(EnabledSynthesisTools.includes(SynthesisFileMap.get(fileEnding)!))
+                {
+                    return true;
+                }
             }
         });
 
@@ -457,10 +461,13 @@ export class SynthesisManager
     {
         const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
         const fileExtensions = Object.values(eSynthesisFile);
-        const filePattern = `**/*{${fileExtensions.join(",")}}`;
+        const enabledFileExtensions = fileExtensions.filter((fileEnding) => {
+            return EnabledSynthesisTools.includes(SynthesisFileMap.get(fileEnding)!);
+        });
+        const filePattern = `**/*{${enabledFileExtensions.join(",")}}`;
 
         const results = await vscode.workspace.findFiles(
-        new vscode.RelativePattern(workspaceFolder, filePattern)
+            new vscode.RelativePattern(workspaceFolder, filePattern)
         );
 
         let synthesisProjects : string[] = results.map((file) => {

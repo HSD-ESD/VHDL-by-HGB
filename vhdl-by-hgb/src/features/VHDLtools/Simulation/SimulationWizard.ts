@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // specific imports
-import { NO_SIMULATION_PROJECT, eSimulationTool } from './SimulationPackage';
+import { EnabledSimulationTools, NO_SIMULATION_PROJECT, eSimulationTool } from './SimulationPackage';
 
 export class SimulationWizard 
 {
@@ -52,7 +52,7 @@ export class SimulationWizard
     public async SelectSimulationTool() : Promise<eSimulationTool | undefined>
     {
         // quick pick menu with available tools
-        let selectedTool = await vscode.window.showQuickPick([...Object.values(eSimulationTool), NO_SIMULATION_PROJECT]);
+        let selectedTool = await vscode.window.showQuickPick([...EnabledSimulationTools, NO_SIMULATION_PROJECT]);
 
         if (!selectedTool)
         {

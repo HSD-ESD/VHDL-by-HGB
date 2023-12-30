@@ -1,5 +1,5 @@
 //specific imports
-import { ACTIVE_SIMULATION_PROJECT, NO_SIMULATION_PROJECT, SimulationToolMap, TSimulationProject, eSimulationTool} from './SimulationPackage'; 
+import { ACTIVE_SIMULATION_PROJECT, EnabledSimulationTools, NO_SIMULATION_PROJECT, SimulationToolMap, TSimulationProject, eSimulationTool, getSimulationToolBaseNameFromTool, getSimulationToolFromScriptPath} from './SimulationPackage'; 
 import { VUnit } from './VUnit/VUnit';
 import { HDLRegression } from './HDLRegression/HDLRegression';
 import { SimulationWizard } from './SimulationWizard';
@@ -96,8 +96,7 @@ export class SimulationManager {
 
     public async Initialize() : Promise<void>
     {
-        await this.LoadSimulationProjects();
-        this.updateStatusBar();
+        await this.Update();
     }
 
     public async SetActiveProject() : Promise<boolean>
@@ -174,12 +173,51 @@ export class SimulationManager {
         return vhdlFinder;
     }
 
+    public AddExistingProject(scriptPath : string) : boolean
+    {
+        const tool : eSimulationTool | undefined = getSimulationToolFromScriptPath(scriptPath);
+        if(!tool)
+        {
+            return false;
+        }
+
+        if(!EnabledSimulationTools.includes(tool))
+        {
+            return false;
+        }
+
+
+        if (!this.mSimulationProjects.has(tool))
+        {
+            this.mSimulationProjects.set(tool, []);
+        }
+
+        const projects = this.mSimulationProjects.get(tool);
+
+        if(!projects) { return false;}
+
+        if(projects.includes(scriptPath))
+        {
+            return false;
+        }
+
+        projects.push(scriptPath);
+
+        projects.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        this.mSimulationProjects.set(tool, projects);
+
+        return true;
+    }
+
+
     // --------------------------------------------
     // Private methods
     // --------------------------------------------
     private async Update() : Promise<void> 
     {
-        this.LoadSimulationProjects();
+        await this.LoadSimulationProjects();
+        this.updateStatusBar();
+        this.mSimulationViewProvider.refresh();
     }
 
     private async HandleFileEvents() : Promise<void>
@@ -224,12 +262,32 @@ export class SimulationManager {
 
     private async LoadSimulationProjects() : Promise<void>
     {   
-        // all simulation projects
-        const vunitProjects = await this.mVUnit.FindScripts((vscode.workspace.workspaceFolders || [])[0], false);
-        this.mSimulationProjects.set(eSimulationTool.VUnit, vunitProjects);
+        const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
+        const enabledSimulationScriptNames : string[] = [];
 
-        const hdlregressionProjects = await this.mHDLRegression.FindScripts((vscode.workspace.workspaceFolders || [])[0], false);
-        this.mSimulationProjects.set(eSimulationTool.HDLRegression, hdlregressionProjects);
+        EnabledSimulationTools.forEach((tool) => {
+            const scriptBaseName = getSimulationToolBaseNameFromTool(tool);
+            if (scriptBaseName)
+            {
+                enabledSimulationScriptNames.push(scriptBaseName);
+            }
+        });
+        if (enabledSimulationScriptNames.length === 0) { return; }
+
+        const filePattern = `**/*{${enabledSimulationScriptNames.join(",")}}`;
+
+        const results = await vscode.workspace.findFiles(
+            new vscode.RelativePattern(workspaceFolder, filePattern)
+        );
+
+        let simulationProjects : string[] = results.map((file) => {
+            return file.fsPath;
+        });
+        simulationProjects.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        simulationProjects.forEach((project) => {
+            this.AddExistingProject(project);
+        });
 
         // active simulation project
         this.loadActiveSimulationProject();
@@ -283,8 +341,18 @@ export class SimulationManager {
 
     private IsSimulationProject(filePath : string) : boolean
     {
-        return  filePath.endsWith(vscode.workspace.getConfiguration().get("vhdl-by-hgb.vunitScriptName") as string) ||
-                filePath.endsWith(vscode.workspace.getConfiguration().get("vhdl-by-hgb.hdlregressionScriptName") as string);
+        const tool : eSimulationTool | undefined = getSimulationToolFromScriptPath(filePath);
+        if(!tool)
+        {
+            return false;
+        }
+
+        if(!EnabledSimulationTools.includes(tool))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private RegisterCommands(): void {
@@ -298,7 +366,6 @@ export class SimulationManager {
         this.mContext.subscriptions.push(disposable);
     }
 
-    
 }
 
 
