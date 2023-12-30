@@ -1,10 +1,9 @@
 out
-node_modules
-colibri
-.vscode-test
-*.vsix
 dist
+node_modules
+.vscode-test/
+*.vsix
+package-lock.json
 server
-temp
-vscode-terosHDL
-colibri
+/vscode.proposed.d.ts
+/vscode.d.ts

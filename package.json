@@ -1,0 +1,634 @@
+{
+    "name": "vhdl-by-hgb",
+    "displayName": "VHDL by HGB",
+    "publisher": "p2l2",
+    "description": "VS-Code Extension for VHDL",
+    "version": "0.1.0",
+    "engines": {
+        "vscode": "^1.45.0"
+    },
+    "keywords": [
+        "VHDL",
+        "vhdl",
+        "Hagenberg",
+        "FH Hagenberg",
+        "Chip Design",
+        "language-vhdl",
+        "hdl",
+        "rust_hdl",
+        "ide",
+        "vhdl_ls"
+    ],
+    "categories": [
+        "Programming Languages",
+        "Snippets",
+        "Formatters",
+        "Linters"
+    ],
+    "icon": "resources/images/general/logo.jpg",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/HSD-ESD/VHDL-by-HGB"
+    },
+    "bugs": {
+        "url": "https://github.com/HSD-ESD/VHDL-by-HGB/issues"
+    },
+    "main": "./out/extension.js",
+    "activationEvents": [
+        "onLanguage:vhdl",
+        "workspaceContains:*.vhd",
+        "onCommand:vhdlls.restart"
+    ],
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "vhdlbyhgb-container",
+                    "title": "VHDL by HGB",
+                    "icon": "resources/images/general/sidebar.svg"
+                }
+            ]
+        },
+        "views": {
+            "vhdlbyhgb-container": [
+                {
+                    "id": "vhdlbyhgb-view-project",
+                    "name": "Project"
+                },
+                {
+                    "id": "vhdlbyhgb-view-verification",
+                    "name": "Verification"
+                },
+                {
+                    "id": "vhdlbyhgb-view-synthesis",
+                    "name": "Synthesis"
+                }
+            ]
+        },
+        "grammars": [
+            {
+                "language": "vhdl",
+                "scopeName": "source.vhdl",
+                "path": "./syntaxes/vhdl/vhdl.tmLanguage.json"
+            },
+            {
+                "language": "tcl",
+                "scopeName": "source.tcl",
+                "path": "./syntaxes/tcl/tcl.tmLanguage.json"
+            }
+        ],
+        "submenus": [
+            {
+                "id": "vhdl-by-hgb.entity-submenu",
+                "label": "VHDLbyHGB EntityConverter"
+            }
+        ],
+        "menus": {
+            "explorer/context": [],
+            "view/title": [
+                {
+                    "command": "VHDLbyHGB.Project.View.Refresh",
+                    "when": "view == vhdlbyhgb-view-project",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.View.Refresh",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Verification.View.Refresh",
+                    "when": "view == vhdlbyhgb-view-verification",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.AddNewProject",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [],
+            "editor/title": [],
+            "editor/context": [
+                {
+                    "submenu": "vhdl-by-hgb.entity-submenu",
+                    "group": "vhdl-by-hgb",
+                    "when": "editorLangId == vhdl"
+                }
+            ],
+            "vhdl-by-hgb.entity-submenu": [
+                {
+                    "command": "VHDLbyHGB.copyEntity"
+                },
+                {
+                    "command": "VHDLbyHGB.pasteAsInstance"
+                },
+                {
+                    "command": "VHDLbyHGB.pasteAsComponent"
+                },
+                {
+                    "command": "VHDLbyHGB.pasteAsEntity"
+                },
+                {
+                    "command": "VHDLbyHGB.pasteSignals"
+                },
+                {
+                    "command": "VHDLbyHGB.pasteConstants"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "VHDLbyHGB.vhdlls.restart",
+                "title": "VHDLbyHGB.VHDL_LS.restart"
+            },
+            {
+                "command": "VHDLbyHGB.vhdlls.activate",
+                "title": "VHDLbyHGB.VHDL_LS.activate"
+            },
+            {
+                "command": "VHDLbyHGB.vhdlls.deactivate",
+                "title": "VHDLbyHGB.VHDL_LS.deactivate"
+            },
+            {
+                "command": "VHDLbyHGB.Project.Setup",
+                "title": "VHDLbyHGB.Project.Setup"
+            },
+            {
+                "command": "VHDLbyHGB.Project.Update",
+                "title": "VHDLbyHGB.Project.Update"
+            },
+            {
+                "command": "VHDLbyHGB.Project.View.Refresh",
+                "title": "Refresh Project View",
+                "icon": {
+                    "light": "resources/images/general/light/refresh.svg",
+                    "dark": "resources/images/general/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.AddNewProject",
+                "title": "Add new Synthesis Project",
+                "group": "navigation",
+                "icon": {
+                    "light": "resources/images/general/light/add.svg",
+                    "dark": "resources/images/general/dark/add.svg"
+                }
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.SetActiveProject",
+                "title": "VHDLbyHGB.Synthesis.SetActiveProject"
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.UpdateFiles",
+                "title": "VHDLbyHGB.Synthesis.UpdateFiles"
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.Compile",
+                "title": "VHDLbyHGB.Synthesis.Compile"
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.LaunchGUI",
+                "title": "VHDLbyHGB.Synthesis.LaunchGUI"
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.SetTopLevel",
+                "title": "VHDLbyHGB.Synthesis.SetTopLevel"
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.SetDevice",
+                "title": "VHDLbyHGB.Synthesis.SetDevice"
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.SetFamily",
+                "title": "VHDLbyHGB.Synthesis.SetFamily"
+            },
+            {
+                "command": "VHDLbyHGB.Synthesis.View.Refresh",
+                "title": "Refresh Synthesis View",
+                "group": "navigation",
+                "icon": {
+                    "light": "resources/images/general/light/refresh.svg",
+                    "dark": "resources/images/general/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "VHDLbyHGB.Verification.SetActiveProject",
+                "title": "VHDLbyHGB.Verification.SetActiveProject"
+            },
+            {
+                "command": "VHDLbyHGB.Verification.View.Refresh",
+                "title": "Refresh Verification View",
+                "group": "navigation",
+                "icon": {
+                    "light": "resources/images/general/light/refresh.svg",
+                    "dark": "resources/images/general/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "VHDLbyHGB.dynamicSnippets",
+                "title": "VHDLbyHGB.Dynamic Snippets"
+            },
+            {
+                "command": "VHDLbyHGB.copyEntity",
+                "title": "VHDLbyHGB.copyEntity"
+            },
+            {
+                "command": "VHDLbyHGB.pasteSignals",
+                "title": "VHDLbyHGB.pasteSignals"
+            },
+            {
+                "command": "VHDLbyHGB.pasteConstants",
+                "title": "VHDLbyHGB.pasteConstants"
+            },
+            {
+                "command": "VHDLbyHGB.pasteAsComponent",
+                "title": "VHDLbyHGB.pasteAsComponent"
+            },
+            {
+                "command": "VHDLbyHGB.pasteAsInstance",
+                "title": "VHDLbyHGB.pasteAsInstance"
+            },
+            {
+                "command": "VHDLbyHGB.pasteAsEntity",
+                "title": "VHDLbyHGB.pasteAsEntity"
+            }
+        ],
+        "languages": [
+            {
+                "id": "vhdl",
+                "aliases": [
+                    "VHDL",
+                    "vhdl"
+                ],
+                "configuration": "./configs/vhdl.configuration.json",
+                "extensions": [
+                    ".vhd",
+                    ".vho",
+                    ".vhdl"
+                ]
+            },
+            {
+                "id": "tcl",
+                "aliases": [
+                    "TCL",
+                    "tcl"
+                ],
+                "configuration": "./configs/tcl.configuration.json",
+                "extensions": [
+                    ".tcl",
+                    ".pro"
+                ]
+            },
+            {
+                "id": "ucf",
+                "aliases": [
+                    "vivado ucf",
+                    "ucf constraints"
+                ],
+                "configuration": "./configs/ucfconstraints.configuration.json",
+                "extensions": [
+                    ".ucf"
+                ]
+            },
+            {
+                "id": "xdc",
+                "aliases": [
+                    "vivado xdc",
+                    "xdc constraints"
+                ],
+                "configuration": "./configs/xdcconstraints.configuration.json",
+                "extensions": [
+                    ".xdc",
+                    ".sdc"
+                ]
+            },
+            {
+                "id": "ldc",
+                "aliases": [
+                    "lattice constraints"
+                ],
+                "configuration": "./configs/xdcconstraints.configuration.json",
+                "extensions": [
+                    ".ldc",
+                    ".pdc"
+                ]
+            }
+        ],
+        "snippets": [
+            {
+                "language": "vhdl",
+                "path": "./snippets/vhdl.json"
+            },
+            {
+                "language": "vhdl",
+                "path": "./snippets/vunit.json"
+            },
+            {
+                "language": "vhdl",
+                "path": "./snippets/quartus.json"
+            },
+            {
+                "language": "vhdl",
+                "path": "./snippets/xilinx.json"
+            },
+            {
+                "language": "tcl",
+                "path": "./snippets/tcl.json"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "VHDL by HGB",
+            "properties": {
+                "vhdl-by-hgb.vhdlls.languageServer": {
+                    "description": "Language server location. Changing this option requires a restart.",
+                    "type": "string",
+                    "default": "embedded",
+                    "enum": [
+                        "embedded",
+                        "user",
+                        "systemPath",
+                        "docker"
+                    ],
+                    "enumDescriptions": [
+                        "Use language server embedded in extension.",
+                        "Use custom path vhdlls.languageServerUserPath",
+                        "Run vhdl_ls from system path.",
+                        "Use kraigher/vhdl_ls:latest image from Docker Hub"
+                    ]
+                },
+                "vhdl-by-hgb.vhdlls.languageServerUserPath": {
+                    "description": "Path to vhdl_ls language server executable, used when vhdlls.languageServer = \"user\"",
+                    "type": "string"
+                },
+                "vhdl-by-hgb.vhdlls.trace.server": {
+                    "type": "string",
+                    "scope": "window",
+                    "enum": [
+                        "off",
+                        "messages",
+                        "verbose"
+                    ],
+                    "enumDescriptions": [
+                        "No traces",
+                        "Error only",
+                        "Full log"
+                    ],
+                    "default": "off",
+                    "description": "Trace requests to the vhdl_ls language server (this is usually overly verbose and not recommended for regular users)"
+                },
+                "vhdl-by-hgb.vhdlls.toml.generation": {
+                    "description": "Generation-Option for vhdl_ls.toml, which is needed for the Language Server\n",
+                    "type": "string",
+                    "default": "auto",
+                    "enum": [
+                        "auto",
+                        "manual"
+                    ],
+                    "enumDescriptions": [
+                        "vhdl_ls.toml is generated automatically on certain file-events",
+                        "vhdl_ls.toml must be generated by a custom-script by the user"
+                    ]
+                },
+                "vhdl-by-hgb.python": {
+                    "title": "Python executable",
+                    "description": "Path to python executable",
+                    "type": "string",
+                    "default": "python"
+                },
+                "vhdl-by-hgb.vunitScriptName": {
+                    "title": "VUnit-ScriptName",
+                    "description": "Default name for VUnit-Scripts",
+                    "type": "string",
+                    "default": "run.py"
+                },
+                "vhdl-by-hgb.hdlregressionScriptName": {
+                    "title": "HDLRegression-ScriptName",
+                    "description": "Default name for HDLRegression-Scripts",
+                    "type": "string",
+                    "default": "regression.py"
+                },
+                "vhdl-by-hgb.formatter": {
+                    "description": "(Format your code either with VHDLFormatter(default) or Emacs-VHDL-Mode(must be installed already!)",
+                    "type": "string",
+                    "default": "vhdl_formatter",
+                    "enum": [
+                        "vhdl_formatter",
+                        "emacs_vhdl_formatter"
+                    ]
+                },
+                "vhdl-by-hgb.vhdl-formatter.insertFinalNewline": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Insert a final new line at the end of the file when formatting. Prefer files.insertFinalNewline."
+                },
+                "vhdl-by-hgb.vhdl-formatter.remove.comments": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.remove.blankLines": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.remove.reports": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.replaceByAliases": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.align.all": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.align.port": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.align.function": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.align.procedure": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.align.generic": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.align.comments": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.align.mode": {
+                    "type": "string",
+                    "default": "Local",
+                    "enum": [
+                        "Local",
+                        "Global"
+                    ],
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.case.keyword": {
+                    "type": "string",
+                    "default": "LowerCase",
+                    "enum": [
+                        "UpperCase",
+                        "LowerCase",
+                        "DefaultCase"
+                    ],
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.case.typename": {
+                    "type": "string",
+                    "default": "LowerCase",
+                    "enum": [
+                        "UpperCase",
+                        "LowerCase",
+                        "DefaultCase"
+                    ],
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.newline.port": {
+                    "type": "string",
+                    "default": "None",
+                    "enum": [
+                        "NewLine",
+                        "NoNewLine",
+                        "None"
+                    ],
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.newline.then": {
+                    "type": "string",
+                    "default": "NewLine",
+                    "enum": [
+                        "NewLine",
+                        "NoNewLine",
+                        "None"
+                    ],
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.newline.semicolon": {
+                    "type": "string",
+                    "default": "NewLine",
+                    "enum": [
+                        "NewLine",
+                        "NoNewLine",
+                        "None"
+                    ],
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.newline.else": {
+                    "type": "string",
+                    "default": "NewLine",
+                    "enum": [
+                        "NewLine",
+                        "NoNewLine",
+                        "None"
+                    ],
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.newline.generic": {
+                    "type": "string",
+                    "default": "None",
+                    "enum": [
+                        "NewLine",
+                        "NoNewLine",
+                        "None"
+                    ],
+                    "description": ""
+                },
+                "vhdl-by-hgb.vhdl-formatter.indentation": {
+                    "type": "string",
+                    "description": "Overwrite tab size with custom indentation"
+                },
+                "vhdl-by-hgb.emacs-vhdl-formatter.executable.unix": {
+                    "type": "string",
+                    "default": "emacs",
+                    "markdownDescription": "Emacs executable"
+                },
+                "vhdl-by-hgb.emacs-vhdl-formatter.executable.windows": {
+                    "type": "string",
+                    "default": "wsl",
+                    "markdownDescription": "Emacs executable path on Windows"
+                },
+                "vhdl-by-hgb.emacs-vhdl-formatter.extraArgs.windows": {
+                    "type": "string",
+                    "default": "emacs",
+                    "markdownDescription": "Additional arguments on Windows separated by spaces"
+                },
+                "vhdl-by-hgb.emacs-vhdl-formatter.customEval": {
+                    "type": "string",
+                    "default": "(vhdl-set-style \"IEEE\")",
+                    "markdownDescription": "Custom elisp code which gets executed before the document is formatted"
+                }
+            }
+        },
+        "keybindings": [
+            {
+                "key": "Ctrl+Alt+S",
+                "command": "VHDLbyHGB.dynamicSnippets",
+                "mac": "shift+cmd+s"
+            }
+        ]
+    },
+    "scripts": {
+        "clean": "shx rm -rf out",
+        "compile": "npm run clean && tsc -p ./",
+        "watch": "npm run build-prepare & tsc -watch -p ./",
+        "lint": "eslint src --ext ts",
+        "pretest": "npm run compile && npm run lint",
+        "esbuild-base": "npm run clean && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+        "esbuild": "npm run esbuild-base -- --sourcemap",
+        "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+        "esbuild-minify": "npm run esbuild-base -- --minify",
+        "vscode:prepublish": "npm run esbuild-base -- --sourcemap"
+    },
+    "dependencies": {
+        "@iarna/toml": "^2.2.5",
+        "@octokit/rest": "16.36.0",
+        "@redhat-developer/vscode-wizard": "^0.3.1",
+        "@types/node-fetch": "2.5.7",
+        "@types/semver": "6.2.0",
+        "abort-controller": "3.0.0",
+        "extract-zip": "^1.7.0",
+        "fast-xml-parser": "^4.3.2",
+        "fs-extra": "8.1.0",
+        "proper-lockfile": "4.1.1",
+        "tree-kill": "1.2.2",
+        "uuid-random": "1.3.0",
+        "vscode-languageclient": "^6.1.3",
+        "walk-file-tree": "^1.0.38"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.1",
+        "@types/mocha": "^7.0.2",
+        "@types/node": "^13.11.0",
+        "@types/vscode": "^1.45.0",
+        "@typescript-eslint/eslint-plugin": "^2.30.0",
+        "@typescript-eslint/parser": "^2.30.0",
+        "@vscode/vsce": "^2.15",
+        "esbuild": "^0.17.19",
+        "eslint": "^6.8.0",
+        "glob": "^7.1.6",
+        "js-yaml": "^3.13.1",
+        "mocha": "^7.1.2",
+        "shx": "^0.3.3",
+        "typescript": "4.5.5",
+        "vscode-languageclient": "7.0.0-next.6"
+    }
+}
