@@ -23,8 +23,8 @@ import { vhdl_ls } from './vhdl_ls_package';
 
 
 const exec = util.promisify(require('child_process').exec);
-const output = vscode.window.createOutputChannel('VHDL-LS Client');
-const traceOutputChannel = vscode.window.createOutputChannel('VHDL-LS Trace');
+const output = vscode.window.createOutputChannel('VHDLbyHGB.VHDL-LS.Client');
+const traceOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB.VHDL-LS.Trace');
 
 const isWindows = process.platform === 'win32';
 const languageServerName = isWindows
@@ -141,7 +141,7 @@ export class VHDL_LS {
         // Create the language client
         this.client = new LanguageClient(
             'vhdlls',
-            'VHDL LS',
+            'VHDLbyHGB.VHDL-LS',
             serverOptions!,
             clientOptions
         );

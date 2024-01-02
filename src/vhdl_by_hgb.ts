@@ -26,7 +26,7 @@ export class VHDLbyHGB {
 	//--------------------------------------------
 	//Public Methods
 	//--------------------------------------------
-	constructor(context: vscode.ExtensionContext) 
+	constructor(context: vscode.ExtensionContext)
 	{
 		// vscode-members
 		this.mContext = context;
@@ -49,6 +49,11 @@ export class VHDLbyHGB {
 	public Deactivate() : Thenable<void> | undefined
 	{
 		return this.mProjectManager.Deactivate();
+	}
+
+	public getContext() : vscode.ExtensionContext
+	{
+		return this.mContext;
 	}
 
 	//--------------------------------------------

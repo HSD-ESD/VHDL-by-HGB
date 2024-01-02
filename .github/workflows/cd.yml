@@ -1,0 +1,43 @@
+name: CD
+
+on:
+  push:
+    branches:
+    - main
+    tags:
+    - '**'
+
+jobs:
+
+  # continuous integration
+  CI:
+    uses: ./.github/workflows/ci.yml
+
+  # continuous deployment
+  CD:
+    needs: CI
+    strategy:
+      matrix:
+        os: ["ubuntu-22.04"]
+    runs-on: ${{ matrix.os }}
+    steps:
+
+    # checkout git repository
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+        
+    # node
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+    - run: npm install
+
+    # publish to Visual Studio Code marketplace
+    - name: Publish
+      if: success() && startsWith(github.ref, 'refs/tags/v')
+      run: npm run deploy
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
