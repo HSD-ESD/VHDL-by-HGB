@@ -14,14 +14,14 @@ import { VHDLbyHGB } from './vhdl_by_hgb';
 
 let VhdlByHgb : VHDLbyHGB;
 
-export async function activate(ctx: ExtensionContext) 
+export async function activate(ctx: ExtensionContext) : Promise<VHDLbyHGB>
 { 
     VhdlByHgb = new VHDLbyHGB(ctx);
     VhdlByHgb.Initialize();
+    return VhdlByHgb;
 }
 
 export function deactivate(): Thenable<void> | undefined 
 {
     return VhdlByHgb.Deactivate();
 }
-

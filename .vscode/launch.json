@@ -11,7 +11,7 @@
 			"request": "launch",
 			"sourceMaps": true,
 			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
+				"--extensionDevelopmentPath=${workspaceFolder}",
 			],
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
@@ -30,6 +30,19 @@
 				"${workspaceFolder}/out/**/*.js"
 			],
 			"preLaunchTask": "npm: esbuild"
-		}
+		},
+		{
+			"name": "Run ExtensionTests(tsc)",
+			"type": "extensionHost",
+			"request": "launch",
+			"sourceMaps": true,
+			"args": [
+				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+			],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "npm: watch"
+		},
 	]
 }

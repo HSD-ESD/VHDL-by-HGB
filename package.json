@@ -711,11 +711,13 @@
         "watch": "npm run build-prepare & tsc -watch -p ./",
         "lint": "eslint src --ext ts",
         "pretest": "npm run compile && npm run lint",
+        "test": "node ./out/test/run_test.js",
         "esbuild-base": "npm run clean && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
         "esbuild": "npm run esbuild-base -- --sourcemap",
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
         "esbuild-minify": "npm run esbuild-base -- --minify",
-        "vscode:prepublish": "npm run esbuild-base -- --sourcemap"
+        "vscode:prepublish": "npm run esbuild-base -- --sourcemap",
+        "deploy": "vsce publish"
     },
     "dependencies": {
         "@iarna/toml": "^2.2.5",
@@ -734,12 +736,13 @@
         "walk-file-tree": "^1.0.38"
     },
     "devDependencies": {
-        "@types/glob": "^7.1.1",
         "@types/mocha": "^7.0.2",
         "@types/node": "^13.11.0",
         "@types/vscode": "^1.45.0",
         "@typescript-eslint/eslint-plugin": "^2.30.0",
         "@typescript-eslint/parser": "^2.30.0",
+        "@vscode/test-cli": "^0.0.4",
+        "@vscode/test-electron": "^2.3.8",
         "@vscode/vsce": "^2.15",
         "esbuild": "^0.17.19",
         "eslint": "^6.8.0",
