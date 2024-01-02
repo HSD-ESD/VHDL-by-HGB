@@ -1,7 +1,5 @@
 //specific imports
 import { ACTIVE_VERIFICATION_PROJECT, EnabledVerificationTools as EnabledVerificationTools, NO_VERIFICATION_PROJECT, VerificationToolMap as VerificationToolMap, TVerificationProject as TVerificationProject, eVerificationTool as eVerificationTool, getVerificationToolBaseNameFromTool as getVerificationToolBaseNameFromTool, getVerificationToolFromScriptPath as getVerificationToolFromScriptPath} from './verification_package'; 
-import { VUnit } from './vunit/vunit';
-import { HDLRegression } from './hdlregression/hdlregression';
 import { VerificationWizard } from './verification_wizard';
 import { VerificationWizardUi } from './verification_wizard_ui';
 import { ISourceFinder } from '../../utils/hdl/source_finder/source_finder';
@@ -39,10 +37,6 @@ export class VerificationManager {
     private mWizard : VerificationWizard;
     // private mWizardUi : VerificationWizardUi;  // currently unused
 
-    //VerificationTools
-    private mVUnit : VUnit;
-    private mHDLRegression : HDLRegression;
-
     //VerificationProjects
     private mVerificationProjects : Map<eVerificationTool,string[]>;
     private mActiveProject : TVerificationProject | undefined;
@@ -77,9 +71,6 @@ export class VerificationManager {
 
         this.mWizard = new VerificationWizard(this.mContext, this.mWorkSpacePath);
         // this.mWizardUi = new VerificationWizardUi(this.mContext);
-
-        this.mVUnit = new VUnit(this.mOutputChannel);
-        this.mHDLRegression = new HDLRegression(this.mOutputChannel);
 
         this.mVerificationProjects = new Map<eVerificationTool, string[]>();
 

@@ -272,6 +272,23 @@ All the other commands will be executed on the selected project.
 
 When the extension is loaded, the opened folder is searched recursively for synthesis-projects of supported synthesis-tools.
 
+## Verification
+
+VHDLbyHGB uses verification-projects to get project-information.
+
+### Supported Tools:
+- VUnit
+- HDLRegression
+
+### VSCode-TestExplorer
+
+The actual verification is handled in our [Verification-Extensions](#related-projects). 
+These extensions will offer you to perform actions directly from within the VSCode-TestExplorer, including:
+- listing all testcases
+- running testcases
+- launching GUI
+- ...
+
 ## VHDL Snippets
 
 ### General Snippets

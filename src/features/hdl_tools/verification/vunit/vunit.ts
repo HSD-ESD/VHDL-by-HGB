@@ -1,4 +1,3 @@
-//use
 'use strict';
 
 //specific imports
@@ -30,18 +29,10 @@ const cEmptyVunitExportData : VUnitExportData = {
 export class VUnit {
 
     //--------------------------------------------
-	//Private Members
-	//--------------------------------------------
-    private mOutputChannel : vscode.OutputChannel;
-
-    //--------------------------------------------
 	//Public Methods
 	//--------------------------------------------
-    public constructor(outputChannel : vscode.OutputChannel) {
-        this.mOutputChannel = outputChannel;
-    }
 
-    public async GetVersion(vunitScript : string): Promise<string> {
+    public static async GetVersion(vunitScript : string): Promise<string> {
         return new Promise((resolve, reject) => {
             let version: string | undefined;
             this.Run(vunitScript, ['--version'], (vunit: ChildProcess): void => {
@@ -67,7 +58,7 @@ export class VUnit {
         });
     }
 
-    public async FindScripts(
+    public static async FindScripts(
         workspaceFolder : vscode.WorkspaceFolder,
         makeRelativePaths : boolean = false
     ): Promise<string[]> {
@@ -93,10 +84,11 @@ export class VUnit {
         return vunitScripts;
     }
 
-    public async Run(
+    public static async Run(
         vunitScript: string,
         vunitArgs: string[],
-        vunitProcess: (vunit: ChildProcess) => void = () => {}
+        vunitProcess: (vunit: ChildProcess) => void = () => {},
+        outputChannel?: vscode.OutputChannel
     ): Promise<string> {
         try{
 
@@ -114,29 +106,29 @@ export class VUnit {
                     .getConfiguration()
                     .get('vhdl-by-hgb.python') as string;
                 const args = ['"' + vunitScript + '"'].concat(vunitArgs);
-                this.mOutputChannel.appendLine('');
-                this.mOutputChannel.appendLine('===========================================');
-                this.mOutputChannel.appendLine('Running VUnit: ' + python + ' ' + args.join(' '));
+                outputChannel?.appendLine('');
+                outputChannel?.appendLine('===========================================');
+                outputChannel?.appendLine('Running VUnit: ' + python + ' ' + args.join(' '));
                 let vunit = spawn(python, args, {
                     cwd: path.dirname(vunitScript),
                     shell: true,
                 });
                 vunit.on('close', (code) => {
                     if (code === 0) {
-                        this.mOutputChannel.appendLine('\nFinished with exit code 0');
+                        outputChannel?.appendLine('\nFinished with exit code 0');
                         resolve(code.toString());
                     } else {
                         let msg = `VUnit returned with non-zero exit code (${code}).`;
-                        this.mOutputChannel.appendLine('\n' + msg);
+                        outputChannel?.appendLine('\n' + msg);
                         reject(new Error(msg));
                     }
                 });
                 vunitProcess(vunit);
                 vunit.stdout.on('data', (data: string) => {
-                    this.mOutputChannel.append(data.toString());
+                    outputChannel?.append(data.toString());
                 });
                 vunit.stderr.on('data', (data: string) => {
-                    this.mOutputChannel.append(data.toString());
+                    outputChannel?.append(data.toString());
                 });
 
             });
@@ -149,7 +141,7 @@ export class VUnit {
         return "";
     }
 
-    public async GetData(workDir: string, vunitScript:string): Promise<VUnitExportData> {
+    public static async GetData(workDir: string, vunitScript:string, outputChannel? : vscode.OutputChannel): Promise<VUnitExportData> {
         
         const vunitJson = path.join(workDir, `${uuid()}.json`);
         fs.mkdirSync(path.dirname(vunitJson), { recursive: true });
@@ -157,7 +149,7 @@ export class VUnit {
         let vunitData: VUnitExportData = cEmptyVunitExportData;
         let options = ['--list', `--export-json ${vunitJson}`];
         
-        await this.Run(vunitScript,options)
+        await this.Run(vunitScript,options, undefined, outputChannel)
             .then(() => {
                 vunitData = JSON.parse(fs.readFileSync(vunitJson, 'utf-8'));
                 fs.unlinkSync(vunitJson);
@@ -173,7 +165,7 @@ export class VUnit {
         return vunitData;
     }
 
-    public GetWorkspaceRoot(): string | undefined {
+    public static GetWorkspaceRoot(): string | undefined {
         const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
         let wsRoot: string | undefined = undefined;
         if (workspaceFolder) {
@@ -182,53 +174,52 @@ export class VUnit {
         return wsRoot;
     }
 
-    public InstallVUnitHdl(IsUpdate: boolean = false): boolean {
+    public static InstallVUnitHdl(IsUpdate: boolean = false, outputChannel?: vscode.OutputChannel): boolean {
         const command = IsUpdate ? ['install', '-U', 'vunit_hdl'] : ['install', 'vunit_hdl'];
         const result = child_process.spawnSync('pip', command);
         if (result.status === 0) {
             if(IsUpdate)
             {
-                this.mOutputChannel.appendLine('VUnit was updated!');
+                outputChannel?.appendLine('VUnit was updated!');
             }
             else
             {
-                this.mOutputChannel.appendLine('VUnit was installed!');
+                outputChannel?.appendLine('VUnit was installed!');
             }
             return true;
         } else {
-            this.mOutputChannel.appendLine('Failed to install VUnit!');
-            return false;
-        }
-    }
-
-    public IsVUnitHdlInstalled(): boolean {
-        const result = child_process.spawnSync('pip', ['show', 'vunit_hdl']);
-        if (result.status === 0) {
-            const output = result.stdout.toString().trim();
-            const infoLines = output.split('\n');
-            this.mOutputChannel.appendLine(`VUnit-${infoLines[1]}`);
-            return true;
-        }
-        else
-        {
-            this.mOutputChannel.appendLine('VUnit is not installed');
-            return false;
-        }
-    }
-
-    private IsPythonInstalled(): boolean
-    {
-        //result.error === null && 
-        const result = child_process.spawnSync(vscode.workspace.getConfiguration().get("vhdl-by-hgb.python") as string, ['--version']);
-        if (result.status === 0) {
-            const output = result.stdout.toString().trim();
-            this.mOutputChannel.appendLine(`Python version: ${output}`);
-            return true;
-        } else {
-            this.mOutputChannel.appendLine('Python is not installed.');
+            outputChannel?.appendLine('Failed to install VUnit!');
             return false;
         }
     }
 
 }
 
+function IsVUnitHdlInstalled(outputChannel? : vscode.OutputChannel): boolean {
+    const result = child_process.spawnSync('pip', ['show', 'vunit_hdl']);
+    if (result.status === 0) {
+        const output = result.stdout.toString().trim();
+        const infoLines = output.split('\n');
+        outputChannel?.appendLine(`VUnit-${infoLines[1]}`);
+        return true;
+    }
+    else
+    {
+        outputChannel?.appendLine('VUnit is not installed');
+        return false;
+    }
+}
+
+function IsPythonInstalled(outputChannel : vscode.OutputChannel): boolean
+{
+    //result.error === null && 
+    const result = child_process.spawnSync(vscode.workspace.getConfiguration().get("vhdl-by-hgb.python") as string, ['--version']);
+    if (result.status === 0) {
+        const output = result.stdout.toString().trim();
+        outputChannel.appendLine(`Python version: ${output}`);
+        return true;
+    } else {
+        outputChannel.appendLine('Python is not installed.');
+        return false;
+    }
+}

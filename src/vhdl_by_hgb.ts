@@ -1,8 +1,8 @@
-//General Imports
+//general imports
 import * as vscode from 'vscode';
 
-//Specific Imports
-import {ProjectManager} from './features/project/project_manager';
+//specific imports
+import { ProjectManager } from './features/project/project_manager';
 import { EntityConverter } from './features/editor/entity_utils/entity_converter';
 import { VHDLFormatterHGB } from './features/formatter/vhdl_formatter_hgb';
 

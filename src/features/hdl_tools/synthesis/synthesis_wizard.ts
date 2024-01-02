@@ -5,8 +5,6 @@ import { ISynthesisFactory } from "./factory/synthesis_factory";
 import { EnabledSynthesisTools, NO_SYNTHESIS_PROJECT, SynthesisToolMap, eSynthesisTool } from "./synthesis_package";
 import { ISynthesisProject, TSynthesisProjectConfig } from "./synthesis_project";
 
-import { HDLUtils } from "../../utils/hdl/general/hdl_utils";
-
 // general imports
 import * as vscode from 'vscode';
 import * as path from 'path';

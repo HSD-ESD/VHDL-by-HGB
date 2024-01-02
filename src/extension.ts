@@ -4,8 +4,9 @@
  * VHDLbyHGB - VHDL Extension for Visual Studio Code
  * ------------------------------------------------------------------------------------------ */
 
-// general imports
 'use strict';
+
+// general imports
 import {ExtensionContext} from 'vscode';
 
 //specific imports

@@ -1,9 +1,9 @@
-//specific imports
-import { SimpleVhdlParser } from '../parser/simple_vhdl_parser';
-
 //general imports
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+
+//specific imports
+import { SimpleVhdlParser } from '../parser/simple_vhdl_parser';
 import { cVhdlFileTypes } from '../../../hdl_tools/vhdl_package';
 
 export class HDLUtils {

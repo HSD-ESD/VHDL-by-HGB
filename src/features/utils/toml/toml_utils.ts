@@ -1,9 +1,9 @@
-// Specific Imports
+// specific imports
 import { SourceManager } from "../../project/source_manager";
-import {vhdl_ls} from "../../lsp/vhdl_ls_package";
+import { vhdl_ls } from "../../lsp/vhdl_ls_package";
 import { VhdlLibrary, VhdlLibraryContents, VhdlProjectFiles } from "../../hdl_tools/vhdl_package";
 
-// General Imports
+// general imports
 import * as fs from 'fs';
 import * as path from 'path';
 import * as toml from '@iarna/toml';
@@ -26,7 +26,7 @@ interface TomlConfig {
 
 export class TomlUtils {
 
-    public static async Generate_VHDL_LS(sourceManager : SourceManager, workSpacePath : string, isRelativePaths: boolean = true) : Promise<void>
+    public static Generate_VHDL_LS(sourceManager : SourceManager, workSpacePath : string, isRelativePaths: boolean = true) : void
     {
         const FileName : string = path.join(workSpacePath, vhdl_ls.VHDL_LS_FILE);
 
