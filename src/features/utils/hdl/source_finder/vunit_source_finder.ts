@@ -3,7 +3,6 @@ import { VUnit } from "../../../hdl_tools/verification/vunit/vunit";
 import { VUnitExportData } from "../../../hdl_tools/verification/vunit/vunit_package";
 import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary } from "../../../hdl_tools/vhdl_package";
 import { ISourceFinder } from "./source_finder";
-import { vhdl_ls } from "../../../lsp/vhdl_ls_package";
 
 //general imports
 import * as vscode from 'vscode';
@@ -15,16 +14,16 @@ export class VUnitSourceFinder implements ISourceFinder {
     // --------------------------------------------
     // Private members
     // --------------------------------------------
-    private mVUnit : VUnit;
     private mRunPyPath : string;
+    private mOutputChannel : vscode.OutputChannel;
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
     public constructor(runPyPath : string, outputChannel : vscode.OutputChannel) 
     {
-        this.mVUnit = new VUnit(outputChannel);
         this.mRunPyPath = runPyPath;
+        this.mOutputChannel = outputChannel;
     }
 
     public async GetVhdlFiles(workSpacePath: string) : Promise<VhdlProjectFiles> 
@@ -32,7 +31,7 @@ export class VUnitSourceFinder implements ISourceFinder {
 
         let projectFiles : VhdlProjectFiles = new Map<VhdlLibrary, VhdlLibraryContents>();
 
-        if(!fs.existsSync(workSpacePath)) 
+        if(!fs.existsSync(workSpacePath))
         {
             return new Map();
         }
@@ -42,7 +41,7 @@ export class VUnitSourceFinder implements ISourceFinder {
             return projectFiles;
         }
 
-        const data : VUnitExportData = await this.mVUnit.GetData(workSpacePath, this.mRunPyPath);
+        const data : VUnitExportData = await VUnit.GetData(workSpacePath, this.mRunPyPath, this.mOutputChannel);
         
         for (const file of data.files)
         {

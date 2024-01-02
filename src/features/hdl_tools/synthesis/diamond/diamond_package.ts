@@ -1,5 +1,4 @@
-
-import exp = require("constants");
+// specific imports
 import { VhdlEntity } from "../../vhdl_package";
 
 //folder for scripts

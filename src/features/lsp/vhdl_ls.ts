@@ -1,4 +1,4 @@
-
+// general imports
 'use strict';
 import Octokit = require('@octokit/rest');
 import util = require('util');
@@ -17,6 +17,8 @@ import {
     LanguageClientOptions,
     ServerOptions,
 } from 'vscode-languageclient/node';
+
+// specific imports
 import { vhdl_ls } from './vhdl_ls_package';
 
 

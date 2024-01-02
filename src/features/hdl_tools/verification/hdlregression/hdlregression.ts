@@ -1,7 +1,7 @@
-//use
 'use strict';
 
 //specific imports
+import { HDLRegressionData, HDLRegressionFile, HDLRegressionTest } from './hdlregression_package';
 
 //general imports
 import * as vscode from 'vscode';
@@ -9,7 +9,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { ChildProcess, spawn } from 'child_process';
 import readline = require('readline');
-import { HDLRegressionData, HDLRegressionFile, HDLRegressionTest } from './hdlregression_package';
 
 //module-internal constants
 const cHDLRegressionLtcMatcher : RegExp = /^TC:(\d+)\s+-\s+(\w+)\.(\w+)\.(\w+)/;
@@ -19,19 +18,7 @@ const cHDLRegressionFileMatcher: RegExp = /\|---\s(.+?(?:\.\w+)?)\s*(?=\()/;
 
 export class HDLRegression {
 
-    //--------------------------------------------
-	//Private Members
-	//--------------------------------------------
-    private mOutputChannel : vscode.OutputChannel;
-
-    //--------------------------------------------
-	//Public Methods
-	//--------------------------------------------
-    public constructor(outputChannel : vscode.OutputChannel) {
-        this.mOutputChannel = outputChannel;
-    }
-
-    public async FindScripts(
+    public static async FindScripts(
         workspaceFolder: vscode.WorkspaceFolder,
         makeRelativePaths : boolean = false
     ): Promise<string[]> {
@@ -42,7 +29,7 @@ export class HDLRegression {
             new vscode.RelativePattern(workspaceFolder, `**/${HDLRegressionScriptName}`),
         );
 
-        const workspacePath = this.GetWorkspaceRoot();
+        const workspacePath = GetWorkspaceRoot();
 
         let hdlRegressionScripts : string[] = results.map((file) => {
             if(makeRelativePaths && workspacePath) 
@@ -60,15 +47,16 @@ export class HDLRegression {
         return hdlRegressionScripts;
     }
 
-    public async Run(
+    public static async Run(
         hdlregressionScript: string,
         hdlregressionArgs: string[],
-        hdlregressionProcess: (hdlregression: ChildProcess) => void = () => {}
+        hdlregressionProcess: (hdlregression: ChildProcess) => void = () => {},
+        outputChannel?: vscode.OutputChannel
     ): Promise<string> {
         try{
 
             return new Promise((resolve, reject) => {
-                if (!this.GetWorkspaceRoot()) {
+                if (!GetWorkspaceRoot()) {
                     return reject(new Error('Workspace root not defined.'));
                 } else if (!hdlregressionScript) {
                     return reject(
@@ -81,29 +69,28 @@ export class HDLRegression {
                     .getConfiguration()
                     .get('hdlregression-by-hgb.python') as string;
                 const args = ['"' + hdlregressionScript + '"'].concat(hdlregressionArgs);
-                this.mOutputChannel.appendLine('');
-                this.mOutputChannel.appendLine('===========================================');
-                this.mOutputChannel.appendLine('Running HDLRegression: ' + python + ' ' + args.join(' '));
+                outputChannel?.appendLine('===========================================');
+                outputChannel?.appendLine('Running HDLRegression: ' + python + ' ' + args.join(' '));
                 let hdlregression = spawn(python, args, {
                     cwd: path.dirname(hdlregressionScript),
                     shell: true,
                 });
                 hdlregression.on('close', (code) => {
                     if (code === 0) {
-                        this.mOutputChannel.appendLine('\nFinished with exit code 0');
+                        outputChannel?.appendLine('\nFinished with exit code 0');
                         resolve(code.toString());
                     } else {
                         let msg = `HDLRegression returned with non-zero exit code (${code}).`;
-                        this.mOutputChannel.appendLine('\n' + msg);
+                        outputChannel?.appendLine('\n' + msg);
                         reject(new Error(msg));
                     }
                 });
                 hdlregressionProcess(hdlregression);
                 hdlregression.stdout.on('data', (data: string) => {
-                    this.mOutputChannel.append(data.toString());
+                    outputChannel?.append(data.toString());
                 });
                 hdlregression.stderr.on('data', (data: string) => {
-                    this.mOutputChannel.append(data.toString());
+                    outputChannel?.append(data.toString());
                 });
 
             });
@@ -116,11 +103,11 @@ export class HDLRegression {
         return "";
     }
 
-    public async GetData(hdlregressionScript : string): Promise<HDLRegressionData> 
+    public static async GetData(hdlregressionScript : string, outputChannel? : vscode.OutputChannel): Promise<HDLRegressionData> 
     {
 
-        const testcases : HDLRegressionTest[] = await this.GetTestcases(hdlregressionScript);
-        const files : HDLRegressionFile[] = await this.GetFiles(hdlregressionScript);
+        const testcases : HDLRegressionTest[] = await this.GetTestcases(hdlregressionScript, outputChannel);
+        const files : HDLRegressionFile[] = await this.GetFiles(hdlregressionScript, outputChannel);
         
         const data : HDLRegressionData =
         {
@@ -132,7 +119,7 @@ export class HDLRegression {
     }
 
 
-    public async GetTestcases(hdlregressionScript : string): Promise<HDLRegressionTest[]> {
+    public static async GetTestcases(hdlregressionScript : string, outputChannel? : vscode.OutputChannel): Promise<HDLRegressionTest[]> {
         
         const options = ['-ltc'];
 
@@ -171,12 +158,12 @@ export class HDLRegression {
                     }
                 });
             
-            });
+            }, outputChannel);
             
         return HDLRegressionTestCases;
     }
 
-    public async GetFiles(hdlregressionScript : string): Promise<HDLRegressionFile[]> {
+    public static async GetFiles(hdlregressionScript : string, outputChannel? : vscode.OutputChannel): Promise<HDLRegressionFile[]> {
         
         const options = ['-lco'];
 
@@ -222,19 +209,18 @@ export class HDLRegression {
                     }
                 });
             
-            });
+            }, outputChannel);
             
         return HDLRegressionFiles;
     }
 
+}
 
-    public GetWorkspaceRoot(): string | undefined {
-        const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
-        let wsRoot: string | undefined = undefined;
-        if (workspaceFolder) {
-            wsRoot = workspaceFolder.uri.fsPath;
-        }
-        return wsRoot;
+function GetWorkspaceRoot(): string | undefined {
+    const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
+    let wsRoot: string | undefined = undefined;
+    if (workspaceFolder) {
+        wsRoot = workspaceFolder.uri.fsPath;
     }
-
+    return wsRoot;
 }

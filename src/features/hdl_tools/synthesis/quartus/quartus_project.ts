@@ -17,7 +17,6 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // --------------------------------------------
     // private members
     // --------------------------------------------
-    private mQuartus : Quartus;
     private mTclScriptsFolder: string;
     private mQSF : QuartusQsf;
 
@@ -39,7 +38,6 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mOutputChannel = vscode.window.createOutputChannel(`VHDLbyHGB.Quartus.${name}`);
 
         //Quartus-Instance for using Quartus-Utility-Functions
-        this.mQuartus = new Quartus(this.mOutputChannel, this.mContext);
         const qsfPath = path.join(this.mFolderPath, this.mName + eSynthesisFile.Quartus);
         this.mQSF = new QuartusQsf(qsfPath);
 
@@ -70,7 +68,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         //Run Tcl-Script for generating Project
-        const IsSuccess : boolean = await this.mQuartus.RunTclScript(scriptPath);
+        const IsSuccess : boolean = await Quartus.RunTclScript(scriptPath, this.mFolderPath, this.mOutputChannel);
 
         QuartusScriptGenerator.DeleteScript(scriptPath);
 
@@ -111,7 +109,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         //Run Tcl-Script for updating files of a Quartus-Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+        const IsSuccess: boolean = await Quartus.RunTclScript(scriptPath, this.mFolderPath, this.mOutputChannel);
 
         QuartusScriptGenerator.DeleteScript(scriptPath);
 
@@ -135,8 +133,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         //Run Tcl-Script for launching GUI
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
-
+        const IsSuccess: boolean = await Quartus.RunTclScript(scriptPath, this.mFolderPath, this.mOutputChannel);
         QuartusScriptGenerator.DeleteScript(scriptPath);
 
         if (!IsSuccess) {
@@ -162,7 +159,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         this.mOutputChannel.show();
 
         //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+        const IsSuccess: boolean = await Quartus.RunTclScript(scriptPath, this.mFolderPath, this.mOutputChannel);
 
         QuartusScriptGenerator.DeleteScript(scriptPath);
 
@@ -191,7 +188,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+        const IsSuccess: boolean = await Quartus.RunTclScript(scriptPath, this.mFolderPath, this.mOutputChannel);
 
         QuartusScriptGenerator.DeleteScript(scriptPath);
 
@@ -219,7 +216,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+        const IsSuccess: boolean = await Quartus.RunTclScript(scriptPath, this.mFolderPath, this.mOutputChannel);
 
         QuartusScriptGenerator.DeleteScript(scriptPath);
 
@@ -247,7 +244,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
         }
 
         //Run Tcl-Script for generating Project
-        const IsSuccess: boolean = await this.mQuartus.RunTclScript(scriptPath);
+        const IsSuccess: boolean = await Quartus.RunTclScript(scriptPath, this.mFolderPath, this.mOutputChannel);
 
         QuartusScriptGenerator.DeleteScript(scriptPath);
 
@@ -279,8 +276,6 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
 
     public GetFolderPath() : string { return this.mFolderPath; }
 
-    public GetQuartus() : Quartus { return this.mQuartus; }
-
     public GetQsf() : QuartusQsf { return this.mQSF; }
 
     public GetTool() : eSynthesisTool { return eSynthesisTool.Quartus; }
@@ -290,7 +285,7 @@ export class QuartusProject extends SynthesisProject implements ISynthesisProjec
     // --------------------------------------------
     private async Update() : Promise<void>
     {
-        this.mQSF = await this.mQuartus.ParseQsf(this.mQSF.Path);
+        this.mQSF = await Quartus.ParseQsf(this.mQSF.Path);
     }
 
     private async HandleFileEvents() : Promise<void>

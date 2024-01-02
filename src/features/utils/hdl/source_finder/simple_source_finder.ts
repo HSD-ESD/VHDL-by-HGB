@@ -1,12 +1,11 @@
 //Specific Imports
 import { ISourceFinder } from "./source_finder";
 import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary } from "../../../hdl_tools/vhdl_package";
-import { walk } from 'walk-file-tree';
+import { HDLUtils } from "../general/hdl_utils";
 
 //General Imports
-import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { HDLUtils } from "../general/hdl_utils";
+import { walk } from 'walk-file-tree';
 
 //--------------------------------------------
 //module-internal constants

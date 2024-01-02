@@ -13,16 +13,16 @@ export class HDLRegressionSourceFinder implements ISourceFinder {
     // --------------------------------------------
     // Private members
     // --------------------------------------------
-    private mHDLRegression : HDLRegression;
     private mHDLRegressionScriptPath : string;
+    private mOutputChannel : vscode.OutputChannel;
 
     // --------------------------------------------
     // Public methods
     // --------------------------------------------
     public constructor(hdlregressionScriptPath : string, outputChannel : vscode.OutputChannel) 
     {
-        this.mHDLRegression = new HDLRegression(outputChannel);
         this.mHDLRegressionScriptPath = hdlregressionScriptPath;
+        this.mOutputChannel = outputChannel;
     }
 
     public async GetVhdlFiles(workSpacePath: string) : Promise<VhdlProjectFiles> 
@@ -40,7 +40,7 @@ export class HDLRegressionSourceFinder implements ISourceFinder {
             return projectFiles;
         }
 
-        const data : HDLRegressionFile[] = await this.mHDLRegression.GetFiles(this.mHDLRegressionScriptPath);
+        const data : HDLRegressionFile[] = await HDLRegression.GetFiles(this.mHDLRegressionScriptPath, this.mOutputChannel);
 
         for (const file of data)
         {

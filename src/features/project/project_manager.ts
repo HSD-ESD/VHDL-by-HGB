@@ -9,12 +9,12 @@ import { HDLUtils } from "../utils/hdl/general/hdl_utils";
 import { DynamicSnippets } from "../editor/dynamic_snippets/vhdl_dynamic_snippets";
 import { VHDL_LS } from "../lsp/vhdl_ls";
 import { vhdl_ls } from "../lsp/vhdl_ls_package";
+import { VhdlProjectFiles } from "../hdl_tools/vhdl_package";
 
 // general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { VhdlProjectFiles } from "../hdl_tools/vhdl_package";
 
 //module-internal types
 enum eTomlGenerationKind {
@@ -37,7 +37,7 @@ export class ProjectManager {
     private mProjectIsInitialised : boolean = false;
     private mResourcePath : string = "";
 
-	private mRustHDL : VHDL_LS; // Language-Server (LSP)
+	private mVHDL_LS : VHDL_LS; // Language-Server (LSP)
     private mVhdlFinder! : ISourceFinder;
 
     private mFileHolder : SourceManager;
@@ -70,7 +70,7 @@ export class ProjectManager {
         this.mOutputChannel = outputChannel;
 
         //project-specific members
-		this.mRustHDL = new VHDL_LS(this.mContext);
+		this.mVHDL_LS = new VHDL_LS(this.mContext);
         this.mFileHolder = new SourceManager();
 
         this.mDynamicSnip = new DynamicSnippets(this.mContext);
@@ -91,8 +91,10 @@ export class ProjectManager {
 
     public async Initialize() : Promise<void>
 	{
-        await this.mVerificationManager.Initialize();
-        await this.mSynthesisManager.Initialize();
+        const IntializationPromises : Promise<void>[] = [];
+        IntializationPromises.push(this.mVerificationManager.Initialize());
+        IntializationPromises.push(this.mSynthesisManager.Initialize());
+        await Promise.all(IntializationPromises);
         
 		if(fs.existsSync(path.join(this.mWorkSpacePath, vhdl_ls.VHDL_LS_FILE)))
         {
@@ -105,7 +107,7 @@ export class ProjectManager {
 
     public Deactivate() : Thenable<void> | undefined
     {
-		return this.mRustHDL.Deactivate();
+		return this.mVHDL_LS.Deactivate();
     }
 
     // --------------------------------------------
@@ -116,7 +118,7 @@ export class ProjectManager {
         if(!this.mProjectIsInitialised)
         {
             // only activate Language-Server once
-            this.mRustHDL.Activate();
+            this.mVHDL_LS.Activate();
         }
 
         //set flag for intialized hdl-project to true

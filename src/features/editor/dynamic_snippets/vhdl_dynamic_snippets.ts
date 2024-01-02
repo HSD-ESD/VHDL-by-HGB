@@ -1,11 +1,12 @@
-//--------------------------------------------
-//general imports
-//--------------------------------------------
+// general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+
+// specific imports
 import { vhdl_ls } from '../../lsp/vhdl_ls_package';
 
+// module-internal constants
 const CONFIG_KEY = 'VHDLbyHGB.snippets';
 
 //class for all entities

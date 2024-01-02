@@ -1,5 +1,5 @@
 //Specific Imports
-import { FileUtils } from "../../../utils/file/file_utils";
+import { FileUtils } from "../../../utils/fs/file_utils";
 import {QuartusQsf} from "./quartus_package";
 
 //General Imports
@@ -30,52 +30,27 @@ const cVhdlFileRegex : RegExp = /^set_global_assignment\s+-name\s+VHDL_FILE\s+([
 export class Quartus {
 
     // --------------------------------------------
-    // Private members
-    // --------------------------------------------
-
-    // vscode-members
-    private mOutputChannel: vscode.OutputChannel;
-    private mContext: vscode.ExtensionContext;
-
-    private mQuartusBinaryPath : string | undefined;
-
-    // --------------------------------------------
     // Public methods
     // --------------------------------------------
-
-    public constructor(ouputChannel: vscode.OutputChannel, context: vscode.ExtensionContext) {
-        //setting vscode-members
-        this.mOutputChannel = ouputChannel;
-        this.mContext = context;
-        this.mQuartusBinaryPath = GetQuartusBinaryPath();
-    }
-
-    public async RunTclScript(TclScript: string): Promise<boolean> 
+    public static async RunTclScript(scriptPath: string, projectFolderPath : string, outputChannel : vscode.OutputChannel): Promise<boolean> 
     {
+        const quartusBinaryPath : string | undefined = this.GetQuartusBinaryPath();
 
-        let IsSuccess : boolean = false;
-
-        //check, if specified Tcl-Script exists
-        if (!fs.existsSync(TclScript)) {
-            //wait until specified tcl-script really exists
-            IsSuccess = await FileUtils.WaitForFileCreation(TclScript);
-
-            if (!IsSuccess) {
-                vscode.window.showInformationMessage('Tcl-Script to be executed does not exist!');
-                return false;
-            }
+        if (!quartusBinaryPath) {
+            return false;
         }
 
-        if (!this.mQuartusBinaryPath) {
+        //check, if specified Tcl-Script exists
+        if (!fs.existsSync(scriptPath)) {
             return false;
         }
 
         //path for quartus-shell
-        const QuartusShellPath: string = path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);
+        const QuartusShellPath: string = path.join(quartusBinaryPath, QUARTUS_SHELL);
 
         //execute tcl-script with quartus-shell
-        const quartusShell = child_process.spawn(QuartusShellPath, ['-t', TclScript], {
-            cwd: path.join(TclScript, "..", "..") //set current working directory to Quartus-Project-Folder
+        const quartusShell = child_process.spawn(QuartusShellPath, ['-t', scriptPath], {
+            cwd: projectFolderPath
         });
 
         if (quartusShell === null) {
@@ -83,21 +58,21 @@ export class Quartus {
             return false;
         }
 
-        this.mOutputChannel.show(true);
+        outputChannel.show(true);
 
         quartusShell.stdout.on('data', (data: Buffer) => {
             console.log(data.toString());
-            this.mOutputChannel.appendLine(data.toString());
+            outputChannel.appendLine(data.toString());
         });
 
         quartusShell.stderr.on('data', (data: Buffer) => {
             console.error(data.toString());
-            this.mOutputChannel.appendLine(data.toString());
+            outputChannel.appendLine(data.toString());
         });
 
         quartusShell.on('close', (code: number) => {
             console.log(`Quartus process exited with code ${code}`);
-            this.mOutputChannel.appendLine(`Quartus process exited with code ${code}`);
+            outputChannel.appendLine(`Quartus process exited with code ${code}`);
         });
 
         //Check if process exited with code 0 (success)
@@ -111,25 +86,25 @@ export class Quartus {
         quartusShell.kill();
 
         //check, if process was executed without any errors and return result
-        IsSuccess = exitCode === 0;
+        let IsSuccess : boolean = exitCode === 0;
 
         return IsSuccess;
     }
 
-    public async RunTclCommand(tclCommand: string, currentWorkingDirectory : string): Promise<boolean> {
+    public static async RunTclCommand(tclCommand: string, projectFolderPath : string, outputChannel : vscode.OutputChannel): Promise<boolean> {
 
-        let IsSuccess: boolean = false;
-    
-        if (!this.mQuartusBinaryPath) {
+        const quartusBinaryPath : string | undefined = this.GetQuartusBinaryPath();
+
+        if (!quartusBinaryPath) {
             return false;
         }
     
         //path for quartus-shell
-        const QuartusShellPath: string = path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);
+        const QuartusShellPath: string = path.join(quartusBinaryPath, QUARTUS_SHELL);
     
         //execute tcl-command with quartus-shell
         const quartusShell = child_process.spawn(QuartusShellPath, ['-tcl', tclCommand], {
-            cwd: currentWorkingDirectory //set current working directory to Quartus-Project-Folder
+            cwd: projectFolderPath //set current working directory to Quartus-Project-Folder
         });
     
         if (quartusShell === null) {
@@ -139,17 +114,17 @@ export class Quartus {
     
         quartusShell.stdout.on('data', (data: Buffer) => {
             console.log(data.toString());
-            this.mOutputChannel.appendLine(data.toString());
+            outputChannel.appendLine(data.toString());
         });
     
         quartusShell.stderr.on('data', (data: Buffer) => {
             console.error(data.toString());
-            this.mOutputChannel.appendLine(data.toString());
+            outputChannel.appendLine(data.toString());
         });
     
         quartusShell.on('close', (code: number) => {
             console.log(`Quartus process exited with code ${code}`);
-            this.mOutputChannel.appendLine(`Quartus process exited with code ${code}`);
+            outputChannel.appendLine(`Quartus process exited with code ${code}`);
         });
     
         //Check if process exited with code 0 (success)
@@ -163,12 +138,12 @@ export class Quartus {
         quartusShell.kill();
     
         //check, if process was executed without any errors and return result
-        IsSuccess = exitCode === 0;
+        const IsSuccess : boolean = exitCode === 0;
     
         return IsSuccess;
     }
 
-    public async ParseQsf(qsfPath : string) : Promise<QuartusQsf>
+    public static async ParseQsf(qsfPath : string) : Promise<QuartusQsf>
     {
         //empty qsf
         let qsf : QuartusQsf = new QuartusQsf(qsfPath);
@@ -179,147 +154,109 @@ export class Quartus {
         
         for(const line of qsfFileLines)
         {
-            await this.ParseQsfLine(line, qsf); 
+            await ParseQsfLine(line, qsf); 
         }
 
         return qsf;
     }
 
     //Getter-Methods
-    public GetBinaryPath() : string 
+
+    //automatically get Quartus path with newest version -> if not found, path will be empty
+    public static GetQuartusBinaryPath() : string | undefined 
     {
-        if (!this.mQuartusBinaryPath) {
-            return "";
+        let QuartusBinaryPath : string | undefined;
+
+        //check if path is set in environment variables
+        QuartusBinaryPath = GetQuartusBinaryPathFromEnv();
+
+        if (!QuartusBinaryPath) 
+        {
+            // get default path
+            QuartusBinaryPath = GetQuartusPathFromDefaultPaths();
         }
-        return this.mQuartusBinaryPath; 
+
+        if(!QuartusBinaryPath)
+        {
+            // TODO:
+            // get version from extension-settings
+        }
+
+        return QuartusBinaryPath;
     }
 
-    public GetExePath() : string 
+    public static GetExePath() : string | undefined 
     {
-        if (!this.mQuartusBinaryPath) {
-            return "";
+        const quartusBinaryPath : string | undefined = this.GetQuartusBinaryPath();
+        if (!quartusBinaryPath) {
+            return undefined;
         }
-        return path.join(this.mQuartusBinaryPath, QUARTUS_EXE);
+        return path.join(quartusBinaryPath, QUARTUS_EXE);
     }
 
-    public GetShellPath() : string 
+    public static GetShellPath() : string | undefined
     {
-        if (!this.mQuartusBinaryPath) {
-            return "";
+        const quartusBinaryPath : string | undefined = this.GetQuartusBinaryPath();
+        if (!quartusBinaryPath) {
+            return undefined;
         }
-        return path.join(this.mQuartusBinaryPath, QUARTUS_SHELL);
+        return path.join(quartusBinaryPath, QUARTUS_SHELL);
     }
 
     public IsBlackListed(fileName: string) {
         return fileName.startsWith("tb");
     }
 
-    // --------------------------------------------
-    // Private methods
-    // --------------------------------------------
-
-    private async ParseQsfLine(line: string, qsf: QuartusQsf): Promise<void> {
-        let match: RegExpMatchArray | null;
-    
-        match = line.match(cVhdlFileRegexWithQuotation);
-        if (match) {
-            let filePath = match[1];
-            filePath = correctFilePathFromQsfFile(filePath);
-            qsf.VhdlFiles.push(filePath);
-            return;
-        }
-
-        match = line.match(cVhdlFileRegex);
-        if (match) {
-            let filePath = match[1];
-            filePath = correctFilePathFromQsfFile(filePath);
-            qsf.VhdlFiles.push(filePath);
-            return;
-        }
-
-        // extract Top-Level-Entity 
-        match = line.match(cTopLevelRegex);
-        if (match) {
-            qsf.TopLevelEntity.mName = match[1];
-            const symbol = await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
-                'vscode.executeWorkspaceSymbolProvider',
-                match[1]
-            );
-            if(symbol[0])
-            {
-                qsf.TopLevelEntity.mPath = symbol[0].location.uri.fsPath;
-            }
-            return;
-        }
-
-        // extract Device
-        match = line.match(cDeviceRegex);
-        if (match) {
-            qsf.Device = match[1];
-            return;
-        }
-
-        // extract Family 
-        match = line.match(cFamilyRegex);
-        if (match) {
-            qsf.Family = match[1];
-            return;
-        }
-    }
-
-    private async SelectQuartusBinaryPath(): Promise<boolean> {
-        try {
-
-            const uri = await vscode.window.showOpenDialog({
-                canSelectFiles: false,
-                canSelectFolders: true,
-                canSelectMany: false,
-                openLabel: 'Select Folder of Quartus-Binaries'
-            });
-
-            if (uri && uri[0] && uri[0].fsPath && fs.existsSync(path.join(uri[0].fsPath, process.platform === 'linux' ? QUARTUS_SHELL : (QUARTUS_SHELL + ".exe")))) 
-            {
-                console.log(uri[0].fsPath);
-                if (uri[0].fsPath.length === 0) { console.log("length == 0"); }
-                // Store quartus-path internally
-                this.mQuartusBinaryPath = uri[0].fsPath;
-                vscode.window.showInformationMessage('Folder containing Quartus-Binaries was selected successfully!');
-                return true;
-            }
-            else {
-                vscode.window.showInformationMessage('No valid folder containing Quartus-Binaries was selected!');
-                return false;
-            }
-
-        } catch (err) {
-            console.error(err);
-            return false;
-        }
-    }
-
 }
 
-//automatically get Quartus path with newest version -> if not found, path will be empty
-function GetQuartusBinaryPath() : string | undefined 
-{
-    let QuartusBinaryPath : string | undefined;
 
-    //check if path is set in environment variables
-    QuartusBinaryPath = GetQuartusBinaryPathFromEnv();
+async function ParseQsfLine(line: string, qsf: QuartusQsf): Promise<void> {
+    let match: RegExpMatchArray | null;
 
-    if (!QuartusBinaryPath) 
-    {
-        // get default path
-        QuartusBinaryPath = GetQuartusPathFromDefaultPaths();
+    match = line.match(cVhdlFileRegexWithQuotation);
+    if (match) {
+        let filePath = match[1];
+        filePath = correctFilePathFromQsfFile(filePath);
+        qsf.VhdlFiles.push(filePath);
+        return;
     }
 
-    if(!QuartusBinaryPath)
-    {
-        // TODO:
-        // get version from extension-settings
+    match = line.match(cVhdlFileRegex);
+    if (match) {
+        let filePath = match[1];
+        filePath = correctFilePathFromQsfFile(filePath);
+        qsf.VhdlFiles.push(filePath);
+        return;
     }
 
-    return QuartusBinaryPath;
+    // extract Top-Level-Entity 
+    match = line.match(cTopLevelRegex);
+    if (match) {
+        qsf.TopLevelEntity.mName = match[1];
+        const symbol = await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
+            'vscode.executeWorkspaceSymbolProvider',
+            match[1]
+        );
+        if(symbol[0])
+        {
+            qsf.TopLevelEntity.mPath = symbol[0].location.uri.fsPath;
+        }
+        return;
+    }
+
+    // extract Device
+    match = line.match(cDeviceRegex);
+    if (match) {
+        qsf.Device = match[1];
+        return;
+    }
+
+    // extract Family 
+    match = line.match(cFamilyRegex);
+    if (match) {
+        qsf.Family = match[1];
+        return;
+    }
 }
 
 function GetQuartusBinaryPathFromEnv() : string | undefined

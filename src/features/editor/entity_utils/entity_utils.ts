@@ -1,8 +1,6 @@
+// general imports
 import { dir } from 'console';
 import * as vscode from 'vscode';
-// import { insidersDownloadDirToExecutablePath } from 'vscode-test/out/util';
-// import * as hdlParser from 'parser';
-// const hdlParser = require('./parser.js');
 
 interface VhdObject {
 	objType : string;
