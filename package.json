@@ -87,13 +87,23 @@
             "explorer/context": [],
             "view/title": [
                 {
+                    "command": "VHDLbyHGB.Project.Setup",
+                    "when": "view == vhdlbyhgb-view-project",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Project.Update",
+                    "when": "view == vhdlbyhgb-view-project",
+                    "group": "navigation"
+                },
+                {
                     "command": "VHDLbyHGB.Project.View.Refresh",
                     "when": "view == vhdlbyhgb-view-project",
                     "group": "navigation"
                 },
                 {
-                    "command": "VHDLbyHGB.Synthesis.View.Refresh",
-                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "command": "VHDLbyHGB.Verification.SetActiveProject",
+                    "when": "view == vhdlbyhgb-view-verification",
                     "group": "navigation"
                 },
                 {
@@ -105,9 +115,60 @@
                     "command": "VHDLbyHGB.Synthesis.AddNewProject",
                     "when": "view == vhdlbyhgb-view-synthesis",
                     "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.SetActiveProject",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.UpdateFiles",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.Compile",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.LaunchGUI",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.SetTopLevel",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.SetDevice",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.SetFamily",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
+                },
+                {
+                    "command": "VHDLbyHGB.Synthesis.View.Refresh",
+                    "when": "view == vhdlbyhgb-view-synthesis",
+                    "group": "navigation"
                 }
             ],
-            "view/item/context": [],
+            "view/item/context": [
+                {
+                    "command": "HGB.Extensions.VUnit",
+                    "when": "view == vhdlbyhgb-view-verification && viewItem == verificationTool/VUnit",
+                    "group": "inline"
+                },
+                {
+                    "command": "HGB.Extensions.HDLRegression",
+                    "when": "view == vhdlbyhgb-view-verification && viewItem == verificationTool/HDLRegression",
+                    "group": "inline"
+                }
+            ],
             "editor/title": [],
             "editor/context": [
                 {
@@ -139,6 +200,24 @@
         },
         "commands": [
             {
+                "command": "HGB.Extensions.VUnit",
+                "title": "VUnit by HGB",
+                "category": "HGB-Extensions",
+                "icon": {
+                    "light": "resources/images/general/light/extensions.svg",
+                    "dark": "resources/images/general/dark/extensions.svg"
+                }
+            },
+            {
+                "command": "HGB.Extensions.HDLRegression",
+                "title": "HDLRegression by HGB",
+                "category": "HGB-Extensions",
+                "icon": {
+                    "light": "resources/images/general/light/extensions.svg",
+                    "dark": "resources/images/general/dark/extensions.svg"
+                }
+            },
+            {
                 "command": "VHDLbyHGB.vhdlls.restart",
                 "title": "VHDLbyHGB.VHDL_LS.restart"
             },
@@ -152,11 +231,19 @@
             },
             {
                 "command": "VHDLbyHGB.Project.Setup",
-                "title": "VHDLbyHGB.Project.Setup"
+                "title": "VHDLbyHGB.Project.Setup",
+                "icon": {
+                    "light": "resources/images/project/light/setup.svg",
+                    "dark": "resources/images/project/dark/setup.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Project.Update",
-                "title": "VHDLbyHGB.Project.Update"
+                "title": "VHDLbyHGB.Project.Update",
+                "icon": {
+                    "light": "resources/images/project/light/update.svg",
+                    "dark": "resources/images/project/dark/update.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Project.View.Refresh",
@@ -168,8 +255,8 @@
             },
             {
                 "command": "VHDLbyHGB.Synthesis.AddNewProject",
-                "title": "Add new Synthesis Project",
-                "group": "navigation",
+                "title": "VHDLbyHGB.Synthesis.AddNewProject",
+                "shortTitle": "Add New Project",
                 "icon": {
                     "light": "resources/images/general/light/add.svg",
                     "dark": "resources/images/general/dark/add.svg"
@@ -177,31 +264,59 @@
             },
             {
                 "command": "VHDLbyHGB.Synthesis.SetActiveProject",
-                "title": "VHDLbyHGB.Synthesis.SetActiveProject"
+                "title": "VHDLbyHGB.Synthesis.SetActiveProject",
+                "icon": {
+                    "light": "resources/images/general/light/list-selection.svg",
+                    "dark": "resources/images/general/dark/list-selection.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Synthesis.UpdateFiles",
-                "title": "VHDLbyHGB.Synthesis.UpdateFiles"
+                "title": "VHDLbyHGB.Synthesis.UpdateFiles",
+                "icon": {
+                    "light": "resources/images/project/light/file.svg",
+                    "dark": "resources/images/project/dark/file.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Synthesis.Compile",
-                "title": "VHDLbyHGB.Synthesis.Compile"
+                "title": "VHDLbyHGB.Synthesis.Compile",
+                "icon": {
+                    "light": "resources/images/general/light/play.svg",
+                    "dark": "resources/images/general/dark/play.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Synthesis.LaunchGUI",
-                "title": "VHDLbyHGB.Synthesis.LaunchGUI"
+                "title": "VHDLbyHGB.Synthesis.LaunchGUI",
+                "icon": {
+                    "light": "resources/images/general/light/monitor.svg",
+                    "dark": "resources/images/general/dark/monitor.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Synthesis.SetTopLevel",
-                "title": "VHDLbyHGB.Synthesis.SetTopLevel"
+                "title": "VHDLbyHGB.Synthesis.SetTopLevel",
+                "icon": {
+                    "light": "resources/images/synthesis/light/toplevel.svg",
+                    "dark": "resources/images/synthesis/dark/toplevel.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Synthesis.SetDevice",
-                "title": "VHDLbyHGB.Synthesis.SetDevice"
+                "title": "VHDLbyHGB.Synthesis.SetDevice",
+                "icon": {
+                    "light": "resources/images/synthesis/light/device.svg",
+                    "dark": "resources/images/synthesis/dark/device.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Synthesis.SetFamily",
-                "title": "VHDLbyHGB.Synthesis.SetFamily"
+                "title": "VHDLbyHGB.Synthesis.SetFamily",
+                "icon": {
+                    "light": "resources/images/synthesis/light/family.svg",
+                    "dark": "resources/images/synthesis/dark/family.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Synthesis.View.Refresh",
@@ -214,7 +329,11 @@
             },
             {
                 "command": "VHDLbyHGB.Verification.SetActiveProject",
-                "title": "VHDLbyHGB.Verification.SetActiveProject"
+                "title": "VHDLbyHGB.Verification.SetActiveProject",
+                "icon": {
+                    "light": "resources/images/general/light/list-selection.svg",
+                    "dark": "resources/images/general/dark/list-selection.svg"
+                }
             },
             {
                 "command": "VHDLbyHGB.Verification.View.Refresh",
