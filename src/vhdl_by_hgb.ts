@@ -36,6 +36,9 @@ export class VHDLbyHGB {
 		this.mEntityConverter = new EntityConverter(this.mContext);
 		// project-dependent tools
 		this.mProjectManager = new ProjectManager(this.mContext, this.mOutputChannel);
+
+		// register commands
+		this.RegisterCommands();
     }
 
 	public async Initialize() : Promise<void>
@@ -51,5 +54,28 @@ export class VHDLbyHGB {
 	//--------------------------------------------
 	//Private Methods
 	//--------------------------------------------
+	private RegisterCommands() : void
+    {
+        let disposable : vscode.Disposable;
+
+        // marketing
+        disposable = vscode.commands.registerCommand("HGB.Extensions.VUnit", () => SearchVUnitByHGB());
+        this.mContext.subscriptions.push(disposable);
+		disposable = vscode.commands.registerCommand("HGB.Extensions.HDLRegression", () => SearchHDLRegressionByHGB());
+        this.mContext.subscriptions.push(disposable);
+    }
 	
+}
+
+//--------------------------------------------
+// functions
+//--------------------------------------------
+function SearchVUnitByHGB() : void
+{
+	vscode.commands.executeCommand('workbench.extensions.search', 'vunit-by-hgb');
+}
+
+function SearchHDLRegressionByHGB() : void
+{
+	vscode.commands.executeCommand('workbench.extensions.search', 'hdlregression-by-hgb');
 }

@@ -1,18 +1,28 @@
-import { SourceManager } from "../../../project/source_manager";
+// general imports
 import * as vscode from 'vscode';
 import * as path from 'path';
+
+// specific imports
+import { SourceManager } from "../../../project/source_manager";
 import { vhdl_ls } from "../../../lsp/vhdl_ls_package";
 
+// types
+export enum eProjectViewItemContextValue {
+    library = "library",
+    file = "file",
+}
+
+// variables
 let _Context : vscode.ExtensionContext;
+let _workspacePath : string;
 
 //provides the files for the tree view
 export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>{
     
-    private mWorkSpacePath : string;
     private mFileHolder : SourceManager;
 
     constructor(fileHolder : SourceManager, context : vscode.ExtensionContext, workspacePath : string){
-        this.mWorkSpacePath = workspacePath;
+        _workspacePath = workspacePath;
         _Context = context;
         this.mFileHolder = fileHolder;
     }
@@ -43,15 +53,6 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         };
         VHDL_LS_item.children = this.create_VHDL_LS_Items();
         projectItems.push(VHDL_LS_item);
-        
-        // commands
-        let commandsItem : ProjectItem = new ProjectItem("commands", vscode.TreeItemCollapsibleState.Collapsed);
-        commandsItem.iconPath = {
-            light: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'light', 'commands.svg')),
-            dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'dark',  'commands.svg'))
-        };
-        commandsItem.children = this.createCommandItems();
-        projectItems.push(commandsItem);
 
         // lib
         let libraryOverviewItem : ProjectItem = new ProjectItem("libraries", vscode.TreeItemCollapsibleState.Collapsed);
@@ -79,7 +80,7 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
                 if (libContents.is_third_party) {libraryItem.description = "third party";} 
 
                 for(const file of libContents.files){
-                    const fileItem : FileItem = new FileItem(path.relative(this.mWorkSpacePath,file), vscode.TreeItemCollapsibleState.None);
+                    const fileItem : FileItem = new FileItem(path.relative(_workspacePath,file), vscode.TreeItemCollapsibleState.None);
                     fileItem.resourceUri = vscode.Uri.file(file);
                     fileItem.command = {
                         title: `open ${fileItem.tooltip}`,
@@ -138,7 +139,7 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         };
         vhdllsTomlItem.tooltip = vhdl_ls.VHDL_LS_FILE;
         vhdllsTomlItem.description = workspaceConfig.get("vhdl-by-hgb.vhdlls.toml.generation");
-        vhdllsTomlItem.resourceUri = vscode.Uri.file(path.join(this.mWorkSpacePath, vhdl_ls.VHDL_LS_FILE));
+        vhdllsTomlItem.resourceUri = vscode.Uri.file(path.join(_workspacePath, vhdl_ls.VHDL_LS_FILE));
         vhdllsTomlItem.command = {
             title: `Open ${vhdl_ls.VHDL_LS_FILE}`,
             command: 'vscode.open',

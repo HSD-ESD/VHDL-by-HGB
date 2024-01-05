@@ -5,16 +5,23 @@ import { eVerificationTool, VerificationGraphicsMap } from '../../../hdl_tools/v
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+// types
+export enum eVerificationViewItemContextValue {
+    verificationTool = "verificationTool",
+    verificationProject = "verificationProject",
+}
+
+// variables
 let _Context : vscode.ExtensionContext;
+let _workspacePath : string;
 
 export class VerificationViewProvider implements vscode.TreeDataProvider<VerificationItem>{
 
-    private mWorkSpacePath : string;
     private mVerificationProjects : Map<eVerificationTool, string[]>;
 
     constructor(synthesisProjects : Map<eVerificationTool, string[]>, context : vscode.ExtensionContext, workspacePath : string){
-        this.mWorkSpacePath = workspacePath;
         this.mVerificationProjects = synthesisProjects;
+        _workspacePath = workspacePath;
         _Context = context;
     }
 
@@ -48,7 +55,7 @@ export class VerificationViewProvider implements vscode.TreeDataProvider<Verific
             for (const project of verificationProjects)
             {
                 const verificationProject : VerificationProject = new VerificationProject(
-                                                                    path.relative(this.mWorkSpacePath, project),
+                                                                    path.relative(_workspacePath, project),
                                                                     vscode.TreeItemCollapsibleState.None);
                 verificationProject.resourceUri = vscode.Uri.file(project);
                 verificationProject.command = {
@@ -96,6 +103,8 @@ class VerificationTool extends VerificationItem{
         super(verificationTool.valueOf(), collapsibleState);
     }
 
+    contextValue = `${eVerificationViewItemContextValue.verificationTool}/${this.verificationTool}`;
+
     iconPath = {
         light: _Context.asAbsolutePath(VerificationGraphicsMap.get(this.verificationTool)!),
         dark: _Context.asAbsolutePath(VerificationGraphicsMap.get(this.verificationTool)!)
@@ -111,6 +120,8 @@ class VerificationProject extends VerificationItem{
     ){
         super(verificationProjectPath, collapsibleState);
     }
+
+    contextValue = `${eVerificationViewItemContextValue.verificationProject}`;
 
     iconPath = {
         light: _Context.asAbsolutePath(path.join('resources', 'images','verification' , 'light' ,'project.svg')),
