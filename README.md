@@ -209,7 +209,7 @@ The Snippet format is `entity {entity-name} - instantiation`.
 
 ## Entity-Converter
 
-The Entity-Converter copies the entity and pastes it in different formats.
+The [Entity-Converter](https://github.com/open-af/vhdl-utils) copies the entity and pastes it in different formats.
 
 The features of the Entity-Converter can be used by:
 - Context-Menu (Right-Click in code-segment of VHDL-Entity)
