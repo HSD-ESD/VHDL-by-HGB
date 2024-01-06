@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<meta name="keywords" content="VSCode, Visual Studio Code, VSCode Extension, Visual Studio Code Extension, 
+		Extension, VHDL, VHDL Extension, VHDL VSCode, VSCode VHDL, VHDL Visual Studio Code, Visual Studio Code VHDL, 
+		Extension VHDL, Hardware Description Language, Hardware Description Language Extension,  
+		FPGA, Design, Synthesis, Verification, RTL, Code, Programming, Electronics, Hardware, 
+		Digital Design, VLSI, Circuit Design, FPGA Development, VHDL Editor, Simulation, VHDL Simulation,
+		VUnit, HGB, HDLRegression, Visual Studio Code">
+
+	<title>Installation - VHDLbyHGB</title>
+
+	<!-- Favicon einbinden -->
+	<link rel="icon" type="image/png" size="32" href="../img/pageicon.svg">
+
+	<!-- jquery -->
+	<script src="../js/jquery-3.7.1.min.js"></script>
+
+	<!-- Production version of popper.js -->
+	<script src="https://unpkg.com/@popperjs/core@2"></script>
+
+	<!-- Bootstrap & Style-Seet -->
+	<link href="../css/style.css" rel="stylesheet" type="text/css">
+	<link href="../css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300&display=swap" rel="stylesheet">
+
+	<!-- FontAwesome Kit -->
+	<script src="https://kit.fontawesome.com/a1a962dcec.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<div id="wrapper" class="d-flex">
+		<nav id="navbar-img">
+			<div class="sticky-top sticky-top-sidebar">
+				<ul class="list-unstyled-img-nav">
+					<a href="../index.html">
+						<div class="logo-img-navimg">
+							<img src="../img/logo.png" alt="Logo VHDLbyHGB" title="VHDLbyHGB">
+						</div>
+					</a>
+					<li>
+						<a href="../index.html">
+							<div class="img-navlink img-navlink-top">
+								<i class="fa-solid fa-signs-post fa-2xl icon"></i>
+							</div>
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<div class="img-navlink">
+								<i class="fa-solid fa-download fa-2xl icon-active"></i>
+							</div>
+						</a>
+					</li>
+					<li>
+						<a href="features.html">
+							<div class="img-navlink">
+								<i class="fa-solid fa-star fa-2xl icon"></i>
+							</div>
+						</a>
+					</li>
+					<li>
+						<a href="team.html">
+							<div class="img-navlink">
+								<i class="fa-solid fa-users fa-2xl icon"></i>
+							</div>
+						</a>
+					</li>
+					<li>
+						<a href="addons.html">
+							<div class="img-navlink img-navlink-bottom">
+								<i class="fa-solid fa-puzzle-piece fa-2xl icon"></i>
+							</div>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+
+		<nav id="sidebar">
+			<div class="sticky-top">
+				<a href="../index.html">
+					<div class="logo-img">
+						<img src="../img/logo.png" alt="Logo VHDLbyHGB" title="VHDLbyHGB">
+					</div>
+				</a>
+				<ul class="list-unstyled">
+					<li>
+						<a href="../index.html" class="nav-link">Get Started</a>
+					</li>
+					<li>
+						<a href="#" class="nav-link active">Installation</a>
+					</li>
+					<li>
+						<a href="features.html#featuresSubmenu" data-bs-toggle="collapse"
+							class="dropdown-toggle nav-link" aria-expanded="false"><b
+								class="features-bold">Features</b></a>
+						<nav class="nav">
+							<ul class="collapse list-unstyled navbar-nav-scroll" id="featuresSubmenu">
+								<li>
+									<a href="features.html#proMan" class="nav-link">Project Manager</a>
+								</li>
+								<li>
+									<a href="features.html#toml" class="nav-link">TOML-File</a>
+								</li>
+								<li>
+									<a href="features.html#vunit" class="nav-link">VUnit</a>
+								</li>
+								<li>
+									<a href="features.html#reg" class="nav-link">HDLRegression</a>
+								</li>
+								<li>
+									<a href="features.html#sim" class="nav-link">Simulation</a>
+								</li>
+								<li>
+									<a href="features.html#syn" class="nav-link">Synthesis</a>
+								</li>
+								<li>
+									<a href="features.html#conv" class="nav-link">Entity-Converter</a>
+								</li>
+								<li>
+									<a href="features.html#lint" class="nav-link">Linting</a>
+								</li>
+								<li>
+									<a href="features.html#snip" class="nav-link">Snippets</a>
+								</li>
+								<li>
+									<a href="features.html#formatter" class="nav-link">Formatter</a>
+								</li>
+								<li>
+									<a href="features.html#ls" class="nav-link">Language Server</a>
+								</li>
+							</ul>
+						</nav>
+					</li>
+					<li>
+						<a href="team.html" class="nav-link">Team</a>
+					</li>
+					<li>
+						<a href="addons.html" class="nav-link">Related Projects</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<!-- Normal Page Content-->
+		<main class="container">
+			<section id="install-overview">
+				<h1 class="display-4">Installation</h1>
+				<hr class="h1-section-hr">
+				<p>
+					VHDLbyHGB can be installed in Visual Studio Code as an extension.
+				</p>
+				<h2 class="display-6">Requirements</h2>
+				<hr class="h2-section-hr">
+				<p>
+					Before installing VHDLbyHGB, you need to install Visual Studio Code, which you can download
+					<a href="https://code.visualstudio.com/" target=" _blank">here</a>.
+				</p>
+				<h2 class="display-6">Installation from Visual Studio Code Marketplace</h2>
+				<hr class="h2-section-hr">
+				<p>
+					To access the marketplace for Visual Studio Code follow these steps:
+				<ol>
+					<li>
+						Open Visual Studio Code.
+					</li>
+					<li>
+						CLick on the Extension icon on the left hand side window
+						or press Ctrl + Shift + X for Windows/Linux and Cmd +
+						Shift + X for MacOS to open the Extensions view.
+					</li>
+					<li>
+						In the search bar at the top of the Extensions view,
+						type in the extension name VHDLbyHGB or browse for the
+						extension by clicking the "Explore" or "Extensions" tabs.
+					</li>
+					<li>
+						Once you see the Extionsion "VHDLbyHGB" 
+						click on the "Install" button next to the name.
+					</li>
+					<li>
+						Once the Extension is installed, you may need to reload
+						Visual Studio Code. If so, you will see a "Reload" button next to the
+						extension name.
+					</li>
+					<li>
+						If Visual Studio Code has reloaded, the extension should be available
+						for use.
+					</li>
+				</ol>
+				</p>
+				<h2 class="display-6">Supported Tools</h2>
+				<hr class="h2-section-hr">
+				<p>
+					Within our extension you, can use VUnit, HDLRegression, 
+					and Quartus if they are installed on your device.
+					<br>
+					If you do not have <b>VUnit</b> installed, you can check it out
+					<a href="https://github.com/HSD-ESD/VUnit-by-HGB" 
+					target=" _blank">here</a>.
+					<br>
+					If you do not have <b>HDLRegression</b> installed, you can check it out
+					<a href="https://github.com/HSD-ESD/HDLRegression-by-HGB" 
+					target=" _blank">here</a>.
+					<br>
+					If you do not have <b>Quartus</b> installed, you can check it out
+					<a href="https://www.intel.de/content/www/de/de/products/details/fpga/development-tools/quartus-prime.html"
+						target=" _blank">here</a>.
+				</p>
+			</section>
+		</main>
+	</div>
+
+	<footer id="footer-section">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="d-grid gap-2 col-3 mx-auto">
+					&copy; VHDLbyHGB 2023
+				</div>
+				<div class="d-grid gap-2 col-3 mx-auto">
+					<a href="imprint.html">Imprint</a>
+				</div>
+			</div>
+		</div>
+	</footer>
+</body>
+
+<script src="../js/bootstrap.bundle.min.js"></script>
+
+<script src="../js/main.js"></script>
+
+</html>
