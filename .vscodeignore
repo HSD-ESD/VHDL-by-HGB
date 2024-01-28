@@ -12,3 +12,5 @@ vsc-extension-quickstart.md
 **/*.ts
 .gitignore
 .gitmodules
+.github
+docs

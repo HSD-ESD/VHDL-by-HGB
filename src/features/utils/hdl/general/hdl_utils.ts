@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 //specific imports
 import { SimpleVhdlParser } from '../parser/simple_vhdl_parser';
-import { cVhdlFileTypes } from '../../../hdl_tools/vhdl_package';
+import { eVhdlDesignFileType } from '../../../hdl_tools/vhdl_package';
 
 export class HDLUtils {
 
@@ -97,7 +97,9 @@ export class HDLUtils {
     {
         let isVhdl : boolean = false;
 
-        cVhdlFileTypes.forEach(
+        const vhdlFileTypes = Object.values(eVhdlDesignFileType) as string[]; 
+
+        vhdlFileTypes.forEach(
             (fileType) => {
                 if(filePath.endsWith(fileType)) {isVhdl = true;}
             }

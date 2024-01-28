@@ -12,8 +12,11 @@ export class VhdlEntity {
     mPath: string = "";
 }
 
-export const cVhdlFileTypes : string[] = [
-    ".vhd",
-    ".vhdl",
-    ".vho"
-];
+export enum eVhdlDesignFileType {
+    vhd = ".vhd",
+    vhdl = ".vhdl",
+}
+
+export enum eVhdlJunkFileType {
+    vho = ".vho",
+}

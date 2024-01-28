@@ -717,7 +717,7 @@
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
         "esbuild-minify": "npm run esbuild-base -- --minify",
         "vscode:prepublish": "npm run esbuild-base -- --sourcemap",
-        "deploy": "vsce publish"
+        "deploy": "vsce publish && npx ovsx publish"
     },
     "dependencies": {
         "@iarna/toml": "^2.2.5",
@@ -749,6 +749,8 @@
         "glob": "^7.1.6",
         "js-yaml": "^3.13.1",
         "mocha": "^7.1.2",
+        "npx": "^10.2.2",
+        "ovsx": "^0.8.3",
         "shx": "^0.3.3",
         "typescript": "4.5.5",
         "vscode-languageclient": "7.0.0-next.6"

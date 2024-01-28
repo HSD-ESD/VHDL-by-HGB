@@ -28,53 +28,51 @@ export class TomlUtils {
 
     public static Generate_VHDL_LS(sourceManager : SourceManager, workSpacePath : string, isRelativePaths: boolean = true) : void
     {
-        const FileName : string = path.join(workSpacePath, vhdl_ls.VHDL_LS_FILE);
-
-        let wstream = fs.createWriteStream(FileName, { flags: 'w' });
+        const tomlPath : string = path.join(workSpacePath, vhdl_ls.VHDL_LS_FILE);
+        let tomlString : string = "";
 
         //print libraries-header
-        wstream.write(TOML_Open_Char + TOML_Libraries + TOML_Closing_Char + TOML_New_Line);
-		
+        tomlString += "[" + TOML_Libraries + "]" + "\n";
+        
         //Iterate over all libraries
         for(const [lib,lib_contents] of sourceManager.GetProjectFiles().entries())
         {
             //print file-header
-            wstream.write(TOML_New_Line + lib + TOML_Point + TOML_Files_Spec + TOML_Open_Char + TOML_New_Line);
-		    
+            tomlString += "\n" + lib + "." + TOML_Files_Spec + "[" + "\n";
+            
             //Iterate over all files in a library
             for(let file of lib_contents.files)
             {
-                wstream.write(TOML_Quote);
+                tomlString += "\"";
 
                 if(isRelativePaths)
                 {
                     //relative path
-                    wstream.write(path.relative(workSpacePath,file).replace(/\\/g, '\\\\'));
+                    tomlString += path.relative(workSpacePath,file).replace(/\\/g, '\\\\');
                 }
                 else
                 {
                     //absolute path
-                    wstream.write(file.replace(/\\/g, '\\\\'));
+                    tomlString += file.replace(/\\/g, '\\\\');
                 }
 
-                wstream.write(TOML_Quote);
-                wstream.write(TOML_Comma);
-                wstream.write(TOML_New_Line);
+                tomlString += "\"";
+                tomlString += ",";
+                tomlString += "\n";
 
             }
-		    wstream.write(TOML_Closing_Char);
-            wstream.write(TOML_New_Line);
+            tomlString += "]";
+            tomlString += "\n";
 
             if (lib_contents.is_third_party)
             {
-                wstream.write(lib + TOML_Third_Party);
-                wstream.write(TOML_New_Line);
+                tomlString += lib + TOML_Third_Party;
+                tomlString += "\n";
             }
 
         }
 
-        //close writestream
-        wstream.end();
+        fs.writeFileSync(tomlPath, tomlString);
     }
 
     public static Parse_VHDL_LS(filePath : string) : VhdlProjectFiles
