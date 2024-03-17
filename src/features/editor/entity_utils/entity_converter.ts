@@ -45,7 +45,7 @@ export class EntityConverter {
         disposable = vscode.commands.registerCommand('VHDLbyHGB.pasteAsEntity', () => this.pasteAsEntity());
         this.mContext.subscriptions.push(disposable);
 
-        disposable = vscode.commands.registerCommand('VHDLbyHGB.pasteSignals', () => this.pasteSignals);
+        disposable = vscode.commands.registerCommand('VHDLbyHGB.pasteSignals', () => this.pasteSignals());
         this.mContext.subscriptions.push(disposable);
 
         disposable = vscode.commands.registerCommand('VHDLbyHGB.pasteConstants', () => this.pasteConstants());
