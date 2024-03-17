@@ -42,7 +42,7 @@ export class HDLUtils {
         const implementation = await vscode.commands.executeCommand<vscode.Location[]>(
             'vscode.executeImplementationProvider',
             vscode.Uri.file(filePath),
-            entitySymbol?.range.start
+            entitySymbol?.selectionRange.start
         );
 
         // check for valid implementation-file
