@@ -2,15 +2,15 @@
 'use strict';
 import Octokit = require('@octokit/rest');
 import util = require('util');
-import vscode = require('vscode');
+import fetch from 'node-fetch';
 import extract = require('extract-zip');
 import * as fs from 'fs-extra';
-import { workspace, ExtensionContext, window} from 'vscode';
+import * as vscode from 'vscode';
 import semver = require('semver');
-import AbortController from 'abort-controller';
-import fetch from 'node-fetch';
 import * as path from 'path';
 import * as lockfile from 'proper-lockfile';
+import AbortController from 'abort-controller';
+import { Readable } from 'stream';
 
 import {
     LanguageClient,
@@ -21,26 +21,34 @@ import {
 // specific imports
 import { vhdl_ls } from './vhdl_ls_package';
 
-
-const exec = util.promisify(require('child_process').exec);
-const output = vscode.window.createOutputChannel('VHDLbyHGB.VHDL-LS.Client');
-const traceOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB.VHDL-LS.Trace');
-
-const isWindows = process.platform === 'win32';
-const languageServerName = isWindows
-    ? 'vhdl_ls-x86_64-pc-windows-msvc'
-    : 'vhdl_ls-x86_64-unknown-linux-musl';
-const languageServerBinaryName = 'vhdl_ls';
-let languageServer: string;
-
-//let client: LanguageClient;
-
+// module-internal types
 enum LanguageServerBinary {
     embedded,
     user,
     systemPath,
     docker
 }
+
+// module-internal constants
+const cLanguageServerOsMapping: Map<NodeJS.Platform, string> = new Map<NodeJS.Platform, string>([
+    ['win32', 'vhdl_ls-x86_64-pc-windows-msvc'],    // Windows
+    ['linux', 'vhdl_ls-x86_64-unknown-linux-musl'], // Linux
+    ['darwin', 'vhdl_ls-aarch64-apple-darwin']      // MacOS
+]);
+
+const exec = util.promisify(require('child_process').exec);
+const output = vscode.window.createOutputChannel('VHDLbyHGB.VHDL-LS.Client');
+const traceOutputChannel = vscode.window.createOutputChannel('VHDLbyHGB.VHDL-LS.Trace');
+
+const isWindows = process.platform === 'win32';
+const languageServerName = cLanguageServerOsMapping.get(process.platform);
+
+const languageServerBinaryName = 'vhdl_ls';
+let languageServer: string;
+
+//let client: LanguageClient;
+
+
 
 /* eslint-disable-next-line */
 export class VHDL_LS {
@@ -50,12 +58,12 @@ export class VHDL_LS {
     //--------------------------------------------
     private client!: LanguageClient;
     private languageServerDisposable! : vscode.Disposable;
-    private context: ExtensionContext;
+    private context: vscode.ExtensionContext;
 
     //--------------------------------------------
     //Public Methods
     //--------------------------------------------
-    constructor(context: ExtensionContext) {
+    constructor(context: vscode.ExtensionContext) {
         this.context = context;
         this.RegisterCommands();
     }
@@ -71,12 +79,19 @@ export class VHDL_LS {
         let languageServerVersion = embeddedVersion(languageServerDir);
         if (languageServerVersion === '0.0.0') {
             output.appendLine('No language server installed');
-            window.showInformationMessage('Downloading language server...');
+            vscode.window.showInformationMessage('Downloading language server...');
             await getLatestLanguageServer(60000, this.context);
             languageServerVersion = embeddedVersion(languageServerDir);
         } else {
             output.appendLine('Found version ' + languageServerVersion);
         }
+
+        if (!languageServerName)
+        {
+            vscode.window.showErrorMessage(`architecture "${process.platform}" not supported!`);
+            return;
+        }
+
         languageServer = path.join(
             'server',
             'vhdl_ls',
@@ -88,8 +103,7 @@ export class VHDL_LS {
     
         // Get language server configuration and command to start server
     
-        let workspace = vscode.workspace;
-        let languageServerBinary = workspace
+        let languageServerBinary = vscode.workspace
             .getConfiguration()
             .get('vhdl-by-hgb.vhdlls.languageServer');
         let lsBinary = languageServerBinary as keyof typeof LanguageServerBinary;
@@ -124,14 +138,14 @@ export class VHDL_LS {
         // Options to control the language client
         let clientOptions: LanguageClientOptions = {
             documentSelector: [{ scheme: 'file', language: 'vhdl' }],
-            initializationOptions: vscode.workspace.getConfiguration('vhdlls'),
+            initializationOptions: vscode.workspace.getConfiguration('vhdl-by-hgb.vhdlls'),
             traceOutputChannel,
         };
-        if (workspace.workspaceFolders) {
+        if (vscode.workspace.workspaceFolders) {
             clientOptions.synchronize = {
-                fileEvents: workspace.createFileSystemWatcher(
+                fileEvents: vscode.workspace.createFileSystemWatcher(
                     path.join(
-                        workspace.workspaceFolders[0].uri.fsPath,
+                        vscode.workspace.workspaceFolders[0].uri.fsPath,
                         vhdl_ls.VHDL_LS_FILE
                     )
                 ),
@@ -176,7 +190,7 @@ export class VHDL_LS {
     {
         const MSG = 'Restarting VHDL LS';
         output.appendLine(MSG);
-        window.showInformationMessage(MSG);
+        vscode.window.showInformationMessage(MSG);
         await this.client.stop();
         this.languageServerDisposable.dispose();
         this.languageServerDisposable = this.client.start();
@@ -286,7 +300,7 @@ async function getServerOptionsDocker() : Promise<ServerOptions | undefined> {
     return serverOptions;
 }
 
-function getServerOptionsEmbedded(context: ExtensionContext) {
+function getServerOptionsEmbedded(context: vscode.ExtensionContext) {
     let serverCommand = context.asAbsolutePath(languageServer);
     let serverOptions: ServerOptions = {
         run: {
@@ -299,7 +313,7 @@ function getServerOptionsEmbedded(context: ExtensionContext) {
     return serverOptions;
 }
 
-function getServerOptionsUser(context: ExtensionContext) {
+function getServerOptionsUser(context: vscode.ExtensionContext) {
 
     let serverCommand: string = vscode.workspace
         .getConfiguration()
@@ -336,7 +350,7 @@ const rustHdl = {
 
 async function getLatestLanguageServer(
     timeoutMs: number,
-    ctx: ExtensionContext
+    ctx: vscode.ExtensionContext
 ) {
     // Get current and latest version
     const octokit = new Octokit({ userAgent: 'rust_hdl_vscode' });
@@ -430,24 +444,34 @@ async function getLatestLanguageServer(
             if (!fs.existsSync(targetDir)) {
                 fs.mkdirSync(targetDir, { recursive: true });
             }
-            extract(languageServerAsset, { dir: targetDir }, (err) => {
-                try {
-                    fs.removeSync(
-                        ctx.asAbsolutePath(path.join('server', 'install'))
-                    );
-                } catch {}
-                if (err) {
+            extract(languageServerAsset, { dir: targetDir })
+                .then(() => {
+                    output.appendLine(`Server extracted to ${targetDir}`);
+                    resolve();
+                })
+                .catch((err) => {
                     output.appendLine('Error when extracting server');
                     output.appendLine(err);
                     try {
                         fs.removeSync(targetDir);
-                    } catch {}
+                    } catch (err) {
+                        output.appendLine(`Cannot remove ${targetDir}: ${err}`);
+                    }
                     reject(err);
-                } else {
-                    output.appendLine('Server extracted');
-                    resolve();
-                }
-            });
+                })
+                .finally(() => {
+                    try {
+                        fs.removeSync(
+                            ctx.asAbsolutePath(path.join('server', 'install'))
+                        );
+                    } catch (err) {
+                        output.appendLine(
+                            `Cannot remove ${ctx.asAbsolutePath(
+                                path.join('server', 'install')
+                            )}: ${err}`
+                        );
+                    }
+                });
         });
     }
     return Promise.resolve();

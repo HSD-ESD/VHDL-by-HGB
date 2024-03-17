@@ -6,7 +6,7 @@ This Extension is maintained by Jakob Jungreuthmayer, Sonja Schoissengaier and F
 
 ## Technology
 This extension is based on the [VHDL-LS](https://github.com/VHDL-LS/rust_hdl#vhdl-language-server) Language Server. 
-Pre-compiled binaries for Linux and Windows are provided with the extension.
+Pre-compiled binaries for Linux, Windows and MacOS are provided with the extension.
 
 The server can also be loaded from either the system path or Docker depending
 on the value of the `vhdl-by-hgb.vhdlls.languageServer` property.
@@ -99,6 +99,8 @@ UNISIM.is_third_party = true
 - Renaming symbols
 - Finding workspace symbols
 - Viewing/finding document symbols
+- Code-Completion:
+	- Entity
 
 ## Formatting
 
@@ -206,6 +208,9 @@ This can be done by:
 The generated snippets can be used by typing `entity`.<!--`ei_${entity-name}`.-->
 
 The Snippet format is `entity {entity-name} - instantiation`.
+
+(**Note:** This feature was developed before [VHDL-LS](https://github.com/VHDL-LS/rust_hdl#vhdl-language-server) supported entity-completion. From now on, it serves as an alternative.)
+
 
 ## Entity-Converter
 
