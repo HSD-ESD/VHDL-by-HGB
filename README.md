@@ -25,10 +25,13 @@ Files outside of the project without library mapping are checked for syntax erro
 2. A file name from the `VHDL_LS_CONFIG` environment variable.
 3. A file named `vhdl_ls.toml` in the workspace root.
 
-Library definitions in later files redefines those from previously loaded files.
+Settings in later files redefines those from previously loaded files.
 
 **Example vhdl_ls.toml**
 ```toml
+# What standard to use. This is optional and defaults to VHDL2008.
+standard = "2008"
+
 # File names are either absolute or relative to the parent folder of the vhdl_ls.toml file
 [libraries]
 
@@ -53,7 +56,33 @@ UNISIM.files = [
   'C:\Xilinx\Vivado\2023.1\data\vhdl\src\unisims\unisim_VCOMP.vhd',
 ]
 UNISIM.is_third_party = true
+
+[lint]
+unused = 'error' # Upgrade the 'unused' diagnostic to the 'error' severity
+unnecessary_work_library = false # Disable linting for the 'library work;' statement
 ```
+
+### Non-project files
+By default, files that are not part of the project are added and analyzed as part of an anonymous library. You can disable this behaviour in the extension-settings by changing the `vhdl-by-hgb.vhdlls.nonProjectFiles` setting from `analyze` to `ignore`. Note that changing this setting requires a restart of the langauge server to become effective.
+
+### VHDL-Standard
+Define the VHDL revision to use for parsing and analysis with the `standard` key.
+The expected value is the year associated the VHDL standard.
+Supported standards are 1993, 2008 and 2019 where both the long version ("2008") and the short version ("08") can be used.
+If nothing is specified, 2008 is used.
+
+### Lint-Settings
+Using the `lint` table, you can configure the severity of diagnostics or turn of diagnostics altogether.
+
+> [!WARNING]
+> You can overwrite every diagnostic error code including syntax or analysis errors using the lint table.
+> However, the intended use-case is for lints only.
+> Overwriting syntax or analysis errors (e.g., error codes `unused` or `syntax`) can cause unwanted side effects
+
+### Paths
+Paths in the `vhdl_ls.toml` can contain glob patterns (i.e., `../*/`).
+On Unix machines, they can contain environment variables using the `$NAME` or `${NAME}` syntax.
+On Windows machines, use the `%NAME%` syntax to substitute environment variables.
 
 ## Project-Setup
 

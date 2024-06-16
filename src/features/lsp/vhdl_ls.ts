@@ -46,9 +46,6 @@ const languageServerName = cLanguageServerOsMapping.get(process.platform);
 const languageServerBinaryName = 'vhdl_ls';
 let languageServer: string;
 
-//let client: LanguageClient;
-
-
 
 /* eslint-disable-next-line */
 export class VHDL_LS {
