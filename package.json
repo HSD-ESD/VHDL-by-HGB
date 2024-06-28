@@ -3,7 +3,7 @@
     "displayName": "VHDL by HGB",
     "publisher": "p2l2",
     "description": "VS-Code Extension for VHDL",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "engines": {
         "vscode": "^1.45.0"
     },
