@@ -256,8 +256,11 @@ The features of the Entity-Converter can be used by:
 `VHDLbyHGB.pasteAsComponent`
 - Pastes the entity as a component declaration
 
-`VHDLbyHGB.pasteAsInstance`
-- Pastes the entity as a instant 
+`VHDLbyHGB.pasteAsInstance(entity)`
+- Pastes the entity as an entity-instantiation 
+
+`VHDLbyHGB.pasteAsInstance(component)`
+- Pastes the entity as a component-instantiation
 
 `VHDLbyHGB.pasteAsEntity`
 - Pastes the entity as a entity
