@@ -182,7 +182,10 @@
                     "command": "VHDLbyHGB.copyEntity"
                 },
                 {
-                    "command": "VHDLbyHGB.pasteAsInstance"
+                    "command": "VHDLbyHGB.pasteAsInstance(entity)"
+                },
+                {
+                    "command": "VHDLbyHGB.pasteAsInstance(component)"
                 },
                 {
                     "command": "VHDLbyHGB.pasteAsComponent"
@@ -365,8 +368,12 @@
                 "title": "VHDLbyHGB.pasteAsComponent"
             },
             {
-                "command": "VHDLbyHGB.pasteAsInstance",
-                "title": "VHDLbyHGB.pasteAsInstance"
+                "command": "VHDLbyHGB.pasteAsInstance(entity)",
+                "title": "VHDLbyHGB.pasteAsInstance(entity)"
+            },
+            {
+                "command": "VHDLbyHGB.pasteAsInstance(component)",
+                "title": "VHDLbyHGB.pasteAsInstance(component)"
             },
             {
                 "command": "VHDLbyHGB.pasteAsEntity",
@@ -498,18 +505,18 @@
                     "description": "Trace requests to the vhdl_ls language server (this is usually overly verbose and not recommended for regular users)"
                 },
                 "vhdl-by-hgb.vhdlls.nonProjectFiles": {
-					"type": "string",
-					"description": "Defines how the server handles files that are not part of the vhdl_ls.toml configuration file",
-					"enum": [
-						"ignore",
-						"analyze"
-					],
-					"enumDescriptions": [
-						"Ignore any non-project file",
-						"Add the file to an anonymous library and analyze that file"
-					],
-					"default": "analyze"
-				},
+                    "type": "string",
+                    "description": "Defines how the server handles files that are not part of the vhdl_ls.toml configuration file",
+                    "enum": [
+                        "ignore",
+                        "analyze"
+                    ],
+                    "enumDescriptions": [
+                        "Ignore any non-project file",
+                        "Add the file to an anonymous library and analyze that file"
+                    ],
+                    "default": "analyze"
+                },
                 "vhdl-by-hgb.vhdlls.toml.generation": {
                     "description": "Generation-Option for vhdl_ls.toml, which is needed for the Language Server\n",
                     "type": "string",
@@ -745,8 +752,7 @@
         "proper-lockfile": "4.1.1",
         "tree-kill": "1.2.2",
         "uuid-random": "1.3.0",
-        "vscode-languageclient": "^6.1.3",
-        "walk-file-tree": "^1.0.38"
+        "vscode-languageclient": "^6.1.3"
     },
     "devDependencies": {
         "@types/mocha": "^7.0.2",

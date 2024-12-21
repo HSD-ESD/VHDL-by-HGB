@@ -1,11 +1,11 @@
 //Specific Imports
 import { ISourceFinder } from "./source_finder";
-import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary } from "../../../hdl_tools/vhdl_package";
+import { VhdlProjectFiles, VhdlLibraryContents, VhdlLibrary, eVhdlDesignFileType } from "../../../hdl_tools/vhdl_package";
 import { HDLUtils } from "../general/hdl_utils";
 
 //General Imports
 import * as fs from 'fs';
-import { walk } from 'walk-file-tree';
+import * as vscode from 'vscode';
 
 //--------------------------------------------
 //module-internal constants
@@ -45,19 +45,17 @@ async function GetLibFiles(libPath: string) : Promise<VhdlLibraryContents> {
 		files:[]
 	};
 
-	//Walk through working-directory recursively
-	for await (const entry of walk({
-		directory: libPath,
-		matches (entry) {
-			return HDLUtils.IsVhdlFile(entry);
-		},
-		ignores (entry) {
-			return IsBlackListed(entry);
-		  }
-		})) 
-		{
-			libContents.files.push(entry);
-		}
+	const workspaceFolder = (vscode.workspace.workspaceFolders || [])[0];
+	const vhdlFileTypes = Object.values(eVhdlDesignFileType) as string[]; 
+	const filePattern = `**/*{${vhdlFileTypes.join(',')}}`;
+	const results = await vscode.workspace.findFiles(
+		new vscode.RelativePattern(workspaceFolder, filePattern),
+	);
+	let vhdlFiles : string[] = results.map((file) => {
+		return file.fsPath;
+	});
+
+	libContents.files = vhdlFiles;
 	
 	return libContents;
 }

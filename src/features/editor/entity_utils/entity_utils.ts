@@ -144,7 +144,6 @@ export class EntityUtils {
 			}
 		}
 
-
 		return endIdx;
 	}
 
@@ -459,7 +458,7 @@ export class EntityUtils {
 
 	}
 
-	pasteComponent(text:string){
+	pasteComponent(text:string) : string {
 		let parseOK = this._parseVHDL(text);
 		if (! parseOK ){
 			return "";
@@ -528,17 +527,36 @@ export class EntityUtils {
 		vhdText += "end component " + this.name + ";" + this.eol;
 		return vhdText;
 	}
-	
-	pasteInstance(text:string){
+
+	pasteEntityInstance(text:string) : string {
 		let parseOK = this._parseVHDL(text);
 		if (! parseOK ){
 			return "";
 		}
+
+		const entity_header : string = "i_" + this.name + " : " + "entity" + " work." +  this.name + this.eol;
+		const entity_instance : string = this.pasteInstance(entity_header);
+		return entity_instance;
+	}
+
+	pasteComponentInstance(text:string) : string {
+		let parseOK = this._parseVHDL(text);
+		if (! parseOK ){
+			return "";
+		}
+
+		const component_header : string = "i_" + this.name + " : " + this.name + this.eol;
+		const component_instance : string = this.pasteInstance(component_header);
+		return component_instance;
+	}
+	
+	private pasteInstance(header:string) : string {
+		
 		let maxlen = 0;
 		let rep = 0;
 		let vhdText = "";
 		let name;
-		vhdText += "i_" + this.name + " : " + this.name + this.eol;
+		vhdText += header;
 
 		if (this.vhdGenericLines.length > 0){
 			maxlen = this._getMaxLength(this.vhdGenericLines);
@@ -583,7 +601,7 @@ export class EntityUtils {
 		return vhdText;
 	}
 
-	pasteEntity(text:string){
+	pasteEntity(text:string) : string {
 		let parseOK = this._parseVHDL(text);
 		if (! parseOK ){
 			return "";
@@ -648,7 +666,7 @@ export class EntityUtils {
 		return vhdText;
 	}
 
-	pasteSignals(text:string){
+	pasteSignals(text:string) : string {
 
 		console.log(text);
 
@@ -676,7 +694,7 @@ export class EntityUtils {
 		return vhdText;
 	}
 
-	pasteConstants(text:string){
+	pasteConstants(text:string) : string {
 		let parseOK = this._parseVHDL(text);
 		if (! parseOK ){
 			return "";
