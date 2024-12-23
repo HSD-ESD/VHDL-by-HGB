@@ -35,7 +35,7 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
         return element;
     }
 
-    getChildren(element: SynthesisTool): vscode.ProviderResult<SynthesisItem[]> {
+    getChildren(element: SynthesisItem): vscode.ProviderResult<SynthesisItem[]> {
 
         if(element){
             return element.children;
@@ -97,10 +97,10 @@ export class SynthesisViewProvider implements vscode.TreeDataProvider<SynthesisI
         return tools;
     }
 
-    private _onDidChangeTreeData: vscode.EventEmitter<SynthesisTool | undefined | null | void > =
-    new vscode.EventEmitter <SynthesisTool | undefined | null | void >();
+    private _onDidChangeTreeData: vscode.EventEmitter<SynthesisItem | undefined | null | void > =
+    new vscode.EventEmitter <SynthesisItem | undefined | null | void >();
 
-    readonly onDidChangeTreeData: vscode.Event<SynthesisTool | undefined | null | void> = this._onDidChangeTreeData.event;
+    readonly onDidChangeTreeData: vscode.Event<SynthesisItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     refresh(): void{
         this._onDidChangeTreeData.fire();
@@ -129,10 +129,10 @@ class SynthesisTool extends SynthesisItem{
     }
 
     contextValue = eSynthesisViewItemContextValue.synthesisTool;
-
+    
     iconPath = {
-        light: _Context.asAbsolutePath(SynthesisGraphicsMap.get(this.synthesisTool)!),
-        dark: _Context.asAbsolutePath(SynthesisGraphicsMap.get(this.synthesisTool)!)
+        light: vscode.Uri.file(_Context.asAbsolutePath(SynthesisGraphicsMap.get(this.synthesisTool)!)),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(SynthesisGraphicsMap.get(this.synthesisTool)!))
     };
 }
 
@@ -151,8 +151,8 @@ class SynthesisProject extends SynthesisItem{
     contextValue = eSynthesisViewItemContextValue.synthesisProject;
 
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'project.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'project.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'project.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'project.svg')))
     };
     
 }
@@ -171,8 +171,8 @@ class SynthesisTopLevel extends SynthesisItem{
     contextValue = eSynthesisViewItemContextValue.synthesisTopLevel;
 
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'toplevel.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'toplevel.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'toplevel.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'toplevel.svg')))
     };
 }
 
@@ -190,8 +190,8 @@ class SynthesisDevice extends SynthesisItem{
     contextValue = eSynthesisViewItemContextValue.synthesisDevice;
 
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'device.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'device.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'device.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'device.svg')))
     };
 }
 
@@ -209,8 +209,8 @@ class SynthesisFamily extends SynthesisItem{
     contextValue = eSynthesisViewItemContextValue.synthesisFamily;
 
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'family.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'family.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images','synthesis' , 'light', 'family.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'synthesis', 'dark', 'family.svg')))
     };
 }
 
@@ -226,8 +226,8 @@ class SynthesisFiles extends SynthesisItem{
     contextValue = eSynthesisViewItemContextValue.synthesisFiles;
 
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources', 'images','project' , 'light', 'files.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'project' , 'dark', 'files.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images','project' , 'light', 'files.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'project' , 'dark', 'files.svg')))
     };
 }
 
@@ -245,7 +245,7 @@ class SynthesisFile extends SynthesisItem{
     tooltip = path.basename(this.SynthesisFileName);
 
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources', 'images','project' , 'light', 'file.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'project' , 'dark', 'file.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images','project' , 'light', 'file.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'project' , 'dark', 'file.svg')))
     };
 }

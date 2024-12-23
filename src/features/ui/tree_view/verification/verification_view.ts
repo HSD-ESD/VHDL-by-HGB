@@ -29,7 +29,7 @@ export class VerificationViewProvider implements vscode.TreeDataProvider<Verific
         return element;
     }
 
-    getChildren(element: VerificationTool): vscode.ProviderResult<VerificationItem[]> {
+    getChildren(element: VerificationItem): vscode.ProviderResult<VerificationItem[]> {
 
         if(element){
             return element.children;
@@ -72,10 +72,10 @@ export class VerificationViewProvider implements vscode.TreeDataProvider<Verific
         return tools;
     }
 
-    private _onDidChangeTreeData: vscode.EventEmitter<VerificationTool | undefined | null | void > =
-    new vscode.EventEmitter <VerificationTool | undefined | null | void >();
+    private _onDidChangeTreeData: vscode.EventEmitter<VerificationItem | undefined | null | void > =
+    new vscode.EventEmitter <VerificationItem | undefined | null | void >();
 
-    readonly onDidChangeTreeData: vscode.Event<VerificationTool | undefined | null | void> = this._onDidChangeTreeData.event;
+    readonly onDidChangeTreeData: vscode.Event<VerificationItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     refresh(): void{
         this._onDidChangeTreeData.fire();
@@ -106,8 +106,8 @@ class VerificationTool extends VerificationItem{
     contextValue = `${eVerificationViewItemContextValue.verificationTool}/${this.verificationTool}`;
 
     iconPath = {
-        light: _Context.asAbsolutePath(VerificationGraphicsMap.get(this.verificationTool)!),
-        dark: _Context.asAbsolutePath(VerificationGraphicsMap.get(this.verificationTool)!)
+        light: vscode.Uri.file(_Context.asAbsolutePath(VerificationGraphicsMap.get(this.verificationTool)!)),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(VerificationGraphicsMap.get(this.verificationTool)!))
     };
 
 }
@@ -124,8 +124,8 @@ class VerificationProject extends VerificationItem{
     contextValue = `${eVerificationViewItemContextValue.verificationProject}`;
 
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources', 'images','verification' , 'light' ,'project.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources', 'images', 'verification', 'dark', 'project.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images','verification' , 'light' ,'project.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'verification', 'dark', 'project.svg')))
     };    
 
     tooltip = path.basename(this.verificationProjectPath);

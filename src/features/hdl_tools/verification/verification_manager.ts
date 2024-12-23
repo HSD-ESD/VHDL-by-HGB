@@ -76,7 +76,7 @@ export class VerificationManager {
 
         // UI
         this.mVerificationViewProvider = new VerificationViewProvider(this.mVerificationProjects, this.mContext, this.mWorkSpacePath);
-        this.mVerificationView = vscode.window.createTreeView(
+        this.mVerificationView = vscode.window.createTreeView<VerificationItem>(
             'vhdlbyhgb-view-verification',{
             treeDataProvider : this.mVerificationViewProvider
         });

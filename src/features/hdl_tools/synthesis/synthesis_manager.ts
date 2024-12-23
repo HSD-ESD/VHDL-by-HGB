@@ -51,7 +51,7 @@ export class SynthesisManager
         this.mWizard = new SynthesisWizard(this.mWorkSpacePath);
 
         this.mSynthesisViewProvider = new SynthesisViewProvider(this.mSynthesisProjects, this.mContext, this.mWorkSpacePath);
-        this.mSynthesisView = vscode.window.createTreeView(
+        this.mSynthesisView = vscode.window.createTreeView<SynthesisItem>(
             'vhdlbyhgb-view-synthesis',{
                 treeDataProvider : this.mSynthesisViewProvider
         });
