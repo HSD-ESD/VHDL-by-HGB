@@ -80,7 +80,7 @@ export class ProjectManager {
 
         // UI
         this.mProjectViewProvider = new ProjectViewProvider(this.mFileHolder, this.mContext, this.mWorkSpacePath);
-        this.mProjectView = vscode.window.createTreeView(
+        this.mProjectView = vscode.window.createTreeView<ProjectItem>(
             'vhdlbyhgb-view-project',{
             treeDataProvider: this.mProjectViewProvider
         });

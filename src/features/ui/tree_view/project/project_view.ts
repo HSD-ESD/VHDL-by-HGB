@@ -48,8 +48,8 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         // VHDL LS
         let VHDL_LS_item : ProjectItem = new ProjectItem("VHDL_LS", vscode.TreeItemCollapsibleState.Collapsed);
         VHDL_LS_item.iconPath = {
-            light: _Context.asAbsolutePath(path.join('resources', 'images', 'project', 'light', 'server-environment.svg')),
-            dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'server-environment.svg'))
+            light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'project', 'light', 'server-environment.svg'))),
+            dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'server-environment.svg')))
         };
         VHDL_LS_item.children = this.create_VHDL_LS_Items();
         projectItems.push(VHDL_LS_item);
@@ -58,8 +58,8 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         let libraryOverviewItem : ProjectItem = new ProjectItem("libraries", vscode.TreeItemCollapsibleState.Collapsed);
         libraryOverviewItem.children = this.createLibraryItems();
         libraryOverviewItem.iconPath = {
-            light: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'folder-library.svg')),
-            dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'folder-library.svg'))
+            light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'folder-library.svg'))),
+            dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'folder-library.svg')))
         };
         projectItems.push(libraryOverviewItem);
 
@@ -134,8 +134,8 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         // toml
         let vhdllsTomlItem : ProjectItem = new ProjectItem(vhdl_ls.VHDL_LS_FILE, vscode.TreeItemCollapsibleState.None);
         vhdllsTomlItem.iconPath = {
-            light: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'toml.svg')),
-            dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'toml.svg'))
+            light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'toml.svg'))),
+            dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'toml.svg')))
         };
         vhdllsTomlItem.tooltip = vhdl_ls.VHDL_LS_FILE;
         vhdllsTomlItem.description = workspaceConfig.get("vhdl-by-hgb.vhdlls.toml.generation");
@@ -150,8 +150,8 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         // commands
         let commandsItem : ProjectItem = new ProjectItem("commands", vscode.TreeItemCollapsibleState.Collapsed);
         commandsItem.iconPath = {
-            light: _Context.asAbsolutePath(path.join('resources', 'images', 'general', 'light', 'commands.svg')),
-            dark: _Context.asAbsolutePath(path.join('resources', 'images', 'general', 'dark', 'commands.svg'))
+            light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'general', 'light', 'commands.svg'))),
+            dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'general', 'dark', 'commands.svg')))
         };
 
             const VHDL_LS_restart : CommandItem = new CommandItem("VHDL_LS: restart", vscode.TreeItemCollapsibleState.None);
@@ -183,8 +183,8 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         // config
         let configItem : ProjectItem = new ProjectItem("configuration", vscode.TreeItemCollapsibleState.Collapsed);
         configItem.iconPath = {
-            light: _Context.asAbsolutePath(path.join('resources', 'images', 'general', 'light', 'settings.svg')),
-            dark: _Context.asAbsolutePath(path.join('resources', 'images', 'general', 'dark',  'settings.svg'))
+            light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'general', 'light', 'settings.svg'))),
+            dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources', 'images', 'general', 'dark', 'settings.svg')))
         };
 
             const VHDL_LS_location : ConfigItem = new ConfigItem(workspaceConfig.get('vhdl-by-hgb.vhdlls.languageServer')!, vscode.TreeItemCollapsibleState.None);
@@ -204,10 +204,10 @@ export class ProjectViewProvider implements vscode.TreeDataProvider<ProjectItem>
         return VHDL_LS_Items;
     }
 
-    private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined | null | void > =
-    new vscode.EventEmitter <FileItem | undefined | null | void >();
+    private _onDidChangeTreeData: vscode.EventEmitter<ProjectItem | undefined | null | void > =
+    new vscode.EventEmitter <ProjectItem | undefined | null | void >();
 
-    readonly onDidChangeTreeData: vscode.Event<FileItem | undefined | null | void> = this._onDidChangeTreeData.event;
+    readonly onDidChangeTreeData: vscode.Event<ProjectItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     refresh(): void{
         this._onDidChangeTreeData.fire();
@@ -237,8 +237,8 @@ class FileItem extends ProjectItem{
     }
     
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'file.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'file.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'file.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'file.svg')))
     };
 
     tooltip = path.basename(this.fileName);
@@ -254,8 +254,8 @@ class LibraryItem extends ProjectItem{
     }
     
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'library.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'library.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'light', 'library.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'project', 'dark',  'library.svg')))
     };
 }
 
@@ -269,8 +269,8 @@ class CommandItem extends ProjectItem{
     }
     
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'light', 'command.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'dark',  'command.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'light', 'command.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'dark',  'command.svg')))
     };
 }
 
@@ -284,8 +284,8 @@ class ConfigItem extends ProjectItem{
     }
     
     iconPath = {
-        light: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'light', 'setting.svg')),
-        dark: _Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'dark',  'setting.svg'))
+        light: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'light', 'setting.svg'))),
+        dark: vscode.Uri.file(_Context.asAbsolutePath(path.join('resources' , 'images', 'general', 'dark',  'setting.svg')))
     };
 }
 
