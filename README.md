@@ -114,6 +114,7 @@ On Windows machines, use the `%NAME%` syntax to substitute environment variables
 
 	#### options
 	- `vhdl-by-hgb.vhdlls.toml.auto.exclude`: array of file-extensions to exclude from an auto-generated `vhdl_ls.toml`.
+	- `vhdl-by-hgb.vhdlls.toml.auto.third-party-libraries`: array of libraries to be marked as third-party in an auto-generated `vhdl_ls.toml`.
 
 ### manual 
 - `vhdl_ls.toml` must be generated manually by user e.g. via a custom python-script

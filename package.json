@@ -535,6 +535,11 @@
                     "type": "array",
                     "default": [".v", ".vh", ".sv", ".svh"]
                 },
+                "vhdl-by-hgb.vhdlls.toml.auto.third-party-libraries": {
+                    "description": "libraries to be marked as third-party in an auto-generated vhdl_ls.toml-file",
+                    "type": "array",
+                    "default": ["bitvis", "hdl-modules", "neorv", "olo", "osvvm", "PoC", "surf", "uvvm", "vunit_lib"]
+                },
                 "vhdl-by-hgb.python": {
                     "title": "Python executable",
                     "description": "Path to python executable",
