@@ -273,19 +273,35 @@ function filter_files(projectFiles : VhdlProjectFiles)
         libraryContents.files = libraryContents.files.filter(file => {
             for (const file_extension of excluded_file_extensions)
             {
-                return !file.endsWith(file_extension);
+                if (file.endsWith(file_extension)) {
+                    return false;
+                }
             }
+            return true;
         });
     }
 }
 
 function mark_third_party_libraries(projectFiles : VhdlProjectFiles)
 {
+    const third_party_libraries = vscode.workspace.getConfiguration().get("vhdl-by-hgb.vhdlls.toml.auto.third-party-libraries") as string[] | undefined;
+
+    if (!third_party_libraries) {
+        return;
+    }
+
+    if (third_party_libraries.length < 1) {
+        return;
+    }
+
     for (const [libraryName, libraryContents] of projectFiles.entries())
     {
-        if (vhdl_ls.is_third_party_library(libraryName))
+        for (const third_party_lib of third_party_libraries)
         {
-            projectFiles.get(libraryName)!.is_third_party = true;
+            if (libraryName.includes(third_party_lib))
+            {
+                libraryContents.is_third_party = true;
+            }
         }
     }
 }
