@@ -112,6 +112,9 @@ On Windows machines, use the `%NAME%` syntax to substitute environment variables
 	As a consequence of setting an active verification-project, the `vhdl_ls.toml` will be generated automatically
 	from the source-information from these projects.
 
+	#### options
+	- `vhdl-by-hgb.vhdlls.toml.auto.exclude`: array of file-extensions to exclude from an auto-generated `vhdl_ls.toml`.
+
 ### manual 
 - `vhdl_ls.toml` must be generated manually by user e.g. via a custom python-script
 
