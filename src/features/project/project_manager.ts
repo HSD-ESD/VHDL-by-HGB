@@ -158,6 +158,7 @@ export class ProjectManager {
                 const projectFiles = await this.mVhdlFinder.GetVhdlFiles(this.mWorkSpacePath);
                 if(projectFiles.size !== 0)
                 {
+                    filter_files(projectFiles);
                     mark_third_party_libraries(projectFiles);
                     this.mFileHolder.SetProjectFiles(projectFiles);
                     TomlUtils.Generate_VHDL_LS(this.mFileHolder, this.mWorkSpacePath);
@@ -253,6 +254,29 @@ export class ProjectManager {
         this.mContext.subscriptions.push(disposable);
     }
 
+}
+
+function filter_files(projectFiles : VhdlProjectFiles)
+{
+    const excluded_file_extensions = vscode.workspace.getConfiguration().get("vhdl-by-hgb.vhdlls.toml.auto.exclude") as string[] | undefined;
+
+    if (!excluded_file_extensions) {
+        return;
+    }
+
+    if (excluded_file_extensions.length < 1) {
+        return;
+    }
+    
+    for (const [libraryName, libraryContents] of projectFiles.entries())
+    {
+        libraryContents.files = libraryContents.files.filter(file => {
+            for (const file_extension of excluded_file_extensions)
+            {
+                return !file.endsWith(file_extension);
+            }
+        });
+    }
 }
 
 function mark_third_party_libraries(projectFiles : VhdlProjectFiles)
