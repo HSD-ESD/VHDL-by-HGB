@@ -16,6 +16,7 @@ import {
     LanguageClient,
     LanguageClientOptions,
     ServerOptions,
+    Executable
 } from 'vscode-languageclient/node';
 
 // specific imports
@@ -130,6 +131,21 @@ export class VHDL_LS {
                 serverOptions = getServerOptionsEmbedded(this.context);
                 output.appendLine('Using embedded language server (default)');
                 break;
+        }
+
+        // check for custom-libraries-path
+        let librariesLocation = vscode.workspace
+        .getConfiguration()
+        .get('vhdl-by-hgb.vhdlls.standardLibraries');
+        // set custom-libraries-path
+        if (lsBinary !== 'docker' && librariesLocation && serverOptions) {
+            const args = ['--libraries', librariesLocation as string];
+            serverOptions = serverOptions as {
+                run: Executable;
+                debug: Executable;
+            };
+            serverOptions.run.args = args;
+            serverOptions.debug.args = args;
         }
     
         // Options to control the language client
