@@ -65,6 +65,11 @@ unnecessary_work_library = false # Disable linting for the 'library work;' state
 ### Non-project files
 By default, files that are not part of the project are added and analyzed as part of an anonymous library. You can disable this behaviour in the extension-settings by changing the `vhdl-by-hgb.vhdlls.nonProjectFiles` setting from `analyze` to `ignore`. Note that changing this setting requires a restart of the langauge server to become effective.
 
+### Custom libraries-path
+By default, VHDL standard libraries (ieee, std, ...) are located in pre-defined standard paths.
+The setting `vhdl-by-hgb.vhdlls.standardLibraries` allows you to specify a custom path for these libraries.
+If this setting is omitted, the language server will search in the pre-defined standard paths for these libraries.
+
 ### VHDL-Standard
 Define the VHDL revision to use for parsing and analysis with the `standard` key.
 The expected value is the year associated the VHDL standard.
@@ -242,7 +247,9 @@ The generated snippets can be used by typing `entity`.<!--`ei_${entity-name}`.--
 
 The Snippet format is `entity {entity-name} - instantiation`.
 
-(**Note:** This feature was developed before [VHDL-LS](https://github.com/VHDL-LS/rust_hdl#vhdl-language-server) supported entity-completion. From now on, it serves as an alternative.)
+> [!NOTE]
+> This feature was developed before [VHDL-LS](https://github.com/VHDL-LS/rust_hdl#vhdl-language-server) supported entity-completion. 
+> From now on, it serves as an alternative.
 
 
 ## Entity-Converter
