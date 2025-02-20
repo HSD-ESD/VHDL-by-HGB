@@ -201,7 +201,7 @@ export class QuartusScriptGenerator {
         }
 
         //Launch Quartus-GUI
-        script += cExecute + cQuote + (exePath.replace(/\\/g, "/")) + cQuote + cQuote + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/") + cQuote;
+        script += cExecute + cQuote + (exePath.replace(/\\/g, "/")) + cQuote + " " + cQuote + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/") + cQuote;
 
         fs.writeFileSync(scriptPath, script);
 
