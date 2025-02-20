@@ -127,7 +127,7 @@ export class QuartusScriptGenerator {
         //Set DesignName
         script += cSetDesignName + quartusProject.GetName() + "\n";
         //Set ProjectDirectory
-        script += cSetProjectDirectory + "\"" + quartusProject.GetFolderPath() + "\"\n\n";
+        script += cSetProjectDirectory + cQuote + quartusProject.GetFolderPath() + cQuote + "\n\n";
 
         //Open Quartus-Project
         script += cProjectOpen + cDesignNameReference + "\n\n";
@@ -141,7 +141,7 @@ export class QuartusScriptGenerator {
         {
             //write path of File
             script += cSetGlobalAssignment + cSpecifierName + cVHDL_FILE;
-            script += "\"" + path.relative(quartusProject.GetFolderPath(), file).replace(/\\/g, "/") + "\"\n";
+            script += cQuote + path.relative(quartusProject.GetFolderPath(), file).replace(/\\/g, "/") + cQuote + "\n";
         }
         script += "\n";
 
@@ -168,7 +168,7 @@ export class QuartusScriptGenerator {
         script += cLoadPackage + cPackageFlow + "\n\n";
 
         //Open Quartus-Project
-        script += cProjectOpen + "\"" + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/") + "\"\n\n";
+        script += cProjectOpen + cQuote + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/") + cQuote + "\n\n";
 
         //Compile Project
         script += cExecuteFlow + cFlowCompile + "\n\n";
@@ -201,7 +201,7 @@ export class QuartusScriptGenerator {
         }
 
         //Launch Quartus-GUI
-        script += cExecute + "\"" + (exePath.replace(/\\/g, "/")) + "\" \"" + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/") + "\"";
+        script += cExecute + cQuote + (exePath.replace(/\\/g, "/")) + cQuote + cQuote + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/") + cQuote;
 
         fs.writeFileSync(scriptPath, script);
 
@@ -231,7 +231,7 @@ export class QuartusScriptGenerator {
         script += cLoadPackage + cPackageFlow + "\n\n";
 
         //Open Quartus-Project
-        script += cProjectOpen + "\"" + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/") + "\"\n\n";
+        script += cProjectOpen + cQuote + path.join(quartusProject.GetFolderPath(), quartusProject.GetName()).replace(/\\/g, "/") + cQuote + "\n\n";
 
         //Set Top-Level-Entity
         script += cSetGlobalAssignment + cSpecifierName + cTOP_LEVEL_ENTITY + quartusProject.GetTopLevel().mName + "\n";
