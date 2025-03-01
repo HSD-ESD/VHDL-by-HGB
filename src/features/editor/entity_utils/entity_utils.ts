@@ -150,11 +150,11 @@ export class EntityUtils {
 	_parseVHDL(input:string){
 		// console.log(text);
 
-		let ifType = "";
-		let objName = "";
-		let objType = "";
-		let objValue = "";
-		let objDir = "";
+		let ifType : string = "";
+		let objNames : string[] = [];
+		let objType : string = "";
+		let objValue : string = "";
+		let objDir : string = "";
 		let idx = 0;
 		let closingIdx = 0;
 
@@ -214,15 +214,22 @@ export class EntityUtils {
 					
 					while(idx < closingIdx){
 						objType = "";
-						objName = text[idx];
 						objValue = "";
+						objNames = [];
 
+						objNames.push(text[idx]);
 						idx++;
+
+						while(text[idx].match(",")) {
+							idx++;
+							objNames.push(text[idx]);
+							idx++;
+						}
 
 						if( text[idx].match(":") ){
 							idx++;
 						} else {
-							this._syntaxError( objName + " Missing \":\" with " );
+							this._syntaxError( "{" + objNames.toString() + "}" + " Missing \":\"" );
 							return false;
 						}
 
@@ -261,7 +268,10 @@ export class EntityUtils {
 								idx++;
 							}
 						}
-						this.vhdGenericLines.push({objType:"generic", type:objType, name:objName, val:objValue});
+
+						objNames.forEach( objName => {
+							this.vhdGenericLines.push({objType:"generic", type:objType, name:objName, val:objValue});
+						});
 
 					}
 
@@ -280,15 +290,22 @@ export class EntityUtils {
 					
 					while(idx < closingIdx){
 						objType = "";
-						objName = text[idx];
 						objDir = "";
-
+						objNames = [];
+						
+						objNames.push(text[idx]);
 						idx++;
+
+						while(text[idx].match(",")) {
+							idx++;
+							objNames.push(text[idx]);
+							idx++;
+						}
 
 						if( text[idx].match(":") ){
 							idx++;
 						} else {
-							this._syntaxError( objName + " Missing \":\" with " );
+							this._syntaxError( "{" + objNames.toString() + "}" + " Missing \":\"" );
 							return false;
 						}
 
@@ -314,7 +331,10 @@ export class EntityUtils {
 								idx++;
 							}
 						}
-						this.vhdPortLines.push({objType:"port", type:objType, name:objName, dir:objDir});
+
+						objNames.forEach( objName => {
+							this.vhdPortLines.push({objType:"port", type:objType, name:objName, dir:objDir});
+						});
 
 					}
 					break parsing_loop;
@@ -351,11 +371,13 @@ export class EntityUtils {
 		text = this._myReplace(text, ":  =", " := ");
 		text = this._myReplace(text, ":=", " := ");
 		text = this._myReplace(text, ";", " ; ");
+		text = this._myReplace(text, ",", " , ");
 		text = this._myReplace(text, "\\(", " ( ");
 		text = this._myReplace(text, "\\)", " ) ");
 		text = this._myReplace(text, COMMENT, " " + COMMENT + " ");
 
 		tmp = text.split(' ').filter( n => n ); // get rid of the empty spaces
+
 		// console.log(text)
 		for (let i = 0; i < text.length; i++) {
 			// get rid of the comments
