@@ -50,6 +50,9 @@ lib3.files = [
   'src/*.vhd',
   'src/*/*.vhd',
 ]
+lib3.exclude = [
+    'test/*_old.vhd',
+]
 
 # Libraries can be marked as third-party to disable some analysis warnings, such as unused declarations
 UNISIM.files = [
@@ -82,12 +85,37 @@ Using the `lint` table, you can configure the severity of diagnostics or turn of
 > [!WARNING]
 > You can overwrite every diagnostic error code including syntax or analysis errors using the lint table.
 > However, the intended use-case is for lints only.
-> Overwriting syntax or analysis errors (e.g., error codes `unused` or `syntax`) can cause unwanted side effects
+> Overwriting syntax or analysis errors (e.g., error codes `mismatched_kinds` or `syntax`) can cause unwanted side
+> effects
 
 ### Paths
 Paths in the `vhdl_ls.toml` can contain glob patterns (i.e., `../*/`).
 On Unix machines, they can contain environment variables using the `$NAME` or `${NAME}` syntax.
 On Windows machines, use the `%NAME%` syntax to substitute environment variables.
+
+### Ignoring errors
+
+You can use the comment-pair `-- vhdl_ls off` and `-- vhdl_ls on` to conditionally disable and re-enable parsing of
+source code. This can be helpful to ignore errors from correct code that vhdl_ls does not yet support, i.e., PSL
+statements or certain VHDL-2019 constructs.
+
+```vhdl
+library ieee;
+    use ieee.std_logic_1164.all;
+
+entity ent is
+    port (
+       clk : in std_logic
+    );
+end entity;
+
+architecture arch of ent is
+begin
+    -- vhdl_ls off
+    default clock is rising_edge(clk);
+    -- vhdl_ls on
+end architecture;
+```
 
 ## Project-Setup
 
@@ -139,6 +167,15 @@ On Windows machines, use the `%NAME%` syntax to substitute environment variables
 - Viewing/finding document symbols
 - Code-Completion:
 	- Entity
+	- Records
+- Linting
+	- Declarations
+		- missing
+		- duplicate
+		- unused
+	- Sensitivity lists
+		- missing signals
+		- superfluous signals
 
 ## Formatting
 
